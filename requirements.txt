@@ -1,2 +1,2 @@
-google-genai>=1.0
-beautifulsoup4>=4.1
+anthropic>=0.40
+beautifulsoup4>=4.12

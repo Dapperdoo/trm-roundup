@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-The Morning After — self-hosted daily generator (FREE Gemini version).
+The Morning After — self-hosted daily generator (Claude version).
 
-Runs daily on GitHub Actions: fetches the league pages, has Gemini write the
+Runs daily on GitHub Actions: fetches the league pages, has Claude write the
 playful roundup, renders it into template.html, and writes docs/index.html
-which GitHub Pages serves. Only secret needed: GEMINI_API_KEY.
+which GitHub Pages serves. Only secret needed: ANTHROPIC_API_KEY.
 """
 
 import os
@@ -15,15 +15,14 @@ import time
 import datetime
 import urllib.request
 
-from google import genai
-from google.genai import types
+import anthropic
 from bs4 import BeautifulSoup
 
 BASE = "https://trm-fantasy.onrender.com"
 INDEX_URL = f"{BASE}/wc"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/index.html"
-MODEL = "gemini-2.5-flash"
+MODEL = "claude-sonnet-4-6"
 
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -154,22 +153,18 @@ def write_copy(standings_text, squads):
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-    cfg = types.GenerateContentConfig(
-        system_instruction=SYSTEM_PROMPT,
-        response_mime_type="application/json",
-        max_output_tokens=8000,
-        temperature=0.35,
-    )
-    # Try several models with retries — Gemini can return transient 503s under load.
-    models_to_try = [MODEL, "gemini-2.5-flash-lite", "gemini-2.0-flash",
-                     "gemini-2.5-flash", "gemini-2.5-flash-lite"]
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     last = None
-    for attempt in range(len(models_to_try)):
-        m = models_to_try[attempt]
+    for attempt in range(4):
         try:
-            resp = client.models.generate_content(model=m, contents=json.dumps(payload), config=cfg)
-            text = (resp.text or "").strip()
+            msg = client.messages.create(
+                model=MODEL,
+                max_tokens=8000,
+                temperature=0.7,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": json.dumps(payload)}],
+            )
+            text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
             if text.startswith("```"):
                 text = text.split("```")[1]
                 text = text[4:] if text.lstrip().startswith("json") else text
@@ -180,9 +175,9 @@ def write_copy(standings_text, squads):
             return data
         except Exception as e:
             last = e
-            print(f"  attempt {attempt + 1} ({m}) failed: {e}", file=sys.stderr)
-            time.sleep(20)
-    raise RuntimeError(f"Gemini failed after {len(models_to_try)} attempts: {last}")
+            print(f"  attempt {attempt + 1} failed: {e}", file=sys.stderr)
+            time.sleep(15)
+    raise RuntimeError(f"Claude failed after retries: {last}")
 
 
 def esc(s):
