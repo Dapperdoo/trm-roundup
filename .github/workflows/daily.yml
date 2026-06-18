@@ -27,7 +27,7 @@ jobs:
 
       - name: Generate the page
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python generate.py
 
       - name: Commit the new page
