@@ -49,7 +49,7 @@ SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a privat
 
 You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time). READ it and WRITE the column from it.
 
-STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they are listed in "each_managers_own_squad". When you write a manager's entry, you may name ONLY players that appear in THAT manager's own squad list, and you must use the exact points shown there. NEVER attribute another team's player to them (e.g. do not give Tom a player who is listed under Joe S), and never invent players or points. If you are unsure who owns a player, leave the player out.
+STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Before writing a manager's entry, look at THAT manager's player list, and treat it as a closed whitelist: you may name ONLY players from that exact list, with the exact points shown beside them. Do NOT rely on your own knowledge of football to decide who a player belongs to — a famous player (e.g. Lionel Messi) belongs to whichever manager's list actually contains him, and to NO ONE ELSE. Never put a player in a manager's write-up unless that player's name physically appears in that manager's own list. Never invent players or points. When in doubt, leave a player out.
 
 EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
 - Their points for this round and their current league position.
@@ -159,7 +159,7 @@ def write_copy(standings_text, squads):
         system_instruction=SYSTEM_PROMPT,
         response_mime_type="application/json",
         max_output_tokens=8000,
-        temperature=0.9,
+        temperature=0.35,
     )
     # Try several models with retries — Gemini can return transient 503s under load.
     models_to_try = [MODEL, "gemini-2.5-flash-lite", "gemini-2.0-flash",
