@@ -79,16 +79,16 @@ Return ONLY valid JSON in exactly this shape:
 Use the manager FIRST NAMES exactly as given in the profiles. Include all 13 managers."""
 
 
-def fetch(url, tries=5):
+def fetch(url, tries=4):
     last = None
     for i in range(tries):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=120) as r:
+            with urllib.request.urlopen(req, timeout=45) as r:
                 return r.read().decode("utf-8", "replace")
         except Exception as e:
             last = e
-            time.sleep(8 * (i + 1))
+            time.sleep(5 * (i + 1))
     raise RuntimeError(f"Failed to fetch {url}: {last}")
 
 
@@ -133,16 +133,20 @@ TEAM_BY_SLUG = {
 
 
 def gather():
+    t0 = time.time()
     index_html = fetch(INDEX_URL)
+    print(f"  index fetched in {time.time()-t0:.1f}s", flush=True)
     standings_text = to_text(index_html)
     squads = {}
     for slug in team_slugs(index_html):
         team, manager = TEAM_BY_SLUG.get(slug, (slug, slug))
         label = f"{manager} — {team}"
+        ts = time.time()
         try:
             squads[label] = to_text(fetch(f"{BASE}/wc/team/{slug}"))
+            print(f"  {slug} in {time.time()-ts:.1f}s", flush=True)
         except Exception as e:
-            print(f"  warn: {slug}: {e}", file=sys.stderr)
+            print(f"  warn: {slug}: {e}", file=sys.stderr, flush=True)
     return standings_text, squads
 
 
@@ -153,21 +157,30 @@ def write_copy(standings_text, squads):
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    # Bounded client: a single attempt can't hang the whole build. With
+    # timeout=120 and max_retries=1 the worst case per attempt is ~4 min,
+    # and the outer loop tries 3 times.
+    client = anthropic.Anthropic(
+        api_key=os.environ["ANTHROPIC_API_KEY"],
+        timeout=120.0,
+        max_retries=1,
+    )
     last = None
-    for attempt in range(4):
+    for attempt in range(3):
+        t0 = time.time()
         try:
             msg = client.messages.create(
                 model=MODEL,
-                max_tokens=16000,
+                max_tokens=8000,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": json.dumps(payload)}],
             )
+            print(f"  Claude responded in {time.time()-t0:.1f}s "
+                  f"(stop_reason={getattr(msg, 'stop_reason', None)})", flush=True)
             text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
             if not text:
                 raise RuntimeError(f"empty response (stop_reason={getattr(msg, 'stop_reason', None)})")
-            # extract the JSON object even if wrapped in prose or code fences
             if "{" in text and "}" in text:
                 text = text[text.find("{"):text.rfind("}") + 1]
             data = json.loads(text)
@@ -176,8 +189,9 @@ def write_copy(standings_text, squads):
             return data
         except Exception as e:
             last = e
-            print(f"  attempt {attempt + 1} failed: {e}", file=sys.stderr)
-            time.sleep(15)
+            print(f"  attempt {attempt + 1} failed after {time.time()-t0:.1f}s: {e}",
+                  file=sys.stderr, flush=True)
+            time.sleep(10)
     raise RuntimeError(f"Claude failed after retries: {last}")
 
 
@@ -241,15 +255,15 @@ def render(data):
 
 
 def main():
-    print("Fetching league pages...")
+    print("Fetching league pages...", flush=True)
     standings_text, squads = gather()
-    print("Writing the column with Gemini...")
+    print(f"Writing the column with Claude... ({len(squads)} squads gathered)", flush=True)
     data = write_copy(standings_text, squads)
     html = render(data)
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"Wrote {OUTPUT_PATH}  ({len(data['articles'])} managers)")
+    print(f"Wrote {OUTPUT_PATH}  ({len(data['articles'])} managers)", flush=True)
 
 
 if __name__ == "__main__":
