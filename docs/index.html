@@ -1,5 +1,128 @@
-<!doctype html><meta charset="utf-8"><title>TRM World Cup Roundup</title>
-<body style="background:#0a0e14;color:#e8edf4;font-family:Arial,sans-serif;text-align:center;padding:80px">
-<h1 style="letter-spacing:-1px">TRM World Cup <span style="color:#f472b6">Roundup</span></h1>
-<p style="color:#8a98ab">First edition is on its way — the daily build will publish today's roundup here shortly.</p>
-</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Group Matchday 1</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+    <div class="dateline">
+      <span>Thursday 18 June 2026</span>
+      <span>Group Matchday 1</span>
+      <span class="live">All games settled</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <p class="lead">Welcome back, fellow survivors! The morning after the first night of World Cup fantasy football is always a bit hazy. The decks have been cleared, the last beats have faded, and now it's time to assess the damage. Some of us woke up feeling like a million bucks, others… well, let's just say the recovery process might involve more than just a pint of water. Let's dive into the carnage and see who's nursing a hangover and who's already planning their next move.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">75 pts</span></div><h2 class="head">Tom's Anamaduwa Athletic Leads the Pack!</h2><p>Well, well, well, Tom! Looks like your DJ booth was pumping out more than just beats this week – it was generating points! Anamaduwa Athletic sits pretty at the top of the table with a massive 75 points. Must be all those late nights in Asia, fueled by curry and pure fantasy genius. Keep that rhythm going, Tom, the rest of us are trying to catch up!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">66 pts</span></div><h2 class="head">Joe S's Van United Chasing the Dream</h2><p>Joe S, you've shown us all that even a bit-tech-averse legend can still have it! Back of the Van United is a solid second with 66 points. That Messi haul is just magnificent, a true testament to backing the GOAT. Just try not to get too lost in the sauce and remember to check your lineups, eh?</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Look at his face. Just Look at his FACE! &middot; Sam</span><span class="pts">66 pts</span></div><h2 class="head">Sam's Face Doesn't Lie - Great Start!</h2><p>Sam, my man! Look at your face now – it's beaming! 'Look at his face. Just Look at his FACE!' is right there with you on 66 points. Your team is performing like a headliner on opening night. Keep that energy up, but maybe lay off the mic-drops for a bit to avoid any accidental point deductions.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">63 pts</span></div><h2 class="head">Joe A's Bassoon Hits a High Note</h2><p>Joe A, your usual laid-back vibe seems to be translating into some serious fantasy points. Shatner's Bassoon is sitting comfortably in fourth with 63 points. Perhaps the secret is a bit of quiet contemplation, away from the rave. Just don't get too comfortable; I hear Tristan is already eyeing your position.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">61 pts</span></div><h2 class="head">Wigs Scores Well, But a Wobble at the Back?</h2><p>Wigs, my gentle giant, 50 Shades of O'Shea is looking strong with 61 points! A decent start to the dance. However, I've noticed a bit of a stumble in your defensive backline, particularly with Gustavo Gomez managing a negative return. Let's hope that's just a warm-up wobble and you can get things back in sync for the next round.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">53 pts</span></div><h2 class="head">Dan's Off-Grid Approach Pays Off</h2><p>Dan, you always manage to surprise us, even from your off-grid sanctuary! Denton Burn has secured a respectable 53 points. It seems living disconnected from the chaos doesn't disconnect you from fantasy success. Keep that unique vibe going, and maybe send some of that peace and quiet our way!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">53 pts</span></div><h2 class="head">Dave's Giants Finding Their Feet</h2><p>Dave, Trossy's Giants are holding their own with 53 points. It’s a solid start for your team, proving that even after a few city breaks and perhaps a late-night cigarette, you can still pick a winning squad. Keep those puns and points coming, mate!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">51 pts</span></div><h2 class="head">Professor Jeremy's Calculations Compute Well</h2><p>Jeremy, the professor is in the house and Von Neumann Trombone is ticking along nicely with 51 points. Your measured approach seems to be paying dividends, as usual. While some of us are still trying to decipher the morning after, you're probably already running complex algorithms for the next matchday. Impressive, as always!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">46 pts</span></div><h2 class="head">Nick's Rusty Iron Still Hits the Target!</h2><p>Nick, 'Dyer's Rusty 9 Iron' might sound a bit ominous, but 46 points is a decent opening score! That bargain buy, Yasin Ayari, is really paying off for you – nice one! Don't let the 'skying shots' reputation get you down; it looks like you've got some precision in that squad after all.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">44 pts</span></div><h2 class="head">Chris's Algorithm Needs a Reboot?</h2><p>Chris, Lloyd's Food and Wine is on 44 points. It seems your 'mad scientist' approach to fantasy football is still in the experimental phase. While the algorithm might be on the fritz, hopefully, your taste in players is better than your taste in early morning mixes. Don't worry, Jake, we'll get you back in the game!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">39 pts</span></div><h2 class="head">Jake's Ladder Still Climbing?</h2><p>Jake, 'Snacob's Ladder' is on 39 points. A bit of a slow start, perhaps still recovering from those late-night psy-trance sessions? Don't overspend your time worrying about Harry Kane; focus on those cheaper gems you've unearthed. We know you've got the energy to climb higher!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">35 pts</span></div><h2 class="head">Tristan's Trippiers Need More Sweeties?</h2><p>Tristan, Trippier & Trippier finds itself at the bottom of the table with 35 points. Perhaps you were too busy enjoying your sweets and not enough time analysing the fixtures? Even a 'big Russian guy' needs more than just candy to win this league. Let's see if you can sweeten those results next week!</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">30 pts</span></div><h2 class="head">Malik's Propaganda Parade Needs More Volume</h2><p>Malik, Propaganda Parade is bringing up the rear with 30 points. Managing from afar is tough, especially when your team isn't quite hitting the high notes. Maybe it's time to broadcast a new strategy? Don't worry, Dan's got your back, but you'll need to amplify those points if you want to be heard.</p><div class="byline">The Morning After</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · MD 1</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">75</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">66</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Look at his face. Just Look at his FACE!</span><span class="mgr">Sam</span></td><td class="tot">66</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">63</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">61</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">53</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">53</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">51</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">46</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">44</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">39</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">35</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">30</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Life of the Party</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Last one dancing</span><span class="mgr">Lionel Messi (Joe S) — 19</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Cheapest round bought</span><span class="mgr">Yasin Ayari (Nick) — 17 from £6.5m</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Asleep in the corner</span><span class="mgr">Gustavo Gómez (Wigs) — -1 from £4.6m</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still en route</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Everyone's arrived.</span></td></tr>
+        </table>
+      </div>
+      
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+
+</div
