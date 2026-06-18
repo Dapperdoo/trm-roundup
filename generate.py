@@ -159,16 +159,17 @@ def write_copy(standings_text, squads):
         try:
             msg = client.messages.create(
                 model=MODEL,
-                max_tokens=8000,
+                max_tokens=16000,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": json.dumps(payload)}],
             )
-            text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                text = text[4:] if text.lstrip().startswith("json") else text
-                text = text.strip().rstrip("`").strip()
+            text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
+            if not text:
+                raise RuntimeError(f"empty response (stop_reason={getattr(msg, 'stop_reason', None)})")
+            # extract the JSON object even if wrapped in prose or code fences
+            if "{" in text and "}" in text:
+                text = text[text.find("{"):text.rfind("}") + 1]
             data = json.loads(text)
             if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
                 raise ValueError("AI returned too few managers")
