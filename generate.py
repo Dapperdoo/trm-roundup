@@ -53,7 +53,7 @@ STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exa
 
 EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
 - Their points for this round and their current league position.
-- The standout players BY NAME with their points — who hauled and who blanked (e.g. "Messi led the way with 19 and Gravenberch added 10, though Raya and Koulibaly drew blanks"). This player-by-player detail is the most important content; a write-up without named players and their points has failed.
+- The standout players BY NAME with their points — who hauled and who blanked. Use ONLY the real player names and points from that manager's own squad list; do NOT copy any names from this instruction. (The shape to aim for reads like: "<their top scorer> led the way with <pts>, <another> chipped in <pts>, while <a player> drew a blank" — but filled only with that manager's actual players and actual points.) This player-by-player detail is the most important content; a write-up without named players and their points has failed.
 - How the result moved them in the table (climbed, slipped, held), and the gap to a rival where it's worth a dig.
 - Any of their players still to play (see accuracy rule).
 
