@@ -1,19 +1,10 @@
 #!/usr/bin/env python3
 """
-TRM World Cup After-Hours — self-hosted daily generator (FREE Gemini version).
+The Morning After — self-hosted daily generator (FREE Gemini version).
 
-Runs once a day on GitHub Actions:
-  1. Fetches the league pages from trm-fantasy.onrender.com (server-rendered HTML).
-  2. Strips them to text.
-  3. Asks Google's Gemini API (free tier) to read the data AND write the playful,
-     party-themed roundup — returning structured JSON.
-  4. Renders it into template.html and writes docs/index.html, which GitHub Pages
-     serves as the public website.
-
-No browser, no developer access to the original site, no database, and NO COST.
-The only secret needed is GEMINI_API_KEY (a free key from aistudio.google.com,
-set as a GitHub repo secret). A single short request per day sits far inside the
-free tier.
+Runs daily on GitHub Actions: fetches the league pages, has Gemini write the
+playful roundup, renders it into template.html, and writes docs/index.html
+which GitHub Pages serves. Only secret needed: GEMINI_API_KEY.
 """
 
 import os
@@ -32,11 +23,10 @@ BASE = "https://trm-fantasy.onrender.com"
 INDEX_URL = f"{BASE}/wc"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/index.html"
-MODEL = "gemini-2.5-flash"   # free tier; plenty for one run a day
+MODEL = "gemini-2.5-flash"
 
-UA = "Mozilla/5.0 (compatible; TRM-AfterHours/1.0; +https://github.com)"
+UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
-# ---- Manager personalities (edit these to taste) -------------------------
 MANAGERS = {
     "Joe S":   "Back of the Van United — real name Sheerin; universally popular ex-pro footballer who loved the party-boy lifestyle as much as the game; utterly baffled by modern tech (internet, apps, AI).",
     "Sam":     "Look at his face. Just Look at his FACE! — expressive professional stage & TV performer; loves beer, dancing, music and a good yarn; very witty, slightly scatty; loves football but loves belting out Shakespeare even more; brother of Wigs; also a cricket man.",
@@ -55,7 +45,7 @@ MANAGERS = {
 RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake (rivals), "
                  "Malik & Dan (allies), Sam & Wigs (brothers).")
 
-SYSTEM_PROMPT = """You are the columnist for "TRM World Cup After-Hours", a daily morning roundup of a private 13-manager World Cup 2026 fantasy football league, themed as dispatches from an all-night party/festival (the league site plays a psytrance festival mix; several managers are DJs and party animals). Lean into that party framing — managers holding court by the bar, slumped in the corner, first on the dancefloor, calling a taxi — but keep the real football substance.
+SYSTEM_PROMPT = """You are the columnist for "The Morning After", a daily morning roundup of a private 13-manager World Cup 2026 fantasy football league, themed as bleary-eyed dispatches reporting from the wreckage of the night before (the league site plays a psytrance festival mix; several managers are DJs and party animals). Lean into that morning-after/party framing, but keep the real football substance.
 
 You will be given the raw text of the league's standings/fixtures page and each manager's squad page. READ that data and WRITE the column.
 
@@ -81,7 +71,6 @@ Use the manager FIRST NAMES exactly as given in the profiles. Include all 13 man
 
 
 def fetch(url, tries=5):
-    """GET a URL as text, with retries — Render free tier can cold-start slowly."""
     last = None
     for i in range(tries):
         try:
@@ -104,7 +93,6 @@ def to_text(html):
 
 
 def team_slugs(index_html):
-    """The /wc page embeds a pipe-delimited slug list in a JSON script tag."""
     m = re.search(r'<script[^>]*type="application/json"[^>]*>([^<]*\|[^<]*)</script>', index_html)
     if m:
         slugs = [s for s in m.group(1).strip().strip('"').split("|") if s]
@@ -136,25 +124,34 @@ def write_copy(standings_text, squads):
         "squad_pages_text": squads,
     }
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-    resp = client.models.generate_content(
-        model=MODEL,
-        contents=json.dumps(payload),
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
-            response_mime_type="application/json",   # forces clean JSON output
-            max_output_tokens=8000,
-            temperature=0.9,
-        ),
+    cfg = types.GenerateContentConfig(
+        system_instruction=SYSTEM_PROMPT,
+        response_mime_type="application/json",
+        max_output_tokens=8000,
+        temperature=0.9,
     )
-    text = resp.text.strip()
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        text = text[4:] if text.lstrip().startswith("json") else text
-        text = text.strip().rstrip("`").strip()
-    data = json.loads(text)
-    if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
-        raise ValueError("AI returned too few managers; aborting to avoid a broken page.")
-    return data
+    # Try several models with retries — Gemini can return transient 503s under load.
+    models_to_try = [MODEL, "gemini-2.5-flash-lite", "gemini-2.0-flash",
+                     "gemini-2.5-flash", "gemini-2.5-flash-lite"]
+    last = None
+    for attempt in range(len(models_to_try)):
+        m = models_to_try[attempt]
+        try:
+            resp = client.models.generate_content(model=m, contents=json.dumps(payload), config=cfg)
+            text = (resp.text or "").strip()
+            if text.startswith("```"):
+                text = text.split("```")[1]
+                text = text[4:] if text.lstrip().startswith("json") else text
+                text = text.strip().rstrip("`").strip()
+            data = json.loads(text)
+            if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
+                raise ValueError("AI returned too few managers")
+            return data
+        except Exception as e:
+            last = e
+            print(f"  attempt {attempt + 1} ({m}) failed: {e}", file=sys.stderr)
+            time.sleep(20)
+    raise RuntimeError(f"Gemini failed after {len(models_to_try)} attempts: {last}")
 
 
 def esc(s):
@@ -162,7 +159,7 @@ def esc(s):
 
 
 def ordinal(n):
-    return f"{n}{'th' if 11 <= n % 100 <= 13 else {1:'st', 2:'nd', 3:'rd'}.get(n % 10, 'th')}"
+    return f"{n}{'th' if 11 <= n % 100 <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
 
 
 def render(data):
@@ -180,11 +177,11 @@ def render(data):
         rcls = "rank top" if i == 0 else ("rank low" if i == n - 1 else "rank")
         arts.append(f'<article><div class="rankbar">'
                     f'<span class="{rcls}">{ordinal(i+1)}</span>'
-                    f'<span class="team">{esc(r["team"])} · {esc(r["manager"])}</span>'
+                    f'<span class="team">{esc(r["team"])} &middot; {esc(r["manager"])}</span>'
                     f'<span class="pts">{esc(r["total"])} pts</span></div>'
                     f'<h2 class="head">{esc(a["headline"])}</h2>'
                     f'<p>{a["body"]}</p>'
-                    f'<div class="byline">After-Hours Report</div></article>')
+                    f'<div class="byline">The Morning After</div></article>')
     notes = data.get("notes", {})
     notes_rows = (
         f'<tr><td><span class="tname" style="color:var(--gold)">Last one dancing</span>'
@@ -194,15 +191,15 @@ def render(data):
         f'<tr><td><span class="tname" style="color:var(--magenta)">Asleep in the corner</span>'
         f'<span class="mgr">{esc(notes.get("flop",""))}</span></td></tr>')
     is_live = bool(data.get("status_live"))
-    caveat = ('<p class="note">Figures are a live snapshot from mid-party — some games were still '
-              'in play when this edition refreshed, so zeros for those nations mean "still en route", '
-              'not a no-show. The page refreshes again after the next round of games.</p>') if is_live else ""
+    caveat = ('<p class="note">Figures are a live snapshot — some games were still in play when this '
+              'edition refreshed, so zeros for those nations mean "still to come", not a no-show. '
+              'The page refreshes again after the next round of games.</p>') if is_live else ""
     md = data.get("matchday_label", "World Cup 2026")
     repl = {
         "{{MATCHDAY_LABEL}}": esc(md),
         "{{MATCHDAY_SHORT}}": esc(md.replace("Group ", "").replace("Matchday", "MD")),
-        "{{DATE_LABEL}}": "Last orders: " + datetime.datetime.utcnow().strftime("%A %d %B %Y"),
-        "{{STATUS_CHIP}}": "DJ still spinning" if is_live else "Last track played",
+        "{{DATE_LABEL}}": datetime.datetime.utcnow().strftime("%A %d %B %Y"),
+        "{{STATUS_CHIP}}": "Games still to come" if is_live else "All games settled",
         "{{LEAD}}": f'<p class="lead">{data.get("lead","")}</p>',
         "{{ARTICLES}}": "\n".join(arts),
         "{{STANDINGS_ROWS}}": "\n".join(rows),
@@ -217,7 +214,7 @@ def render(data):
 
 
 def main():
-    print("Fetching league pages…")
+    print("Fetching league pages...")
     standings_text, squads = gather()
     print("Writing the column with Gemini...")
     data = write_copy(standings_text, squads)
