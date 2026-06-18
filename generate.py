@@ -30,7 +30,7 @@ UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 MANAGERS = {
     "Joe S":   "Back of the Van United — real name Sheerin; universally popular ex-pro footballer who loved the party-boy lifestyle as much as the game; utterly baffled by modern tech (internet, apps, AI).",
     "Sam":     "Look at his face. Just Look at his FACE! — expressive professional stage & TV performer; loves beer, dancing, music and a good yarn; very witty, slightly scatty; loves football but loves belting out Shakespeare even more; brother of Wigs; also a cricket man.",
-    "Joe A":   "Shatner's Bassoon — laid-back actor, forever on holiday or in the pub; main rival is Tristan.",
+    "Joe A":   "Shatner's Bassoon — an actor; gives off a faintly unbothered, relaxed air (hint at it lightly at most, don't lean on it); main rival is Tristan.",
     "Tom":     "Anamaduwa Athletic — party animal and dance-music DJ; always travelling, never sure which country he's in; lives in Asia eating curries with his bare hands; main rival is Nick.",
     "Dave":    "Trossy's Giants — aka 'Trossy Ginge'; lecturer and poet; loves wordplay and puns; regular city-break traveller; loves food, beer and cigarettes (usually all together).",
     "Wigs":    "50 Shades of O'Shea — counsellor; gregarious, gentle and witty; loves cricket as well as football; brother of Sam.",
@@ -45,13 +45,21 @@ MANAGERS = {
 RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake (rivals), "
                  "Malik & Dan (allies), Sam & Wigs (brothers).")
 
-SYSTEM_PROMPT = """You are the columnist for "The Morning After", a daily morning roundup of a private 13-manager World Cup 2026 fantasy football league, themed as bleary-eyed dispatches reporting from the wreckage of the night before (the league site plays a psytrance festival mix; several managers are DJs and party animals). Lean into that morning-after/party framing, but keep the real football substance.
+SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. Its job is to INFORM, wittily — to tell each manager's readers, succinctly, how their team did in the latest round, which of their players actually scored the points (and which flopped), how that moved them in the table, and who they still have to come. Football first; this is a results round-up, not a party report.
 
-You will be given the raw text of the league's standings/fixtures page and each manager's squad page. READ that data and WRITE the column.
+You are given the raw text of the league standings/fixtures page and each manager's squad page — every player with their country, price and this-round points, plus the fixtures and each game's status (FULL TIME, LIVE, or a future kickoff time). READ it and WRITE the column from it.
 
-TONE: warm, witty, affectionate roast, like a local columnist who knows everyone personally. Tease, never wound. ~100-150 words per manager.
+EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
+- Their points for this round and their current league position.
+- The standout players BY NAME with their points — who hauled and who blanked (e.g. "Messi led the way with 19 and Gravenberch added 10, though Raya and Koulibaly drew blanks"). This player-by-player detail is the most important content; a write-up without named players and their points has failed.
+- How the result moved them in the table (climbed, slipped, held), and the gap to a rival where it's worth a dig.
+- Any of their players still to play (see accuracy rule).
 
-CRITICAL ACCURACY RULE: a player showing 0 points may simply NOT HAVE PLAYED YET — their nation's match may be upcoming or still live (check the fixtures list: each game is FULL TIME, LIVE, or has a future kickoff time). NEVER describe a player as having blanked/flopped/done nothing unless their nation's game is FULL TIME and they returned 0 or negative. For players whose game is upcoming or live, say "yet to play" / "still to come" / "provisional" instead, and where it adds colour, mention which notable players a manager still has to come. The "flop" highlight must only name a player whose game is finished.
+TONE: dry and deadpan, affectionately ribbing the managers, economical with words (~90-130 per manager). The league has a festival/party streak you may nod to — but only the occasional wry aside, never the frame of every sentence. Lean on each manager's character sparingly and let the football do the work.
+
+ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures — only call a 0 a blank if that player's nation's game is FULL TIME. If it is upcoming or live, say "still to play" / "yet to come". The "flop" note must name a player whose game is finished.
+
+SCHEDULE: do NOT assume this is the opening day or the tournament's first night — it has been running for a while and earlier rounds may already be complete. Work out what has and hasn't happened ONLY from the fixture statuses in the data, and describe movement relative to this latest round. Use the matchday label exactly as it appears in the data.
 
 Return ONLY valid JSON in exactly this shape:
 {
@@ -184,11 +192,11 @@ def render(data):
                     f'<div class="byline">The Morning After</div></article>')
     notes = data.get("notes", {})
     notes_rows = (
-        f'<tr><td><span class="tname" style="color:var(--gold)">Last one dancing</span>'
+        f'<tr><td><span class="tname" style="color:var(--gold)">Top points haul</span>'
         f'<span class="mgr">{esc(notes.get("top_haul",""))}</span></td></tr>'
-        f'<tr><td><span class="tname" style="color:var(--green)">Cheapest round bought</span>'
+        f'<tr><td><span class="tname" style="color:var(--green)">Best-value pick</span>'
         f'<span class="mgr">{esc(notes.get("bargain",""))}</span></td></tr>'
-        f'<tr><td><span class="tname" style="color:var(--magenta)">Asleep in the corner</span>'
+        f'<tr><td><span class="tname" style="color:var(--magenta)">Priciest flop</span>'
         f'<span class="mgr">{esc(notes.get("flop",""))}</span></td></tr>')
     is_live = bool(data.get("status_live"))
     caveat = ('<p class="note">Figures are a live snapshot — some games were still in play when this '
