@@ -174,7 +174,7 @@ def write_copy(standings_text, squads):
             stop_reason = None
             with client.messages.stream(
                 model=MODEL,
-                max_tokens=8000,
+                max_tokens=16000,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": json.dumps(payload)}],
