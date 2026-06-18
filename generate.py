@@ -47,7 +47,9 @@ RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake
 
 SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. Its job is to INFORM, wittily — to tell each manager's readers, succinctly, how their team did in the latest round, which of their players actually scored the points (and which flopped), how that moved them in the table, and who they still have to come. Football first; this is a results round-up, not a party report.
 
-You are given the raw text of the league standings/fixtures page and each manager's squad page — every player with their country, price and this-round points, plus the fixtures and each game's status (FULL TIME, LIVE, or a future kickoff time). READ it and WRITE the column from it.
+You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time). READ it and WRITE the column from it.
+
+STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they are listed in "each_managers_own_squad". When you write a manager's entry, you may name ONLY players that appear in THAT manager's own squad list, and you must use the exact points shown there. NEVER attribute another team's player to them (e.g. do not give Tom a player who is listed under Joe S), and never invent players or points. If you are unsure who owns a player, leave the player out.
 
 EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
 - Their points for this round and their current league position.
@@ -112,13 +114,34 @@ def team_slugs(index_html):
             "denton-burn", "trippier-and-trippier", "propaganda-parade", "snacobs-ladder"]
 
 
+# Fixed mapping of team page slug -> (team name, manager). Lets us hand each
+# squad to the AI clearly tagged with its owner, so players can't be cross-attributed.
+TEAM_BY_SLUG = {
+    "back-of-the-van-united": ("Back of the Van United", "Joe S"),
+    "look-at-his-face": ("Look at his face. Just Look at his FACE!", "Sam"),
+    "anamaduwa-athletic": ("Anamaduwa Athletic", "Tom"),
+    "shatners-bassoon": ("Shatner's Bassoon", "Joe A"),
+    "trossys-giants": ("Trossy's Giants", "Dave"),
+    "50-shades-of-oshea": ("50 Shades of O'Shea", "Wigs"),
+    "von-neumann-trombone": ("Von Neumann Trombone", "Jeremy"),
+    "dyers-rusty-9-iron": ("Dyer's Rusty 9 Iron", "Nick"),
+    "lloyds-food-and-wine": ("Lloyd's Food and Wine", "Chris"),
+    "denton-burn": ("Denton Burn", "Dan"),
+    "trippier-and-trippier": ("Trippier & Trippier", "Tristan"),
+    "propaganda-parade": ("Propaganda Parade", "Malik"),
+    "snacobs-ladder": ("Snacob's Ladder", "Jake"),
+}
+
+
 def gather():
     index_html = fetch(INDEX_URL)
     standings_text = to_text(index_html)
     squads = {}
     for slug in team_slugs(index_html):
+        team, manager = TEAM_BY_SLUG.get(slug, (slug, slug))
+        label = f"{manager} — {team}"
         try:
-            squads[slug] = to_text(fetch(f"{BASE}/wc/team/{slug}"))
+            squads[label] = to_text(fetch(f"{BASE}/wc/team/{slug}"))
         except Exception as e:
             print(f"  warn: {slug}: {e}", file=sys.stderr)
     return standings_text, squads
@@ -129,7 +152,7 @@ def write_copy(standings_text, squads):
         "manager_profiles": MANAGERS,
         "relationships": RELATIONSHIPS,
         "standings_and_fixtures_page_text": standings_text,
-        "squad_pages_text": squads,
+        "each_managers_own_squad": squads,
     }
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     cfg = types.GenerateContentConfig(
