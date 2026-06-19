@@ -190,13 +190,16 @@ def write_copy(standings_text, squads):
             if start == -1 or end == -1:
                 raise ValueError(f"no JSON object in reply: {text[:200]!r}")
             text = text[start:end + 1]
+            # Repair the JSON slips LLMs occasionally make: trailing commas
+            # before a closing ] or } (a very common cause of parse errors).
+            text = re.sub(r",(\s*[}\]])", r"\1", text)
             data = json.loads(text)
             if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
                 raise ValueError("AI returned too few managers")
             return data
         except Exception as e:
             last = e
-            snippet = (text[:400] + "...") if text else "(no text)"
+            snippet = (text[:1500] + "...") if text else "(no text)"
             print(f"  attempt {attempt + 1} failed after {time.time()-t0:.1f}s: {e}\n"
                   f"  raw reply began: {snippet!r}", file=sys.stderr, flush=True)
             time.sleep(10)
