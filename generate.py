@@ -239,3 +239,40 @@ def render(data):
         f'<span class="mgr">{esc(notes.get("top_haul",""))}</span></td></tr>'
         f'<tr><td><span class="tname" style="color:var(--green)">Best-value pick</span>'
         f'<span class="mgr">{esc(notes.get("bargain",""))}</span></td></tr>'
+        f'<tr><td><span class="tname" style="color:var(--magenta)">Priciest flop</span>'
+        f'<span class="mgr">{esc(notes.get("flop",""))}</span></td></tr>')
+    is_live = bool(data.get("status_live"))
+    caveat = ('<p class="note">Figures are a live snapshot — some games were still in play when this '
+              'edition refreshed, so zeros for those nations mean "still to come", not a no-show. '
+              'The page refreshes again after the next round of games.</p>') if is_live else ""
+    md = data.get("matchday_label", "World Cup 2026")
+    repl = {
+        "{{MATCHDAY_LABEL}}": esc(md),
+        "{{MATCHDAY_SHORT}}": esc(md.replace("Group ", "").replace("Matchday", "MD")),
+        "{{DATE_LABEL}}": datetime.datetime.utcnow().strftime("%A %d %B %Y"),
+        "{{STATUS_CHIP}}": "Games still to come" if is_live else "All games settled",
+        "{{LEAD}}": f'<p class="lead">{data.get("lead","")}</p>',
+        "{{ARTICLES}}": "\n".join(arts),
+        "{{STANDINGS_ROWS}}": "\n".join(rows),
+        "{{NOTES_ROWS}}": notes_rows,
+        "{{STILL_TO_PLAY}}": esc(data.get("still_to_play", "")),
+        "{{CAVEAT}}": caveat,
+    }
+    html = open(TEMPLATE_PATH, encoding="utf-8").read()
+    for k, v in repl.items():
+        html = html.replace(k, v)
+    return html
+
+def main():
+    print("Fetching league pages...", flush=True)
+    standings_text, squads = gather()
+    print(f"Writing the column with Claude... ({len(squads)} squads gathered)", flush=True)
+    data = write_copy(standings_text, squads)
+    html = render(data)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"Wrote {OUTPUT_PATH} ({len(data['articles'])} managers)", flush=True)
+
+if __name__ == "__main__":
+    main()
