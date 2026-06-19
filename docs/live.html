@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRM Live — World Cup 2026</title>
+<style>
+:root{
+  --bg:#070b11; --panel:#0e1622; --panel2:#0a121c; --line:#1b2636;
+  --ink:#e8eef6; --mut:#7e8ca0; --green:#34d399; --amber:#f5c451; --red:#f0556b;
+  --cyan:#22d3ee; --up:#34d399; --down:#f0556b; --flash:rgba(34,211,238,.16);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;}
+.mono{font-family:"SF Mono",ui-monospace,"Roboto Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+.wrap{max-width:920px;margin:0 auto;padding:18px 16px 60px;}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px;}
+.brand{font-weight:900;letter-spacing:.04em;font-size:22px;}
+.brand .lv{color:var(--green);}
+.livedot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 1.8s infinite;}
+.livedot.off{background:var(--mut);animation:none;box-shadow:none;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
+.meta{margin-left:auto;text-align:right;font-size:12px;color:var(--mut);}
+.meta b{color:var(--ink);}
+.md{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:.14em;}
+
+.fixtures{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:8px;}
+.fx{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:118px;}
+.fx .teams{font-weight:700;font-size:13px;letter-spacing:.02em;}
+.fx .st{font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-top:3px;}
+.fx.live{border-color:var(--green);} .fx.live .st{color:var(--green);}
+.fx.finished .st{color:var(--mut);} .fx.upcoming .st{color:var(--amber);}
+.fx .sc{font-weight:800;}
+
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);}
+th.r,td.r{text-align:right;}
+td{padding:11px 8px;border-bottom:1px solid var(--line);}
+tr.row td{transition:background .8s ease;}
+tr.flash td{background:var(--flash);transition:background 0s;}
+.pos{width:30px;color:var(--mut);font-weight:800;}
+tr.lead .pos{color:var(--amber);}
+.mv{width:24px;text-align:center;font-weight:900;font-size:13px;}
+.mv.up{color:var(--up);} .mv.down{color:var(--down);} .mv.same{color:var(--mut);opacity:.5;}
+.tm{font-weight:700;}
+.mgr{color:var(--mut);font-size:12px;}
+.round{color:var(--cyan);font-weight:700;}
+.total{font-weight:900;font-size:16px;}
+tr.lead .total{color:var(--amber);}
+.foot{margin-top:18px;font-size:12px;color:var(--mut);line-height:1.7;}
+.err{background:rgba(240,85,107,.12);border:1px solid var(--red);color:#ffd7dd;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;display:none;}
+.soon{display:inline-block;font-size:10px;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:.08em;}
+button.refresh{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:6px 12px;font-size:12px;cursor:pointer;}
+button.refresh:hover{border-color:var(--cyan);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="brand">TRM <span class="lv">LIVE</span></span>
+    <span id="livedot" class="livedot off" title="live status"></span>
+    <span id="md" class="md"></span>
+    <div class="meta">
+      <div><span id="status">Connecting…</span></div>
+      <div style="margin-top:4px"><button class="refresh" id="refreshBtn">↻ Refresh</button></div>
+    </div>
+  </header>
+
+  <div id="err" class="err"></div>
+
+  <div id="fixtures" class="fixtures"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="pos">#</th><th class="mv"></th><th>Team</th>
+        <th class="r">Round</th><th class="r">Total</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="foot">
+    Live standings &amp; points are pulled from FIFA's official World Cup Fantasy via the league site and refresh about every minute while games are on.
+    Movement arrows show position change since you opened this page.
+    <br>Per-team squad breakdowns (who's playing and each player's live points) are coming in the next update.
+  </div>
+</div>
+
+<script>
+// ====== SET THIS to your deployed Cloudflare Worker URL ======
+const WORKER_URL = "https://trm-live.dapperdon.workers.dev";
+// =============================================================
+
+const POLL_MS = 60000;
+let baselineRank = null;     // slug -> rank when page first loaded
+let prevTotals = {};         // slug -> last seen total (for flash)
+let lastUpdated = null;
+
+const $ = (id) => document.getElementById(id);
+
+function timeAgo(iso){
+  if(!iso) return "";
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime())/1000));
+  if (s < 60) return s + "s ago";
+  const m = Math.floor(s/60); return m + "m " + (s%60) + "s ago";
+}
+
+function renderFixtures(fx){
+  const order = { live:0, upcoming:1, finished:2 };
+  const sorted = [...fx].sort((a,b)=>(order[a.status]-order[b.status]));
+  $("fixtures").innerHTML = sorted.map(f=>{
+    const mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
+    const label = f.status==="finished"?"Full time":f.status==="live"?"● Live":(f.date? "KO "+f.kickoff : "Upcoming");
+    return `<div class="fx ${f.status}">
+      <div class="teams">${f.home} <span class="sc">${mid}</span> ${f.away}</div>
+      <div class="st">${label}</div></div>`;
+  }).join("");
+}
+
+function renderStandings(rows){
+  if (!baselineRank){
+    baselineRank = {};
+    rows.forEach(r=>baselineRank[r.slug]=r.rank);
+  }
+  const tb = $("tbody");
+  tb.innerHTML = rows.map(r=>{
+    const base = baselineRank[r.slug] ?? r.rank;
+    const delta = base - r.rank; // + = climbed
+    const mv = delta>0 ? `<span class="mv up">▲${delta}</span>`
+             : delta<0 ? `<span class="mv down">▼${-delta}</span>`
+             : `<span class="mv same">–</span>`;
+    const changed = prevTotals[r.slug]!==undefined && prevTotals[r.slug]!==r.total;
+    const lead = r.rank===1 ? " lead" : "";
+    return `<tr class="row${lead}" data-slug="${r.slug}" data-changed="${changed?1:0}">
+      <td class="pos">${r.rank}</td>
+      <td class="mv">${mv}</td>
+      <td><span class="tm">${escapeHtml(r.team)}</span> <span class="mgr">${escapeHtml(r.manager)}</span></td>
+      <td class="r round mono">${r.round>=0?"+":""}${r.round}</td>
+      <td class="r total mono">${r.total}</td>
+    </tr>`;
+  }).join("");
+  // flash rows whose total changed
+  [...tb.querySelectorAll('tr[data-changed="1"]')].forEach(tr=>{
+    tr.classList.add("flash");
+    requestAnimationFrame(()=>requestAnimationFrame(()=>tr.classList.remove("flash")));
+  });
+  rows.forEach(r=>prevTotals[r.slug]=r.total);
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+async function poll(){
+  if (WORKER_URL.includes("YOUR-WORKER")){
+    showErr("Set WORKER_URL at the top of this page's script to your deployed Worker URL.");
+    return;
+  }
+  try{
+    const res = await fetch(WORKER_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("feed "+res.status);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    $("err").style.display="none";
+    lastUpdated = data.updated;
+    $("md").textContent = data.matchday || "";
+    $("livedot").className = "livedot" + (data.anyLive ? "" : " off");
+    renderFixtures(data.fixtures||[]);
+    renderStandings(data.standings||[]);
+    tick();
+  }catch(e){
+    showErr("Couldn't reach the live feed ("+e.message+"). Retrying…");
+  }
+}
+function showErr(msg){ const el=$("err"); el.textContent=msg; el.style.display="block"; $("status").textContent="offline"; }
+function tick(){ $("status").innerHTML = "Updated <b>"+timeAgo(lastUpdated)+"</b>"; }
+
+$("refreshBtn").addEventListener("click", poll);
+poll();
+setInterval(poll, POLL_MS);
+setInterval(tick, 1000);
+</script>
+</body>
+</html>
