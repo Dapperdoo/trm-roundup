@@ -48,7 +48,7 @@ RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake
 
 SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. It is a cheeky, take-the-piss, morning-after report on YESTERDAY'S MATCHDAY: it leads with the day's fixtures and the points they produced, tells each manager's readers who actually scored (and who flopped), how that moved them in the table, and gives a rival a dig where the standings invite it. Football first, with teeth.
 
-MATCHDAY CONCEPT — IMPORTANT. The tournament is played in ROUNDS (each nation plays three group games, one per round) and the source page labels the round e.g. "Group Matchday 2". IGNORE that as your headline. For THIS bulletin a "matchday" means a single CALENDAR DAY of football (2-5 fixtures a day). The tournament kicked off on Thursday 11 June 2026 = Matchday 1; each later calendar day adds one (12 June = MD2, 13 June = MD3, and so on). You are given today's date in "todays_date_utc". This edition recaps YESTERDAY (the calendar day just finished). Work out yesterday's date and set "matchday_label" to "Matchday N", where N = the number of days from 11 June 2026 up to and including yesterday (e.g. recapping 18 June gives "Matchday 8"). Because each nation plays only once per round, a player's this-round points come from their single fixture, which falls on exactly ONE calendar day — so a manager's haul FOR YESTERDAY = the points of their players whose nations played (went FULL TIME) yesterday. Lead every write-up with that. Fixtures on later days are out of scope for the narrative; mention them only as a brief teaser.
+MATCHDAY CONCEPT — IMPORTANT. The tournament is played in ROUNDS (each nation plays three group games, one per round) and the source page labels the round e.g. "Group Matchday 2". IGNORE that as your headline. For THIS bulletin a "matchday" means a single CALENDAR DAY of football (2-5 fixtures a day). The tournament kicked off on Thursday 11 June 2026 = Matchday 1; each later calendar day adds one (12 June = MD2, 13 June = MD3, and so on). This edition recaps YESTERDAY (the calendar day just finished). The matchday label is computed for you and supplied as "recap_matchday_label" (e.g. "Matchday 8"), for the date "recap_date" — use it exactly; do NOT do any date arithmetic yourself. Because each nation plays only once per round, a player's this-round points come from their single fixture, which falls on exactly ONE calendar day — so a manager's haul FOR YESTERDAY = the points of their players whose nations played (went FULL TIME) yesterday. Lead every write-up with that. Fixtures on later days are out of scope for the narrative; mention them only as a brief teaser.
 
 You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time) and date. READ it and WRITE the column from it.
 
@@ -64,21 +64,15 @@ TONE: cheeky, witty, take-the-piss — a local-paper columnist who knows everyon
 
 ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures — only call a 0 a blank if that player's nation's game is FULL TIME (played yesterday). If it is upcoming or live, say "still to play" / "yet to come" and never call it a blank. The "top_haul", "bargain" and "flop" notes must each name a player whose game is FINISHED.
 
-Return ONLY valid JSON in exactly this shape:
-{
-"matchday_label": "<'Matchday N' computed as above, e.g. Matchday 8>",
-"status_live": <true if any of yesterday's games were still unfinished/live at fetch time, else false>,
-"standings": [ {"team": "...", "manager": "...", "total": <int>}, ... ordered 1st to last ],
-"still_to_play": "<a short teaser: the nations kicking off TONIGHT / the next calendar day, comma-separated, or 'Everyone's arrived.'>",
-"notes": {
-"top_haul": "<player (manager) — pts>",
-"bargain": "<best points-per-million among players who PLAYED yesterday: player (manager) — pts from £x.xm>",
-"flop": "<worst return for price among players who PLAYED yesterday: player (manager) — pts from £x.xm>"
-},
-"lead": "<one-paragraph scene-setter on yesterday's matchday, may include <b>…</b>>",
-"articles": [ {"manager": "...", "headline": "...", "body": "..."}, ... one per manager, in standings order ]
-}
-Use the manager FIRST NAMES exactly as given in the profiles. Include all 13 managers. Output the JSON object and NOTHING else — no preamble, no commentary, no markdown code fences. Your reply must start with { and end with }."""
+Provide your answer ONLY by calling the publish_roundup tool — do not write any prose outside the tool call, and do not narrate your reasoning. Fill these fields:
+- matchday_label: use the supplied recap_matchday_label verbatim.
+- status_live: true if any of yesterday's games were still unfinished/live at fetch time, else false.
+- standings: every team with its manager and total, ordered 1st to last.
+- still_to_play: a short teaser of the nations kicking off tonight / the next calendar day, or 'Everyone's arrived.'
+- notes.top_haul / notes.bargain / notes.flop: each "player (manager) — pts" (bargain = best points-per-million among players who PLAYED yesterday; flop = worst return for price among players who PLAYED yesterday).
+- lead: a one-paragraph scene-setter on yesterday's matchday (may include <b>…</b>).
+- articles: one per manager in standings order, each with manager, headline and body.
+Use the manager FIRST NAMES exactly as given in the profiles. Include all 13 managers."""
 
 def fetch(url, tries=4):
     last = None
@@ -147,19 +141,73 @@ def gather():
     return standings_text, squads
 
 def write_copy(standings_text, squads):
+    # Compute the matchday here so the model never has to do date arithmetic
+    # (which previously tempted it to "think out loud" instead of answering).
+    today = datetime.datetime.utcnow().date()
+    recap = today - datetime.timedelta(days=1)
+    md_num = (recap - datetime.date(2026, 6, 11)).days + 1
     payload = {
-        "todays_date_utc": datetime.datetime.utcnow().strftime("%Y-%m-%d (%A)"),
-        "tournament_started": "2026-06-11 (Thursday) = Matchday 1",
+        "todays_date_utc": today.strftime("%Y-%m-%d (%A)"),
+        "recap_matchday_label": f"Matchday {md_num}",
+        "recap_date": recap.strftime("%A %d %B %Y"),
         "manager_profiles": MANAGERS,
         "relationships": RELATIONSHIPS,
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
-    # We STREAM the response (below). Non-streaming requests have a hard
-    # server-side duration cap (~10 min) that long write-ups can trip — that's
-    # the "long requests" timeout. Streaming reads tokens as they arrive and is
-    # not subject to that cap. A generous socket timeout plus max_retries=1 and
-    # the outer loop (3 tries) ride out any transient network blip.
+    # The roundup comes back as a forced TOOL CALL, not free text. This makes
+    # the model emit structured, schema-valid data with no preamble and no
+    # hand-written JSON to misformat — killing the parse/preamble failures.
+    roundup_tool = {
+        "name": "publish_roundup",
+        "description": "Publish the finished daily roundup as structured data.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "matchday_label": {"type": "string"},
+                "status_live": {"type": "boolean"},
+                "standings": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "team": {"type": "string"},
+                            "manager": {"type": "string"},
+                            "total": {"type": "integer"},
+                        },
+                        "required": ["team", "manager", "total"],
+                    },
+                },
+                "still_to_play": {"type": "string"},
+                "notes": {
+                    "type": "object",
+                    "properties": {
+                        "top_haul": {"type": "string"},
+                        "bargain": {"type": "string"},
+                        "flop": {"type": "string"},
+                    },
+                    "required": ["top_haul", "bargain", "flop"],
+                },
+                "lead": {"type": "string"},
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "manager": {"type": "string"},
+                            "headline": {"type": "string"},
+                            "body": {"type": "string"},
+                        },
+                        "required": ["manager", "headline", "body"],
+                    },
+                },
+            },
+            "required": ["matchday_label", "status_live", "standings",
+                         "still_to_play", "notes", "lead", "articles"],
+        },
+    }
+    # Streaming avoids the ~10-min non-streaming duration cap; the generous
+    # timeout plus max_retries=1 and the outer loop ride out any network blip.
     client = anthropic.Anthropic(
         api_key=os.environ["ANTHROPIC_API_KEY"],
         timeout=600.0,
@@ -168,40 +216,35 @@ def write_copy(standings_text, squads):
     last = None
     for attempt in range(3):
         t0 = time.time()
-        text = ""
         try:
             with client.messages.stream(
                 model=MODEL,
                 max_tokens=10000,
                 temperature=0.6,
                 system=SYSTEM_PROMPT,
+                tools=[roundup_tool],
+                tool_choice={"type": "tool", "name": "publish_roundup"},
                 messages=[{"role": "user", "content": json.dumps(payload)}],
             ) as stream:
                 msg = stream.get_final_message()
             print(f"  Claude responded in {time.time()-t0:.1f}s "
                   f"(stop_reason={getattr(msg, 'stop_reason', None)})", flush=True)
-            text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
-            if not text:
-                raise RuntimeError(f"empty response (stop_reason={getattr(msg, 'stop_reason', None)})")
-            # Drop any stray code fences, then take the outermost JSON object
-            # (defends against the model adding any preamble or commentary).
-            text = text.replace("```json", "").replace("```", "")
-            start, end = text.find("{"), text.rfind("}")
-            if start == -1 or end == -1:
-                raise ValueError(f"no JSON object in reply: {text[:200]!r}")
-            text = text[start:end + 1]
-            # Repair the JSON slips LLMs occasionally make: trailing commas
-            # before a closing ] or } (a very common cause of parse errors).
-            text = re.sub(r",(\s*[}\]])", r"\1", text)
-            data = json.loads(text)
+            data = None
+            for block in (msg.content or []):
+                if getattr(block, "type", None) == "tool_use":
+                    data = block.input
+                    break
+            if not isinstance(data, dict):
+                raise RuntimeError(f"no publish_roundup tool call (stop_reason={getattr(msg, 'stop_reason', None)})")
+            # Authoritative matchday label, set here so the model can't fumble it.
+            data["matchday_label"] = f"Matchday {md_num}"
             if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
-                raise ValueError("AI returned too few managers")
+                raise ValueError("too few managers in tool output")
             return data
         except Exception as e:
             last = e
-            snippet = (text[:1500] + "...") if text else "(no text)"
-            print(f"  attempt {attempt + 1} failed after {time.time()-t0:.1f}s: {e}\n"
-                  f"  raw reply began: {snippet!r}", file=sys.stderr, flush=True)
+            print(f"  attempt {attempt + 1} failed after {time.time()-t0:.1f}s: {e}",
+                  file=sys.stderr, flush=True)
             time.sleep(10)
     raise RuntimeError(f"Claude failed after retries: {last}")
 
