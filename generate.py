@@ -157,37 +157,31 @@ def write_copy(standings_text, squads):
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
-    # Stream the response. Anthropic recommends streaming for long generations:
-    # a non-streaming request can exceed the per-request timeout and abort
-    # (the API "long requests" error). Streaming keeps the connection alive as
-    # tokens arrive, so a multi-minute generation completes cleanly.
+    # Bounded client: a single attempt can't hang the whole build. With
+    # timeout=120 and max_retries=1 the worst case per attempt is ~4 min,
+    # and the outer loop tries 3 times.
     client = anthropic.Anthropic(
         api_key=os.environ["ANTHROPIC_API_KEY"],
-        timeout=600.0,
+        timeout=120.0,
         max_retries=1,
     )
     last = None
     for attempt in range(3):
         t0 = time.time()
         try:
-            parts = []
-            stop_reason = None
-            with client.messages.stream(
+            msg = client.messages.create(
                 model=MODEL,
-                max_tokens=16000,
+                max_tokens=8000,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": json.dumps(payload)}],
-            ) as stream:
-                for chunk in stream.text_stream:
-                    parts.append(chunk)
-                final = stream.get_final_message()
-                stop_reason = getattr(final, "stop_reason", None)
-            text = "".join(parts).strip()
-            print(f"  Claude streamed {len(text)} chars in {time.time()-t0:.1f}s "
-                  f"(stop_reason={stop_reason})", flush=True)
+            )
+            print(f"  Claude responded in {time.time()-t0:.1f}s "
+                  f"(stop_reason={getattr(msg, 'stop_reason', None)})", flush=True)
+            text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
             if not text:
-                raise RuntimeError(f"empty response (stop_reason={stop_reason})")
+                raise RuntimeError(f"empty response (stop_reason={getattr(msg, 'stop_reason', None)})")
+            # extract the JSON object even if wrapped in prose or code fences
             if "{" in text and "}" in text:
                 text = text[text.find("{"):text.rfind("}") + 1]
             data = json.loads(text)
