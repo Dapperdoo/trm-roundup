@@ -95,6 +95,8 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-table tr.lead .lv-total{color:var(--la);}
 #trmlive .lv-note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin:12px 0 0; border-top:1px solid var(--ll); padding-top:10px;}
 #trmlive .lv-err{display:none; background:rgba(240,85,107,.12); border:1px solid var(--lr); color:#ffd7dd; border-radius:8px; padding:9px 12px; font-size:13px; margin-bottom:12px; font-family:Arial,Helvetica,sans-serif;}
+#trmlive .lv-link{color:var(--li); text-decoration:none; border-bottom:1px dotted var(--lm);}
+#trmlive .lv-link:hover{color:var(--lc); border-bottom-color:var(--lc);}
 .lv-divider{text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--mut); border-top:1px solid var(--line); margin:34px 0 0; padding-top:18px;}
 </style>
 </head>
@@ -104,7 +106,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 <!-- ===== LIVE SCOREBOARD (top, centre stage) ===== -->
 <section id="trmlive">
   <div class="lv-head">
-    <span class="lv-brand">TRM <span>LIVE</span></span>
+    <span class="lv-brand">LEAGUE <span>TABLE</span></span>
     <span id="lv-dot" class="lv-dot off" title="live status"></span>
     <span id="lv-md" class="lv-md"></span>
     <span class="lv-meta"><span id="lv-status">Connecting…</span><button id="lv-refresh" class="lv-btn" title="Refresh">↻</button></span>
@@ -115,7 +117,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     <thead><tr><th class="lv-pos">#</th><th class="lv-mv"></th><th>Team</th><th class="r">Round</th><th class="r">Total</th></tr></thead>
     <tbody id="lv-tbody"></tbody>
   </table>
-  <div class="lv-note">Live standings &amp; round points pulled from FIFA's official fantasy via the league site, refreshing about every minute while games are on. Arrows show movement since you opened the page.</div>
+  <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show movement since you opened the page.</div>
 </section>
 
 <div class="lv-divider">Yesterday's Report</div>
@@ -187,7 +189,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
         +'<td class="lv-pos">'+r.rank+'</td>'
         +'<td class="lv-mv">'+mv+'</td>'
-        +'<td><span class="lv-tm">'+esc(r.team)+'</span> <span class="lv-mgr">'+esc(r.manager)+'</span></td>'
+        +'<td><a class="lv-link lv-tm" href="https://trm-fantasy.onrender.com/wc/team/'+encodeURIComponent(r.slug)+'" target="_blank" rel="noopener">'+esc(r.team)+'</a> <span class="lv-mgr">'+esc(r.manager)+'</span></td>'
         +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
         +'<td class="r lv-total">'+r.total+'</td></tr>';
     }).join("");
@@ -206,6 +208,8 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       if(d.error) throw new Error(d.error);
       $("lv-err").style.display="none";
       lastUpdated = d.updated;
+      // The league table is shown at ALL times. The "live" dot, the fixtures
+      // strip and the movement flashes simply switch on while a game is in play.
       $("lv-md").textContent = d.matchday || "";
       $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
       renderFixtures(d.fixtures||[]);
