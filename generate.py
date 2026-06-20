@@ -46,35 +46,52 @@ RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake
                  "finishing one place above the other, usually near the foot of the table), "
                  "Sam & Wigs (brothers). Dan and Malik are loosely allied — mention only lightly.")
 
+# Each calendar "matchday" maps to the exact fixtures played that day. The league
+# site stops showing a game's date once it is FULL TIME, so we can't read this
+# back later — it's pinned here. Keyed by the matchday's evening date; games that
+# kick off after midnight (UK) still belong to that same evening's matchday.
+SCHEDULE = {
+    "2026-06-18": [("CZE", "RSA"), ("SUI", "BIH"), ("CAN", "QAT"), ("MEX", "KOR")],
+    "2026-06-19": [("USA", "AUS"), ("SCO", "MAR"), ("BRA", "HAI"), ("TUR", "PAR")],
+    "2026-06-20": [("NED", "SWE"), ("GER", "CIV"), ("ECU", "CUW"), ("TUN", "JPN")],
+    "2026-06-21": [("ESP", "KSA"), ("BEL", "IRN"), ("URU", "CPV"), ("NZL", "EGY")],
+    "2026-06-22": [("ARG", "AUT"), ("FRA", "IRQ"), ("NOR", "SEN"), ("JOR", "ALG")],
+    "2026-06-23": [("POR", "UZB"), ("ENG", "GHA"), ("PAN", "CRO"), ("COL", "COD")],
+}
+
 SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. It is a cheeky, take-the-piss, morning-after report on YESTERDAY'S MATCHDAY: it leads with the day's fixtures and the points they produced, tells each manager's readers who actually scored (and who flopped), how that moved them in the table, and gives a rival a dig where the standings invite it. Football first, with teeth.
 
-MATCHDAY CONCEPT — IMPORTANT. The tournament is played in ROUNDS (each nation plays three group games, one per round) and the source page labels the round e.g. "Group Matchday 2". IGNORE that as your headline. For THIS bulletin a "matchday" means a single CALENDAR DAY of football (2-5 fixtures a day). The tournament kicked off on Thursday 11 June 2026 = Matchday 1; each later calendar day adds one (12 June = MD2, 13 June = MD3, and so on). This edition recaps YESTERDAY (the calendar day just finished). The matchday label is computed for you and supplied as "recap_matchday_label" (e.g. "Matchday 8"), for the date "recap_date" — use it exactly; do NOT do any date arithmetic yourself. Because each nation plays only once per round, a player's this-round points come from their single fixture, which falls on exactly ONE calendar day — so a manager's haul FOR YESTERDAY = the points of their players whose nations played (went FULL TIME) yesterday. Lead every write-up with that. Fixtures on later days are out of scope for the narrative; mention them only as a brief teaser.
+MATCHDAY = YESTERDAY'S GAMES ONLY — THE SINGLE MOST IMPORTANT RULE. This bulletin recaps EXACTLY ONE day of football: the matches played yesterday, and nothing else. You do NOT have to work out which games those were — you are told, precisely:
+• recap_date — the day being recapped.
+• matchday_fixtures — the ONLY fixtures in scope, e.g. "USA v AUS, SCO v MAR, BRA v HAI, TUR v PAR".
+• matchday_nations — the ONLY national teams whose players are in scope, e.g. ["USA","AUS","SCO","MAR","BRA","HAI","TUR","PAR"]. These are the 3-letter country codes shown beside players in the squad lists.
+A manager's haul for yesterday = ONLY the points of their players whose country code is in matchday_nations. Add those up, name those players, and IGNORE every other player completely. Any player whose country is NOT in matchday_nations is OUT OF SCOPE — their game was on a different day or has not happened — so do not name them, score them, or call them blanks. Do NOT mention any fixture, nation, score or player that is not in yesterday's list: if Czech Republic, Switzerland, Canada, Mexico etc. are not in matchday_nations, they do not exist for this edition. Do NOT use the standings "round" column as the day's haul — it accumulates points from earlier days of the round; work the day's haul out yourself from the matchday_nations players only. (The group stage runs in rounds of one game per team, but those games are spread across many days — only the single day above counts here. The standings you are given are cumulative and used ONLY for current league positions.) If matchday_nations is empty, simply report there were no fixtures yesterday and keep it brief.
 
 You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country and price. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time) and date. READ it and WRITE the column from it.
 
-READING PLAYER POINTS — CRITICAL, GET THIS RIGHT. Each player line shows TWO point figures: (1) their points for THIS round / gameweek — usually shown with a "w" (e.g. "15w") or under a "WK"/"Week" column — and (2) their cumulative SEASON total (the second, usually larger number, e.g. "16"). For a manager's haul YESTERDAY you must use ONLY the this-round / gameweek figure. NEVER report the season total as points scored yesterday — that is the single most common mistake and the one you must not make. A player whose this-round figure is 0 has NOT scored this round: if their nation's fixture is upcoming or live they are simply "yet to play" and you must NOT credit them with any points or claim they "chipped in". Before you state that any player scored, confirm BOTH that their this-round figure is greater than zero AND that their nation's game is FULL TIME.
+READING PLAYER POINTS — CRITICAL. For an IN-SCOPE player (country code in matchday_nations), each player line shows TWO point figures: (1) their points for THIS round / gameweek — usually shown with a "w" (e.g. "15w") or under a "WK"/"Week" column — and (2) their cumulative SEASON total (the second, usually larger number, e.g. "16"). Use ONLY the this-round / gameweek figure as their points for yesterday; NEVER report the season total as yesterday's points — that is the single most common mistake. An in-scope player on 0 genuinely blanked yesterday (fair game to say so). Players who are NOT in matchday_nations are out of scope entirely: do not name them and never call them blanks.
 
 There is NO captaincy in this league. Never mention captains, armbands, "captain picks" or anything of the sort — it does not exist here.
 
 STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Before writing a manager's entry, look at THAT manager's player list, and treat it as a closed whitelist: you may name ONLY players from that exact list, with the exact points shown beside them. Do NOT rely on your own knowledge of football to decide who a player belongs to — a famous player (e.g. Lionel Messi) belongs to whichever manager's list actually contains him, and to NO ONE ELSE. Never put a player in a manager's write-up unless that player's name physically appears in that manager's own list. Never invent players or points. When in doubt, leave a player out.
 
 EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
-- Their points from yesterday's matchday and their current league position.
-- The standout players BY NAME with their points — who hauled and who blanked. Use ONLY the real player names and points from that manager's own squad list; do NOT copy any names from this instruction. (The shape to aim for reads like: "<their top scorer> led the way with <pts>, <another> chipped in <pts>, while <a player> drew a blank" — but filled only with that manager's actual players and actual points.) This player-by-player detail is the most important content; a write-up without named players and their points has failed.
-- How the result moved them in the table (climbed, slipped, held), and the gap to a rival where it's worth a dig.
-- A brief nod to any of their players still to come (see accuracy rule), as a teaser only.
+- Their haul from yesterday's matchday (the total from their IN-SCOPE players only) and their current league position.
+- The standout in-scope players BY NAME with their points — who hauled and who blanked. Use ONLY real names and points from that manager's own squad list; do NOT copy any names from this instruction. (Shape to aim for: "<their top scorer> led the way with <pts>, <another> chipped in <pts>, while <a player> drew a blank" — filled only with that manager's actual in-scope players and actual points.) This player-by-player detail is the most important content.
+- How yesterday moved them in the table (climbed, slipped, held), and a dig at a rival where the standings invite it.
+- If a manager had NO players from yesterday's nations, say so plainly and wittily (nobody of theirs was on the pitch) and just note their league position — do NOT invent points or reach for players from other days.
 
 TONE: cheeky, witty, take-the-piss — a local-paper columnist who knows everyone personally and enjoys a proper wind-up. Mock the vanity-priced flops, the bottom-half flailing, the two-point manager acting like he's won the thing. Lean on each manager's character. Give Jake (Snacob's Ladder) a slightly bigger dig than the rest — he's the designated whipping boy and can take it. Keep it affectionate ribbing between mates, never genuinely cruel: tease the football and the decisions, nothing below the belt. About 115-175 words per manager.
 
-ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures — only call a 0 a blank if that player's nation's game is FULL TIME (played yesterday). If it is upcoming or live, say "still to play" / "yet to come" and never call it a blank. The "top_haul", "bargain" and "flop" notes must each name a player whose game is FINISHED.
+ACCURACY RULE: only IN-SCOPE players (country in matchday_nations) can have scored yesterday; an in-scope player on 0 is a genuine blank. The "top_haul", "bargain" and "flop" notes must each name an in-scope player.
 
-Provide your answer ONLY by calling the publish_roundup tool — do not write any prose outside the tool call, and do not narrate your reasoning. Fill these fields:
+Provide your answer ONLY by calling the publish_roundup tool — no prose outside the tool call, no narration. Fill these fields:
 - matchday_label: use the supplied recap_matchday_label verbatim.
-- status_live: true if any of yesterday's games were still unfinished/live at fetch time, else false.
-- standings: every team with its manager and total, ordered 1st to last.
-- still_to_play: a short teaser of the nations kicking off tonight / the next calendar day, or 'Everyone's arrived.'
-- notes.top_haul / notes.bargain / notes.flop: each "player (manager) — pts" (bargain = best points-per-million among players who PLAYED yesterday; flop = worst return for price among players who PLAYED yesterday).
-- lead: a one-paragraph scene-setter on yesterday's matchday (may include <b>…</b>).
+- status_live: false (yesterday's games are finished).
+- standings: every team with its manager and cumulative total, ordered 1st to last.
+- still_to_play: a short teaser of TONIGHT'S fixtures, supplied as tonight_fixtures, or 'Everyone's arrived.' if none.
+- notes.top_haul / notes.bargain / notes.flop: each "player (manager) — pts", chosen ONLY from in-scope players (country in matchday_nations); bargain = best points-per-million, flop = worst return for price.
+- lead: a one-paragraph scene-setter on yesterday's matchday — name yesterday's fixtures only, never any others (may include <b>…</b>).
 - articles: one per manager in standings order, each with manager, headline and body.
 Use the manager FIRST NAMES exactly as given in the profiles. Include all 13 managers."""
 
@@ -145,15 +162,22 @@ def gather():
     return standings_text, squads
 
 def write_copy(standings_text, squads):
-    # Compute the matchday here so the model never has to do date arithmetic
-    # (which previously tempted it to "think out loud" instead of answering).
+    # Work out yesterday's matchday from the fixed SCHEDULE, so the report is
+    # scoped to EXACTLY that day's games — the only points that were in play
+    # yesterday — and can't bleed into earlier days of the same round.
     today = datetime.datetime.utcnow().date()
     recap = today - datetime.timedelta(days=1)
-    md_num = (recap - datetime.date(2026, 6, 11)).days + 1
+    y_fixtures = SCHEDULE.get(recap.strftime("%Y-%m-%d"), [])
+    y_nations = sorted({c for fx in y_fixtures for c in fx})
+    t_fixtures = SCHEDULE.get(today.strftime("%Y-%m-%d"), [])
+    recap_label = "Matchday · " + recap.strftime("%a %d %b")
     payload = {
         "todays_date_utc": today.strftime("%Y-%m-%d (%A)"),
-        "recap_matchday_label": f"Matchday {md_num}",
         "recap_date": recap.strftime("%A %d %B %Y"),
+        "recap_matchday_label": recap_label,
+        "matchday_fixtures": ", ".join(f"{h} v {a}" for h, a in y_fixtures) or "(none on record)",
+        "matchday_nations": y_nations,
+        "tonight_fixtures": ", ".join(f"{h} v {a}" for h, a in t_fixtures) or "(none on record)",
         "manager_profiles": MANAGERS,
         "relationships": RELATIONSHIPS,
         "standings_and_fixtures_page_text": standings_text,
@@ -241,7 +265,7 @@ def write_copy(standings_text, squads):
             if not isinstance(data, dict):
                 raise RuntimeError(f"no publish_roundup tool call (stop_reason={getattr(msg, 'stop_reason', None)})")
             # Authoritative matchday label, set here so the model can't fumble it.
-            data["matchday_label"] = f"Matchday {md_num}"
+            data["matchday_label"] = recap_label
             if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
                 raise ValueError("too few managers in tool output")
             return data
