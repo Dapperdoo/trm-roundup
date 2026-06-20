@@ -5,100 +5,222 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Morning After — {{MATCHDAY_LABEL}}</title>
 <style>
-  :root{
-    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
-    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
-    --gold:#f5c451; --red:#f0556b; --green:#34d399;
-    --magenta:#f472b6; --purple:#a855f7;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
-  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
-  header.mast{
-    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
-    position:relative; overflow:hidden;
-    background:
-      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
-      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
-      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
-  }
-  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
-  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
-  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
-  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
-  .live{color:var(--green);}
-  .live::before{content:"●"; margin-right:5px; color:var(--green);}
-  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
-  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
-  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
-  .lead b{color:var(--ink);}
-  article{border-top:1px solid var(--line); padding:24px 0;}
-  article:first-of-type{border-top:none; padding-top:4px;}
-  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
-  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
-  .rank.low{background:var(--red); color:#fff;}
-  .rank.top{background:var(--gold); color:#241c00;}
-  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
-  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
-  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
-  article p{margin:0; color:#c7d1de; font-size:16.5px;}
-  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
-  aside{align-self:start; position:sticky; top:18px;}
-  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
-  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
-  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
-  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
-  tr:last-child td{border-bottom:none;}
-  .pos{color:var(--mut); width:26px; font-weight:700;}
-  .tname{color:var(--ink); font-weight:600;}
-  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
-  .tot{text-align:right; font-weight:900; color:var(--cyan);}
-  tr.r1 .pos{color:var(--gold);}
-  tr.r13 .pos{color:var(--red);}
-  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
-  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+:root{
+--bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+--ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+--gold:#f5c451; --red:#f0556b; --green:#34d399;
+--magenta:#f472b6; --purple:#a855f7;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+.wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+header.mast{
+border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+position:relative; overflow:hidden;
+background:
+radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+}
+.kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+.subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+.live{color:var(--green);}
+.live::before{content:"●"; margin-right:5px; color:var(--green);}
+.layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+@media(max-width:820px){.layout{grid-template-columns:1fr;}}
+.lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+.lead b{color:var(--ink);}
+article{border-top:1px solid var(--line); padding:24px 0;}
+article:first-of-type{border-top:none; padding-top:4px;}
+.rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+.rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+.rank.low{background:var(--red); color:#fff;}
+.rank.top{background:var(--gold); color:#241c00;}
+.team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+.pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+article p{margin:0; color:#c7d1de; font-size:16.5px;}
+.byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+aside{align-self:start; position:sticky; top:18px;}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+.panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+tr:last-child td{border-bottom:none;}
+.pos{color:var(--mut); width:26px; font-weight:700;}
+.tname{color:var(--ink); font-weight:600;}
+.mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+.tot{text-align:right; font-weight:900; color:var(--cyan);}
+tr.r1 .pos{color:var(--gold);}
+tr.r13 .pos{color:var(--red);}
+.note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+
+/* ===== TRM LIVE scoreboard (client-side; polls the Cloudflare Worker) ===== */
+#trmlive{--lg:#34d399; --la:#f5c451; --lr:#f0556b; --lc:#22d3ee; --ll:#1b2636; --lp:#0e1622; --lm:#7e8ca0; --li:#e8eef6; margin:22px 0 8px;}
+#trmlive .lv-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--ll); padding-bottom:12px; margin-bottom:14px;}
+#trmlive .lv-brand{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:22px; letter-spacing:.04em; color:var(--li);}
+#trmlive .lv-brand span{color:var(--lg);}
+#trmlive .lv-dot{width:9px; height:9px; border-radius:50%; background:var(--lg); display:inline-block;}
+#trmlive .lv-dot.live{animation:lvpulse 1.8s infinite;}
+#trmlive .lv-dot.off{background:var(--lm);}
+@keyframes lvpulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
+#trmlive .lv-md{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lc); text-transform:uppercase; letter-spacing:.14em;}
+#trmlive .lv-meta{margin-left:auto; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lm);}
+#trmlive .lv-meta b{color:var(--li);}
+#trmlive .lv-btn{background:var(--lp); color:var(--li); border:1px solid var(--ll); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
+#trmlive .lv-btn:hover{border-color:var(--lc);}
+#trmlive .lv-fixtures{display:flex; gap:8px; overflow-x:auto; padding-bottom:12px; margin-bottom:10px;}
+#trmlive .lv-fx{flex:0 0 auto; background:var(--lp); border:1px solid var(--ll); border-radius:8px; padding:7px 10px; min-width:112px; font-family:Arial,Helvetica,sans-serif;}
+#trmlive .lv-fx .t{font-weight:700; font-size:13px; color:var(--li);}
+#trmlive .lv-fx .s{font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:3px; color:var(--lm);}
+#trmlive .lv-fx.live{border-color:var(--lg);} #trmlive .lv-fx.live .s{color:var(--lg);}
+#trmlive .lv-fx.upcoming .s{color:var(--la);}
+#trmlive .lv-table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+#trmlive .lv-table th{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--lm); text-align:left; padding:6px 8px; border-bottom:1px solid var(--ll);}
+#trmlive .lv-table th.r{text-align:right;}
+#trmlive .lv-table td{padding:10px 8px; font-size:15px; border-bottom:1px solid var(--ll); transition:background .8s ease;}
+#trmlive .lv-table td.r{text-align:right;}
+#trmlive .lv-table tr.flash td{background:rgba(34,211,238,.16); transition:background 0s;}
+#trmlive .lv-pos{width:28px; color:var(--lm); font-weight:800;}
+#trmlive .lv-table tr.lead .lv-pos{color:var(--la);}
+#trmlive .lv-mv{width:26px; text-align:center; font-weight:900; font-size:13px;}
+#trmlive .up{color:var(--lg);} #trmlive .down{color:var(--lr);} #trmlive .same{color:var(--lm); opacity:.5;}
+#trmlive .lv-tm{font-weight:700; color:var(--li);} #trmlive .lv-mgr{color:var(--lm); font-size:12px;}
+#trmlive .lv-round{color:var(--lc); font-weight:700; font-variant-numeric:tabular-nums;}
+#trmlive .lv-total{font-weight:900; font-size:16px; font-variant-numeric:tabular-nums; color:var(--li);}
+#trmlive .lv-table tr.lead .lv-total{color:var(--la);}
+#trmlive .lv-note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin:12px 0 0; border-top:1px solid var(--ll); padding-top:10px;}
+#trmlive .lv-err{display:none; background:rgba(240,85,107,.12); border:1px solid var(--lr); color:#ffd7dd; border-radius:8px; padding:9px 12px; font-size:13px; margin-bottom:12px; font-family:Arial,Helvetica,sans-serif;}
+.lv-divider{text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--mut); border-top:1px solid var(--line); margin:34px 0 0; padding-top:18px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header class="mast">
-    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
-    <h1 class="title">THE MORNING <span>AFTER</span></h1>
-    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
-    <div class="dateline">
-      <span>{{DATE_LABEL}}</span>
-      <span>{{MATCHDAY_LABEL}}</span>
-      <span class="live">{{STATUS_CHIP}}</span>
-    </div>
-  </header>
-
-  <div class="layout">
-    <main>
-      {{LEAD}}
-      {{ARTICLES}}
-    </main>
-
-    <aside>
-      <div class="panel">
-        <h3>Standings · {{MATCHDAY_SHORT}}</h3>
-        <table>{{STANDINGS_ROWS}}</table>
-      </div>
-      <div class="panel">
-        <h3>Round Highlights</h3>
-        <table>{{NOTES_ROWS}}</table>
-      </div>
-      <div class="panel">
-        <h3>Still to play</h3>
-        <table>
-          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">{{STILL_TO_PLAY}}</span></td></tr>
-        </table>
-      </div>
-      {{CAVEAT}}
-    </aside>
+<!-- ===== LIVE SCOREBOARD (top, centre stage) ===== -->
+<section id="trmlive">
+  <div class="lv-head">
+    <span class="lv-brand">TRM <span>LIVE</span></span>
+    <span id="lv-dot" class="lv-dot off" title="live status"></span>
+    <span id="lv-md" class="lv-md"></span>
+    <span class="lv-meta"><span id="lv-status">Connecting…</span><button id="lv-refresh" class="lv-btn" title="Refresh">↻</button></span>
   </div>
+  <div id="lv-err" class="lv-err"></div>
+  <div id="lv-fixtures" class="lv-fixtures"></div>
+  <table class="lv-table">
+    <thead><tr><th class="lv-pos">#</th><th class="lv-mv"></th><th>Team</th><th class="r">Round</th><th class="r">Total</th></tr></thead>
+    <tbody id="lv-tbody"></tbody>
+  </table>
+  <div class="lv-note">Live standings &amp; round points pulled from FIFA's official fantasy via the league site, refreshing about every minute while games are on. Arrows show movement since you opened the page.</div>
+</section>
 
-  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+<div class="lv-divider">Yesterday's Report</div>
 
-</div
+<!-- ===== THE MORNING AFTER (daily roundup, below) ===== -->
+<header class="mast">
+<div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+<h1 class="title">THE MORNING <span>AFTER</span></h1>
+<div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+<div class="dateline">
+<span>{{DATE_LABEL}}</span>
+<span>{{MATCHDAY_LABEL}}</span>
+<span class="live">{{STATUS_CHIP}}</span>
+</div>
+</header>
+
+<div class="layout">
+<main>
+{{LEAD}}
+{{ARTICLES}}
+</main>
+
+<aside>
+<div class="panel">
+<h3>Standings · {{MATCHDAY_SHORT}}</h3>
+<table>{{STANDINGS_ROWS}}</table>
+</div>
+<div class="panel">
+<h3>Round Highlights</h3>
+<table>{{NOTES_ROWS}}</table>
+</div>
+<div class="panel">
+<h3>Still to play</h3>
+<table>
+<tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">{{STILL_TO_PLAY}}</span></td></tr>
+</table>
+</div>
+{{CAVEAT}}
+</aside>
+</div>
+
+<footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+
+</div>
+
+<script>
+(function(){
+  var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
+  var POLL_MS = 60000;
+  var baseline = null, prevTotals = {}, lastUpdated = null;
+  function $(id){ return document.getElementById(id); }
+  function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
+  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+  function renderFixtures(fx){
+    var order = {live:0, upcoming:1, finished:2};
+    $("lv-fixtures").innerHTML = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).map(function(f){
+      var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
+      var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
+      return '<div class="lv-fx '+f.status+'"><div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div></div>';
+    }).join("");
+  }
+  function renderStandings(rows){
+    if(!baseline){ baseline = {}; rows.forEach(function(r){ baseline[r.slug]=r.rank; }); }
+    var tb = $("lv-tbody");
+    tb.innerHTML = rows.map(function(r){
+      var d = (baseline[r.slug]==null ? r.rank : baseline[r.slug]) - r.rank;
+      var mv = d>0 ? '<span class="up">▲'+d+'</span>' : d<0 ? '<span class="down">▼'+(-d)+'</span>' : '<span class="same">–</span>';
+      var ch = prevTotals[r.slug]!==undefined && prevTotals[r.slug]!==r.total;
+      return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
+        +'<td class="lv-pos">'+r.rank+'</td>'
+        +'<td class="lv-mv">'+mv+'</td>'
+        +'<td><span class="lv-tm">'+esc(r.team)+'</span> <span class="lv-mgr">'+esc(r.manager)+'</span></td>'
+        +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
+        +'<td class="r lv-total">'+r.total+'</td></tr>';
+    }).join("");
+    Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ch="1"]'), function(tr){
+      tr.classList.add("flash");
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ tr.classList.remove("flash"); }); });
+    });
+    rows.forEach(function(r){ prevTotals[r.slug]=r.total; });
+  }
+  function tick(){ var el=$("lv-status"); if(el) el.innerHTML = "Updated <b>"+ago(lastUpdated)+"</b>"; }
+  function poll(){
+    fetch(WORKER_URL, {cache:"no-store"}).then(function(res){
+      if(!res.ok) throw new Error("feed "+res.status);
+      return res.json();
+    }).then(function(d){
+      if(d.error) throw new Error(d.error);
+      $("lv-err").style.display="none";
+      lastUpdated = d.updated;
+      $("lv-md").textContent = d.matchday || "";
+      $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
+      renderFixtures(d.fixtures||[]);
+      renderStandings(d.standings||[]);
+      tick();
+    }).catch(function(e){
+      var el=$("lv-err"); el.textContent = "Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block";
+      $("lv-status").textContent = "offline";
+    });
+  }
+  $("lv-refresh").addEventListener("click", poll);
+  poll();
+  setInterval(poll, POLL_MS);
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
