@@ -79,7 +79,13 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-fx .s{font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:3px; color:var(--lm);}
 #trmlive .lv-fx.live{border-color:var(--lg);} #trmlive .lv-fx.live .s{color:var(--lg);}
 #trmlive .lv-fx.upcoming .s{color:var(--la);}
-#trmlive .lv-fx-pls{margin-top:8px; border-top:1px solid var(--ll); padding-top:6px;}
+#trmlive details.lv-fx{padding:0; overflow:hidden;}
+#trmlive .lv-fx-sum{list-style:none; cursor:pointer; padding:8px 26px 8px 11px; position:relative;}
+#trmlive .lv-fx-sum::-webkit-details-marker{display:none;}
+#trmlive .lv-fx-sum:hover{background:rgba(255,255,255,.04);}
+#trmlive .lv-fx-caret{position:absolute; right:10px; top:9px; color:var(--lm); font-size:10px;}
+#trmlive details[open] .lv-fx-caret{color:var(--lc);}
+#trmlive .lv-fx-pls{margin:0 11px 9px; border-top:1px solid var(--ll); padding-top:7px;}
 #trmlive .lv-pl{display:flex; align-items:baseline; gap:6px; font-size:11.5px; padding:2px 0;}
 #trmlive .lv-pl-n{color:var(--li); flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 #trmlive .lv-pl-m{color:var(--lm); font-size:10px; white-space:nowrap;}
@@ -181,33 +187,25 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   function $(id){ return document.getElementById(id); }
   function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
   function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
-  function inBatch(f){
-    // "today's batch" = live games, plus upcoming games kicking off within ~18h
-    // (this evening through the overnight). Finished games lose their date on
-    // the page, so they can't be placed in a day and just show the score.
-    if (f.status==="live") return true;
-    if (f.status!=="upcoming") return false;
-    if (!f.date || !f.kickoff) return true;
-    var dt = new Date(f.date+"T"+f.kickoff+":00").getTime();
-    return isNaN(dt) ? true : (dt - Date.now())/3600000 <= 18;
-  }
   function renderFixtures(fx){
     var order = {live:0, upcoming:1, finished:2};
     $("lv-fixtures").innerHTML = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).map(function(f){
       var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
       var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
-      var players = "";
-      if (inBatch(f) && f.players && f.players.length){
-        players = '<div class="lv-fx-pls">' + f.players.map(function(p){
+      var head = '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div>';
+      // Each fixture with owned players is a click-to-expand panel listing every
+      // owned player in the match and which manager owns them (live ones open).
+      if (f.players && f.players.length){
+        var pls = '<div class="lv-fx-pls">' + f.players.map(function(p){
           return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
                + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
                + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
         }).join('') + '</div>';
+        return '<details class="lv-fx '+f.status+'"'+(f.status==="live"?" open":"")+'>'
+             + '<summary class="lv-fx-sum">'+head+'<span class="lv-fx-caret">▾</span></summary>'
+             + pls + '</details>';
       }
-      return '<div class="lv-fx '+f.status+'">'
-           + '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div>'
-           + '<div class="s">'+lab+'</div>'
-           + players + '</div>';
+      return '<div class="lv-fx '+f.status+'">'+head+'</div>';
     }).join("");
   }
   function renderStandings(rows){
