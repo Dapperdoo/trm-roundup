@@ -73,6 +73,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-meta b{color:var(--li);}
 #trmlive .lv-btn{background:var(--lp); color:var(--li); border:1px solid var(--ll); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
 #trmlive .lv-btn:hover{border-color:var(--lc);}
+#trmlive .lv-fixtures-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--lm); margin:18px 0 8px;}
 #trmlive .lv-fixtures{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; padding-bottom:12px; margin-bottom:10px;}
 #trmlive .lv-fx{align-self:start; background:var(--lp); border:1px solid var(--ll); border-radius:8px; padding:8px 11px; font-family:Arial,Helvetica,sans-serif;}
 #trmlive .lv-fx .t{font-weight:700; font-size:13px; color:var(--li);}
@@ -84,6 +85,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-fx-sum::-webkit-details-marker{display:none;}
 #trmlive .lv-fx-sum:hover{background:rgba(255,255,255,.04);}
 #trmlive .lv-fx-caret{position:absolute; right:10px; top:9px; color:var(--lm); font-size:10px;}
+#trmlive .lv-fx-count{display:inline-block; margin-top:4px; font-size:11px; font-weight:700; color:var(--lc);}
 #trmlive details[open] .lv-fx-caret{color:var(--lc);}
 #trmlive .lv-fx-pls{margin:0 11px 9px; border-top:1px solid var(--ll); padding-top:7px;}
 #trmlive .lv-pl{display:flex; align-items:baseline; gap:6px; font-size:11.5px; padding:2px 0;}
@@ -128,12 +130,13 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     <span class="lv-meta"><span id="lv-status">Connecting…</span><button id="lv-refresh" class="lv-btn" title="Refresh">↻</button></span>
   </div>
   <div id="lv-err" class="lv-err"></div>
-  <div id="lv-fixtures" class="lv-fixtures"></div>
   <table class="lv-table">
     <thead><tr><th class="lv-pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Squad players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
     <tbody id="lv-tbody"></tbody>
   </table>
-  <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show movement since you opened the page.</div>
+  <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show how teams have moved this round.</div>
+  <div class="lv-fixtures-label">Fixtures · tap a match to see owned players</div>
+  <div id="lv-fixtures" class="lv-fixtures"></div>
 </section>
 
 <div class="lv-divider">Yesterday's Report</div>
@@ -183,13 +186,21 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 (function(){
   var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
   var POLL_MS = 60000;
-  var baseline = null, prevTotals = {}, lastUpdated = null;
+  var prevTotals = {}, lastUpdated = null;
+  var baselineRanks = null;  // ranks before the last matchday, from baseline.json
+  fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if(j && j.ranks) baselineRanks = j.ranks; }).catch(function(){});
   function $(id){ return document.getElementById(id); }
   function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
   function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
   function renderFixtures(fx){
     var order = {live:0, upcoming:1, finished:2};
-    $("lv-fixtures").innerHTML = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).map(function(f){
+    var upc = 0;
+    var list = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).filter(function(f){
+      if (f.status==="upcoming"){ upc++; return upc<=8; }  // never show more than 8 upcoming fixtures
+      return true;
+    });
+    $("lv-fixtures").innerHTML = list.map(function(f){
       var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
       var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
       var head = '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div>';
@@ -201,8 +212,11 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
                + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
                + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
         }).join('') + '</div>';
+        var n = f.players.length;
         return '<details class="lv-fx '+f.status+'"'+(f.status==="live"?" open":"")+'>'
-             + '<summary class="lv-fx-sum">'+head+'<span class="lv-fx-caret">▾</span></summary>'
+             + '<summary class="lv-fx-sum">'+head
+             + '<span class="lv-fx-count">'+n+' player'+(n===1?'':'s')+'</span>'
+             + '<span class="lv-fx-caret">▾</span></summary>'
              + pls + '</details>';
       }
       return '<div class="lv-fx '+f.status+'">'+head+'</div>';
@@ -210,13 +224,10 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   }
   function renderStandings(rows){
     var tb = $("lv-tbody");
-    // Movement = change in table position since the start of the current round
-    // (rank by points-before-this-round vs current rank). + = up, - = down.
-    var prev = rows.map(function(r){ return { slug:r.slug, p:(r.total||0)-(r.round||0) }; });
-    prev.sort(function(a,b){ return b.p - a.p; });
-    var prevRank = {}; prev.forEach(function(o,i){ prevRank[o.slug] = i+1; });
+    // Movement = change in table position over the LAST matchday: current rank
+    // vs the rank in baseline.json (the table before last night's games).
     tb.innerHTML = rows.map(function(r){
-      var d = (prevRank[r.slug]||r.rank) - r.rank;
+      var d = (baselineRanks && baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager] - r.rank) : 0;
       var move = d>0 ? '<span class="lv-move up">▲ '+d+'</span>'
                : d<0 ? '<span class="lv-move down">▼ '+(-d)+'</span>'
                : '';

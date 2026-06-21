@@ -37,7 +37,7 @@ MANAGERS = {
     "Nick": "Dyer's Rusty 9 Iron — 'rusty iron' because he skies shots over the bar like a golf club; very tall, loud deep voice; sharp tactical football mind; loves his beer and food; main rival is Tom.",
     "Dan": "Denton Burn — musician who lives off-grid, happiest out in the fresh air just enjoying nature; smart, alternative, very witty; historically a top fantasy player.",
     "Chris": "Lloyd's Food and Wine — aka 'Lloydy' / 'Loopy Lloydy'; tall, eclectic, always doing things (mountain biking, travelling, dancing) rather than sitting still; builds his own electrical kit — the full-blown mad scientist to Jeremy's measured boffin, all wild contraptions and half-baked optimisation theories; main rival is Jake.",
-    "Tristan": "Trippier & Trippier — aka 'The Russian'; big Russian guy raised in London; fiercely, relentlessly competitive; loves football and sweeties; witty but doesn't suffer fools; throws his hands up in disgust when displeased; main rival is Joe A.",
+    "Tristan": "Trippier & Trippier — a born-and-raised Londoner, NOT Russian; he just happens to look Russian, so the lads call him 'The Russian' (use the nickname, but never claim he is Russian or was raised in Russia); fiercely, relentlessly competitive; loves football and sweeties; witty but doesn't suffer fools; throws his hands up in disgust when displeased; main rival is Joe A.",
     "Malik": "Propaganda Parade — quirky, smart Icelandic man managing from afar; signs anyone who has ever worn a Manchester United or Portugal shirt.",
     "Jake": "Snacob's Ladder — aka 'Jake the Snake' or 'Snakey'; renewable-energy project manager with a permanently jam-packed diary; loves wind turbines and mushrooms; never stops; spends a lot of time in the dentist's chair; famously turned up to the school sports day race with his own starting block; overspent badly on Harry Kane and filled the rest of his squad with cheap players he'd never heard of; plays psy-trance/techno like Tom; rivals with Chris (Lloydy) and Dave; the league's designated whipping boy, fair game for a little extra ribbing.",
 }
@@ -84,7 +84,7 @@ EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
 - How yesterday moved them in the table (climbed, slipped, held), and a dig at a rival where the standings invite it.
 - If a manager had NO players from yesterday's nations, say so plainly and wittily (nobody of theirs was on the pitch) and just note their league position — do NOT invent points or reach for players from other days.
 
-TONE: cheeky and unapologetically take-the-piss — a local-paper columnist who knows everyone personally and never misses a chance to wind them up. Lean HARD into the ribbing: mock the vanity-priced flops, the duds, the bottom-half flailing, the two-point manager strutting like he's won the thing. Lean heavily on each manager's character. Two standing favourites to come back to whenever they fit: (1) Joe S / "Sheerin" — a gifted flair player in his day whose career was wrecked by one injury after another, and who is hopelessly baffled by modern tech (the internet, apps, AI); rib the glass-bones playing days and the technophobia. (2) Jake / "Snakey" — who blew almost his entire budget on Harry Kane (£33.4m) and had to pad the rest of his squad with cheap players he'd never heard of; rib the Kane splurge and the bargain-bin no-names mercilessly. Jake is the designated whipping boy — give him the biggest digs of all. CHARACTER OWNERSHIP — IMPORTANT: each manager's traits and quirks belong ONLY to that manager; never transplant one manager's joke onto another. ONLY Sheerin is the injury-prone technophobe; ONLY Jake overspent on Kane; and so on — match every personality detail to the correct manager from the profiles, never another. Keep it affectionate ribbing between mates — sharp and merciless about the football and the decisions, but never genuinely cruel and nothing below the belt. About 115-175 words per manager.
+TONE: cheeky and unapologetically take-the-piss — a local-paper columnist who knows everyone personally and never misses a chance to wind them up. Lean HARD into the ribbing: mock the vanity-priced flops, the duds, the bottom-half flailing, the two-point manager strutting like he's won the thing. Lean on each manager's character — but ONLY in the context of the games and their fantasy decisions, NEVER as standalone biography. Everyone in this private league already knows exactly who everyone is, so do NOT introduce or describe a manager for the reader's benefit. NO gratuitous character sketches (e.g. never write things like "Tristan, the big fiercely competitive Russian-raised Londoner who throws his hands up in disgust when things go wrong" — that's pointless throat-clearing, and it's also wrong). Only reach for a trait when a result, pick or scoreline gives you a way to land the joke THROUGH it; if a quirk doesn't connect to what actually happened on the pitch, leave it out entirely. Two standing favourites to come back to whenever they fit: (1) Joe S / "Sheerin" — a gifted flair player in his day whose career was wrecked by one injury after another, and who is hopelessly baffled by modern tech (the internet, apps, AI); rib the glass-bones playing days and the technophobia. (2) Jake / "Snakey" — who blew almost his entire budget on Harry Kane (£33.4m) and filled the rest of his squad on a shoestring; rib the Kane splurge hard. The "who on earth is that?" gag is fair game ONLY for his genuinely obscure, bargain-priced no-names — NOT for well-known players (he plainly knows the likes of Crysencio Summerville, Bruno Guimarães and other recognised names), and it is NOT embarrassing or surprising for Jake to score points through players other than Kane, so never frame his non-Kane returns that way. Jake is the designated whipping boy — give him the biggest digs of all. CHARACTER OWNERSHIP — IMPORTANT: each manager's traits and quirks belong ONLY to that manager; never transplant one manager's joke onto another. ONLY Sheerin is the injury-prone technophobe; ONLY Jake overspent on Kane; and so on — match every personality detail to the correct manager from the profiles, never another. Keep it affectionate ribbing between mates — sharp and merciless about the football and the decisions, but never genuinely cruel and nothing below the belt. About 115-175 words per manager.
 
 ACCURACY RULE: only IN-SCOPE players (country in matchday_nations) can have scored yesterday; an in-scope player on 0 is a genuine blank. The "top_haul", "bargain" and "flop" notes must each name an in-scope player.
 
@@ -444,7 +444,8 @@ def squad_page_html(team, manager, players):
     rows = ""
     for p in players:
         pos = str(p.get("position", "")).upper()
-        rows += (f'<tr><td class="pos {esc(pos)}">{esc(pos)}</td>'
+        rows += (f'<tr data-p="{esc(p.get("name", ""))}" data-r="{int(p.get("round") or 0)}" data-t="{int(p.get("total") or 0)}">'
+                 f'<td class="pos {esc(pos)}">{esc(pos)}</td>'
                  f'<td class="pn">{esc(p.get("name", ""))}</td>'
                  f'<td class="nat">{esc(p.get("nation", "") or "—")}</td>'
                  f'<td class="num">{esc(p.get("price", ""))}</td>'
@@ -479,13 +480,24 @@ def squad_page_html(team, manager, players):
             "</style></head><body><div class=\"wrap\">"
             "<a class=\"back\" href=\"./\">← League table</a>"
             f"<h1>{esc(team)}</h1><div class=\"sub\">Managed by {esc(manager)}</div>"
-            f"<div class=\"stats\"><div class=\"stat\"><b>{season}</b><span>Season pts</span></div>"
-            f"<div class=\"stat\"><b>{rnd}</b><span>This round</span></div>"
+            f"<div class=\"stats\"><div class=\"stat\"><b id=\"sq-se\">{season}</b><span>Season pts</span></div>"
+            f"<div class=\"stat\"><b id=\"sq-rd\">{rnd}</b><span>This round</span></div>"
             f"<div class=\"stat\"><b>{len(players)}</b><span>Squad</span></div></div>"
             "<table><thead><tr><th>Pos</th><th>Player</th><th>Nat</th>"
             "<th class=\"num\">Price</th><th class=\"num\">Rnd</th><th class=\"num\">Total</th></tr></thead>"
             f"<tbody>{rows}</tbody></table>"
-            "<footer>TRM Fantasy · World Cup 2026 · squad data updates daily</footer>"
+            "<footer>TRM Fantasy · World Cup 2026 · points update live during games; squad &amp; prices daily</footer>"
+            "<script>(function(){var W=\"https://trm-live.dapperdon.workers.dev\";"
+            f"var M={json.dumps(manager)};"
+            "function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var live={};"
+            "(d.fixtures||[]).forEach(function(f){(f.players||[]).forEach(function(p){if(p.manager===M&&p.pts!=null)live[p.name]=p.pts;});});"
+            "var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){"
+            "var br=+tr.getAttribute('data-r'),bt=+tr.getAttribute('data-t');"
+            "var lv=live[tr.getAttribute('data-p')];var r=(lv!=null)?lv:br;var t=bt-br+r;"
+            "var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc)rc.textContent=r;if(tc)tc.textContent=t;rnd+=r;tot+=t;});"
+            "var se=document.getElementById('sq-se'),sr=document.getElementById('sq-rd');if(se)se.textContent=tot;if(sr)sr.textContent=rnd;"
+            "}).catch(function(){});}"
+            "poll();setInterval(poll,60000);})();</script>"
             "</div></body></html>")
 
 def write_squad_pages(teams):
@@ -526,6 +538,30 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Wrote {OUTPUT_PATH} ({len(data['articles'])} managers)", flush=True)
+
+    # Per-matchday table movement. Save today's ranks; on the first build of a
+    # NEW day, the previous day's ranks become "baseline.json" — the table as it
+    # was BEFORE the matchday just played. The live page reads baseline.json so
+    # its arrows show movement over the last matchday only. Same-day re-runs
+    # don't re-rotate, so manual rebuilds can't corrupt it.
+    try:
+        ranks = {s["manager"]: i + 1 for i, s in enumerate(
+            sorted(data["standings"], key=lambda s: -int(s.get("total", 0))))}
+        today_iso = datetime.datetime.utcnow().date().isoformat()
+        d = os.path.dirname(OUTPUT_PATH)
+        cur_path, base_path = os.path.join(d, "cur.json"), os.path.join(d, "baseline.json")
+        try:
+            with open(cur_path, encoding="utf-8") as f:
+                existing = json.load(f)
+        except (FileNotFoundError, ValueError):
+            existing = None
+        if existing and existing.get("date") and existing["date"] != today_iso:
+            with open(base_path, "w", encoding="utf-8") as f:
+                json.dump(existing, f)
+        with open(cur_path, "w", encoding="utf-8") as f:
+            json.dump({"date": today_iso, "ranks": ranks}, f)
+    except Exception as e:
+        print(f"  warn: movement snapshot skipped: {e}", file=sys.stderr, flush=True)
 
     # Native squad pages (clean restyle of each team's squad). Wrapped so a
     # squad-extraction hiccup can never break the main roundup build.
