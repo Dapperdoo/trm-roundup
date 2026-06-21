@@ -223,7 +223,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       var ch = prevTotals[r.slug]!==undefined && prevTotals[r.slug]!==r.total;
       return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
         +'<td class="lv-pos">'+r.rank+'</td>'
-        +'<td><a class="lv-link lv-tm" href="https://trm-fantasy.onrender.com/wc/team/'+encodeURIComponent(r.slug)+'" target="_blank" rel="noopener">'+esc(r.team)+'</a> '+move+'</td>'
+        +'<td><a class="lv-link lv-tm" href="team-'+encodeURIComponent(r.slug)+'.html">'+esc(r.team)+'</a> '+move+'</td>'
         +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
         +'<td class="r lv-rem">'+(r.remaining==null?'–':r.remaining)+'</td>'
         +'<td class="r lv-total">'+r.total+'</td></tr>';

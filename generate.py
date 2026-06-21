@@ -147,6 +147,8 @@ TEAM_BY_SLUG = {
     "snacobs-ladder": ("Snacob's Ladder", "Jake"),
 }
 
+SLUG_BY_MANAGER = {mgr: (slug, name) for slug, (name, mgr) in TEAM_BY_SLUG.items()}
+
 def gather():
     t0 = time.time()
     index_html = fetch(INDEX_URL)
@@ -382,6 +384,123 @@ def render(data):
         html = html.replace(k, v)
     return html
 
+SQUAD_SYSTEM = """You extract structured squad data for a fantasy football league. Under "each_managers_squad_text" you are given every manager's squad as raw page text. The pages use MANY different layouts — read each carefully. For EVERY manager, list EVERY player with these fields:
+- name: the player's name.
+- position: one of GK, DEF, MID, FWD.
+- nation: the player's 3-letter country code IF the page shows it; if the page does not show nationalities at all, use "".
+- price: the price exactly as shown, e.g. "£5.7m".
+- round: their points THIS round / gameweek as an integer (the "w"/"WK"/"Week" figure; 0 if none).
+- total: their cumulative SEASON points as an integer (the larger figure).
+Layout hints: many entries read "Name POS • NAT • £5.7m • Since GW1" then "0w 2" (0 = round, 2 = season). Some are tables like "GK Yassine Bounou MAR 4.7 1 0 3" = position, name, nation, cost (= £4.7m), acquired-GW, round-points, total-points. Some pages omit nationalities entirely (use ""). NEVER invent a nationality the page doesn't show. Return ONLY by calling the publish_squads tool, using the manager FIRST NAMES exactly as provided."""
+
+def extract_squads(squads):
+    tool = {
+        "name": "publish_squads",
+        "description": "Return every manager's full squad as structured data.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "teams": {"type": "array", "items": {"type": "object", "properties": {
+                    "manager": {"type": "string"},
+                    "players": {"type": "array", "items": {"type": "object", "properties": {
+                        "name": {"type": "string"},
+                        "position": {"type": "string"},
+                        "nation": {"type": "string"},
+                        "price": {"type": "string"},
+                        "round": {"type": "integer"},
+                        "total": {"type": "integer"},
+                    }, "required": ["name", "position", "nation", "price", "round", "total"]}},
+                }, "required": ["manager", "players"]}},
+            },
+            "required": ["teams"],
+        },
+    }
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=600.0, max_retries=1)
+    payload = {"each_managers_squad_text": squads}
+    last = None
+    for attempt in range(2):
+        try:
+            with client.messages.stream(
+                model=MODEL, max_tokens=16000, temperature=0,
+                system=SQUAD_SYSTEM, tools=[tool],
+                tool_choice={"type": "tool", "name": "publish_squads"},
+                messages=[{"role": "user", "content": json.dumps(payload)}],
+            ) as stream:
+                msg = stream.get_final_message()
+            for block in (msg.content or []):
+                if getattr(block, "type", None) == "tool_use" and isinstance(block.input, dict):
+                    return block.input.get("teams", [])
+            raise RuntimeError("no publish_squads tool call")
+        except Exception as e:
+            last = e
+            print(f"  squad extract attempt {attempt+1} failed: {e}", file=sys.stderr, flush=True)
+            time.sleep(8)
+    raise RuntimeError(f"squad extraction failed: {last}")
+
+def squad_page_html(team, manager, players):
+    order = {"GK": 0, "DEF": 1, "MID": 2, "FWD": 3}
+    players = sorted(players, key=lambda p: (order.get(str(p.get("position", "")).upper(), 9),
+                                             -int(p.get("total") or 0)))
+    rows = ""
+    for p in players:
+        pos = str(p.get("position", "")).upper()
+        rows += (f'<tr><td class="pos {esc(pos)}">{esc(pos)}</td>'
+                 f'<td class="pn">{esc(p.get("name", ""))}</td>'
+                 f'<td class="nat">{esc(p.get("nation", "") or "—")}</td>'
+                 f'<td class="num">{esc(p.get("price", ""))}</td>'
+                 f'<td class="num rd">{esc(p.get("round", 0))}</td>'
+                 f'<td class="num tot">{esc(p.get("total", 0))}</td></tr>')
+    season = sum(int(p.get("total") or 0) for p in players)
+    rnd = sum(int(p.get("round") or 0) for p in players)
+    return ("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+            f"<title>{esc(team)} — Squad</title><style>"
+            ":root{--bg:#0a0e14;--line:#1b2636;--ink:#e8eef6;--mut:#7e8ca0;--cyan:#22d3ee;--amber:#f5c451;"
+            "--gk:#f5c451;--def:#34d399;--mid:#22d3ee;--fwd:#f472b6;}"
+            "*{box-sizing:border-box;}body{margin:0;background:var(--bg);color:var(--ink);"
+            "font-family:Arial,Helvetica,sans-serif;line-height:1.5;}"
+            ".wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px;}"
+            "a.back{color:var(--mut);text-decoration:none;font-size:13px;}a.back:hover{color:var(--cyan);}"
+            "h1{font-size:26px;margin:14px 0 2px;font-weight:900;letter-spacing:-.4px;}"
+            ".sub{color:var(--mut);font-size:13px;}"
+            ".stats{display:flex;gap:24px;margin:16px 0 18px;}"
+            ".stat b{display:block;font-size:22px;color:var(--cyan);font-variant-numeric:tabular-nums;}"
+            ".stat span{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);}"
+            "table{width:100%;border-collapse:collapse;}"
+            "th{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);text-align:left;"
+            "padding:7px 8px;border-bottom:1px solid var(--line);}th.num,td.num{text-align:right;}"
+            "td{padding:9px 8px;border-bottom:1px solid var(--line);font-size:14px;}"
+            ".pos{font-weight:800;font-size:11px;width:34px;color:var(--mut);}"
+            ".pos.GK{color:var(--gk);}.pos.DEF{color:var(--def);}.pos.MID{color:var(--mid);}.pos.FWD{color:var(--fwd);}"
+            ".pn{font-weight:600;}.nat{color:var(--mut);font-size:12px;width:44px;}"
+            ".num{font-variant-numeric:tabular-nums;}.rd{color:var(--amber);font-weight:700;}.tot{color:var(--cyan);font-weight:800;}"
+            "footer{margin-top:24px;border-top:1px solid var(--line);padding-top:12px;color:var(--mut);"
+            "font-size:11px;text-transform:uppercase;letter-spacing:.14em;}"
+            "</style></head><body><div class=\"wrap\">"
+            "<a class=\"back\" href=\"./\">← League table</a>"
+            f"<h1>{esc(team)}</h1><div class=\"sub\">Managed by {esc(manager)}</div>"
+            f"<div class=\"stats\"><div class=\"stat\"><b>{season}</b><span>Season pts</span></div>"
+            f"<div class=\"stat\"><b>{rnd}</b><span>This round</span></div>"
+            f"<div class=\"stat\"><b>{len(players)}</b><span>Squad</span></div></div>"
+            "<table><thead><tr><th>Pos</th><th>Player</th><th>Nat</th>"
+            "<th class=\"num\">Price</th><th class=\"num\">Rnd</th><th class=\"num\">Total</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table>"
+            "<footer>TRM Fantasy · World Cup 2026 · squad data updates daily</footer>"
+            "</div></body></html>")
+
+def write_squad_pages(teams):
+    out_dir = os.path.dirname(OUTPUT_PATH)
+    n = 0
+    for t in teams:
+        info = SLUG_BY_MANAGER.get(t.get("manager"))
+        if not info:
+            continue
+        slug, name = info
+        with open(os.path.join(out_dir, f"team-{slug}.html"), "w", encoding="utf-8") as f:
+            f.write(squad_page_html(name, t.get("manager"), t.get("players", [])))
+        n += 1
+    return n
+
 def main():
     # Reliability: the schedule fires at a couple of backup times in case
     # GitHub silently drops the first one. So that the backups don't rebuild a
@@ -407,6 +526,16 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Wrote {OUTPUT_PATH} ({len(data['articles'])} managers)", flush=True)
+
+    # Native squad pages (clean restyle of each team's squad). Wrapped so a
+    # squad-extraction hiccup can never break the main roundup build.
+    try:
+        print("Extracting squads for native squad pages...", flush=True)
+        teams = extract_squads(squads)
+        n = write_squad_pages(teams)
+        print(f"Wrote {n} squad pages", flush=True)
+    except Exception as e:
+        print(f"  warn: squad pages skipped this run: {e}", file=sys.stderr, flush=True)
 
 if __name__ == "__main__":
     main()
