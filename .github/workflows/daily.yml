@@ -2,7 +2,9 @@ name: Build Roundup
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "41 6 * * *"
+    - cron: "41 7 * * *"
+    - cron: "41 8 * * *"
   workflow_dispatch: {}
 
 permissions:
