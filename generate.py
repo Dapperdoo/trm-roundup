@@ -65,6 +65,7 @@ MATCHDAY = YESTERDAY'S GAMES ONLY — THE SINGLE MOST IMPORTANT RULE. This bulle
 • recap_date — the day being recapped.
 • matchday_fixtures — the ONLY fixtures in scope, e.g. "USA v AUS, SCO v MAR, BRA v HAI, TUR v PAR".
 • matchday_nations — the ONLY national teams whose players are in scope, e.g. ["USA","AUS","SCO","MAR","BRA","HAI","TUR","PAR"]. These are the 3-letter country codes shown beside players in the squad lists.
+• already_played_earlier — nations that played EARLIER in this round. Their players STILL show this round's points in the squad lists, which makes them dangerously tempting — but they did NOT play yesterday and are OUT OF SCOPE. Never name, credit or score any of their players. EXAMPLE: if BRA is in already_played_earlier, then Brazil's players (Bruno Guimarães, Matheus Cunha, Vinícius Júnior, etc.) do NOT count for this edition, no matter how many round points they are showing. Check every player you name against this list and drop them if their country appears here.
 A manager's haul for yesterday = ONLY the points of their players whose country code is in matchday_nations. Add those up, name those players, and IGNORE every other player completely. Any player whose country is NOT in matchday_nations is OUT OF SCOPE — their game was on a different day or has not happened — so do not name them, score them, or call them blanks. Do NOT mention any fixture, nation, score or player that is not in yesterday's list: if Czech Republic, Switzerland, Canada, Mexico etc. are not in matchday_nations, they do not exist for this edition. Do NOT use the standings "round" column as the day's haul — it accumulates points from earlier days of the round; work the day's haul out yourself from the matchday_nations players only. (The group stage runs in rounds of one game per team, but those games are spread across many days — only the single day above counts here. The standings you are given are cumulative and used ONLY for current league positions.) If matchday_nations is empty, simply report there were no fixtures yesterday and keep it brief.
 
 You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country and price. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time) and date. READ it and WRITE the column from it.
@@ -161,15 +162,61 @@ def gather():
             print(f"  warn: {slug}: {e}", file=sys.stderr, flush=True)
     return standings_text, squads
 
+SCHEDULE_PATH = "schedule.json"
+
+def _matchday_key(date_str, time_str):
+    # A fixture's matchday = the tournament (US) calendar day. On the UK clock
+    # a day's slate runs from evening into the next morning, so shifting back
+    # 12h files an overnight kickoff (e.g. 01:30) under the right evening's day.
+    dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+    return (dt - datetime.timedelta(hours=12)).date().strftime("%Y-%m-%d")
+
+def load_schedule(standings_text):
+    # Self-updating fixture calendar. Starts from the hand-verified seed, merges
+    # anything captured on earlier runs, then captures today's still-upcoming
+    # fixtures (they carry dates on the page; finished games lose them). So the
+    # calendar extends itself through round 3 and the knockouts with no manual
+    # input — each fixture is recorded while it's still in the future.
+    sched = {k: [list(t) for t in v] for k, v in SCHEDULE.items()}
+    try:
+        with open(SCHEDULE_PATH, encoding="utf-8") as f:
+            for k, fxs in json.load(f).items():
+                bucket = sched.setdefault(k, [])
+                for fx in fxs:
+                    if list(fx) not in bucket:
+                        bucket.append(list(fx))
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print(f"  warn: reading {SCHEDULE_PATH}: {e}", file=sys.stderr, flush=True)
+    for h, tm, a, d in re.findall(
+            r"\b([A-Z]{3})\s+(\d{1,2}:\d{2})\s+([A-Z]{3})\s+(\d{4}-\d{2}-\d{2})", standings_text):
+        bucket = sched.setdefault(_matchday_key(d, tm), [])
+        if [h, a] not in bucket:
+            bucket.append([h, a])
+    try:
+        with open(SCHEDULE_PATH, "w", encoding="utf-8") as f:
+            json.dump(sched, f, sort_keys=True, indent=0)
+    except Exception as e:
+        print(f"  warn: writing {SCHEDULE_PATH}: {e}", file=sys.stderr, flush=True)
+    return sched
+
 def write_copy(standings_text, squads):
-    # Work out yesterday's matchday from the fixed SCHEDULE, so the report is
-    # scoped to EXACTLY that day's games — the only points that were in play
+    # Work out yesterday's matchday from the self-updating calendar, so the
+    # report is scoped to EXACTLY that day's games — the only points in play
     # yesterday — and can't bleed into earlier days of the same round.
     today = datetime.datetime.utcnow().date()
     recap = today - datetime.timedelta(days=1)
-    y_fixtures = SCHEDULE.get(recap.strftime("%Y-%m-%d"), [])
+    sched = load_schedule(standings_text)
+    y_key = recap.strftime("%Y-%m-%d")
+    y_fixtures = sched.get(y_key, [])
     y_nations = sorted({c for fx in y_fixtures for c in fx})
-    t_fixtures = SCHEDULE.get(today.strftime("%Y-%m-%d"), [])
+    # Nations that played EARLIER in the round still carry this-round points in
+    # the squad lists. They did NOT play yesterday, so the AI must exclude them
+    # (this is the trap that let a Friday Brazil score sneak into Saturday).
+    earlier_nations = sorted({c for d, fxs in sched.items() if d < y_key
+                              for fx in fxs for c in fx} - set(y_nations))
+    t_fixtures = sched.get(today.strftime("%Y-%m-%d"), [])
     recap_label = "Matchday · " + recap.strftime("%a %d %b")
     payload = {
         "todays_date_utc": today.strftime("%Y-%m-%d (%A)"),
@@ -177,6 +224,7 @@ def write_copy(standings_text, squads):
         "recap_matchday_label": recap_label,
         "matchday_fixtures": ", ".join(f"{h} v {a}" for h, a in y_fixtures) or "(none on record)",
         "matchday_nations": y_nations,
+        "already_played_earlier": earlier_nations,
         "tonight_fixtures": ", ".join(f"{h} v {a}" for h, a in t_fixtures) or "(none on record)",
         "manager_profiles": MANAGERS,
         "relationships": RELATIONSHIPS,
