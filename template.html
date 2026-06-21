@@ -186,13 +186,42 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 (function(){
   var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
   var POLL_MS = 60000;
-  var prevTotals = {}, lastUpdated = null;
+  var prevTotals = {}, lastUpdated = null, lastFixtures = [], lastStandings = null;
   var baselineRanks = null;  // ranks before the last matchday, from baseline.json
   fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j && j.ranks) baselineRanks = j.ranks; }).catch(function(){});
+    .then(function(j){ if(j && j.ranks){ baselineRanks = j.ranks; redraw(); } }).catch(function(){});
+  // Owned players by 3-letter nation code. The live feed only lists a fixture's
+  // owned players once it's live/finished; before kickoff we fall back to this
+  // map so "to play" and the fixture boxes still work all day. Loaded once.
+  var ownedByNation = null;
+  fetch("owned-by-nation.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if(j){ ownedByNation = j; redraw(); } }).catch(function(){});
+  function redraw(){ if(lastStandings){ renderFixtures(lastFixtures); renderStandings(lastStandings); } }
   function $(id){ return document.getElementById(id); }
   function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
   function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+  // A fixture's owned players: the live feed's list (with points) if present,
+  // otherwise derived from the squad nation map (names only, points not yet in).
+  function fxPlayers(f){
+    if (f.players && f.players.length) return f.players;
+    if (ownedByNation){
+      return ((ownedByNation[f.home]||[]).concat(ownedByNation[f.away]||[]))
+        .map(function(p){ return {name:p.name, manager:p.manager, pts:null}; });
+    }
+    return [];
+  }
+  // "To play" = a manager's owned players whose nation still has a match left
+  // this round (any fixture not yet finished).
+  function toPlayMap(){
+    if (!ownedByNation) return null;
+    var rem = {};
+    lastFixtures.forEach(function(f){ if(f.status!=="finished"){ rem[f.home]=1; rem[f.away]=1; } });
+    var m = {};
+    Object.keys(ownedByNation).forEach(function(nat){
+      if (rem[nat]) ownedByNation[nat].forEach(function(p){ m[p.manager] = (m[p.manager]||0)+1; });
+    });
+    return m;
+  }
   function renderFixtures(fx){
     var order = {live:0, upcoming:1, finished:2};
     var upc = 0;
@@ -206,13 +235,14 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       var head = '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div>';
       // Each fixture with owned players is a click-to-expand panel listing every
       // owned player in the match and which manager owns them (live ones open).
-      if (f.players && f.players.length){
-        var pls = '<div class="lv-fx-pls">' + f.players.map(function(p){
+      var pl = fxPlayers(f);
+      if (pl.length){
+        var pls = '<div class="lv-fx-pls">' + pl.map(function(p){
           return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
                + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
                + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
         }).join('') + '</div>';
-        var n = f.players.length;
+        var n = pl.length;
         return '<details class="lv-fx '+f.status+'"'+(f.status==="live"?" open":"")+'>'
              + '<summary class="lv-fx-sum">'+head
              + '<span class="lv-fx-count">'+n+' player'+(n===1?'':'s')+'</span>'
@@ -226,6 +256,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     var tb = $("lv-tbody");
     // Movement = change in table position over the LAST matchday: current rank
     // vs the rank in baseline.json (the table before last night's games).
+    var tp = toPlayMap();  // null until the nation map loads; then per-manager counts
     tb.innerHTML = rows.map(function(r){
       var d = (baselineRanks && baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager] - r.rank) : 0;
       var move = d>0 ? '<span class="lv-move up">▲ '+d+'</span>'
@@ -236,7 +267,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
         +'<td class="lv-pos">'+r.rank+'</td>'
         +'<td><a class="lv-link lv-tm" href="team-'+encodeURIComponent(r.slug)+'.html">'+esc(r.team)+'</a> '+move+'</td>'
         +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
-        +'<td class="r lv-rem">'+(r.remaining==null?'–':r.remaining)+'</td>'
+        +'<td class="r lv-rem">'+(tp?(tp[r.manager]||0):(r.remaining==null?'–':r.remaining))+'</td>'
         +'<td class="r lv-total">'+r.total+'</td></tr>';
     }).join("");
     Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ch="1"]'), function(tr){
@@ -258,8 +289,10 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       // strip and the movement flashes simply switch on while a game is in play.
       $("lv-md").textContent = d.matchday || "";
       $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
-      renderFixtures(d.fixtures||[]);
-      renderStandings(d.standings||[]);
+      lastFixtures = d.fixtures||[];
+      lastStandings = d.standings||[];
+      renderFixtures(lastFixtures);
+      renderStandings(lastStandings);
       tick();
     }).catch(function(e){
       var el=$("lv-err"); el.textContent = "Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block";

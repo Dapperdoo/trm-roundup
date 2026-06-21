@@ -570,6 +570,22 @@ def main():
         teams = extract_squads(squads)
         n = write_squad_pages(teams)
         print(f"Wrote {n} squad pages", flush=True)
+
+        # Owned players grouped by 3-letter nation code. The source site only
+        # attaches owned players to a fixture once it's live/finished, so before
+        # kickoff the live board can't read them from the feed. This map lets the
+        # page compute "to play" (squad nations vs nations with a match left this
+        # round) and pre-kickoff fixture player lists from the squads instead.
+        nat = {}
+        for t in teams:
+            mgr = t.get("manager")
+            for p in t.get("players", []):
+                code = (p.get("nation") or "").strip().upper()
+                if len(code) == 3 and code.isalpha():
+                    nat.setdefault(code, []).append({"name": p.get("name", ""), "manager": mgr})
+        with open(os.path.join(os.path.dirname(OUTPUT_PATH), "owned-by-nation.json"), "w", encoding="utf-8") as f:
+            json.dump(nat, f)
+        print(f"Wrote owned-by-nation.json ({len(nat)} nations)", flush=True)
     except Exception as e:
         print(f"  warn: squad pages skipped this run: {e}", file=sys.stderr, flush=True)
 
