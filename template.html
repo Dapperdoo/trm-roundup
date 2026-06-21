@@ -91,6 +91,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .up{color:var(--lg);} #trmlive .down{color:var(--lr);} #trmlive .same{color:var(--lm); opacity:.5;}
 #trmlive .lv-tm{font-weight:700; color:var(--li);} #trmlive .lv-mgr{color:var(--lm); font-size:12px;}
 #trmlive .lv-round{color:var(--lc); font-weight:700; font-variant-numeric:tabular-nums;}
+#trmlive .lv-rem{color:var(--la); font-weight:700; font-variant-numeric:tabular-nums;}
 #trmlive .lv-total{font-weight:900; font-size:16px; font-variant-numeric:tabular-nums; color:var(--li);}
 #trmlive .lv-table tr.lead .lv-total{color:var(--la);}
 #trmlive .lv-note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin:12px 0 0; border-top:1px solid var(--ll); padding-top:10px;}
@@ -114,7 +115,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   <div id="lv-err" class="lv-err"></div>
   <div id="lv-fixtures" class="lv-fixtures"></div>
   <table class="lv-table">
-    <thead><tr><th class="lv-pos">#</th><th class="lv-mv"></th><th>Team</th><th class="r">Round</th><th class="r">Total</th></tr></thead>
+    <thead><tr><th class="lv-pos">#</th><th class="lv-mv"></th><th>Team</th><th class="r">Round</th><th class="r" title="Squad players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
     <tbody id="lv-tbody"></tbody>
   </table>
   <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show movement since you opened the page.</div>
@@ -191,6 +192,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
         +'<td class="lv-mv">'+mv+'</td>'
         +'<td><a class="lv-link lv-tm" href="https://trm-fantasy.onrender.com/wc/team/'+encodeURIComponent(r.slug)+'" target="_blank" rel="noopener">'+esc(r.team)+'</a> <span class="lv-mgr">'+esc(r.manager)+'</span></td>'
         +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
+        +'<td class="r lv-rem">'+(r.remaining==null?'–':r.remaining)+'</td>'
         +'<td class="r lv-total">'+r.total+'</td></tr>';
     }).join("");
     Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ch="1"]'), function(tr){
