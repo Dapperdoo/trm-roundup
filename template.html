@@ -73,12 +73,17 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-meta b{color:var(--li);}
 #trmlive .lv-btn{background:var(--lp); color:var(--li); border:1px solid var(--ll); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
 #trmlive .lv-btn:hover{border-color:var(--lc);}
-#trmlive .lv-fixtures{display:flex; gap:8px; overflow-x:auto; padding-bottom:12px; margin-bottom:10px;}
-#trmlive .lv-fx{flex:0 0 auto; background:var(--lp); border:1px solid var(--ll); border-radius:8px; padding:7px 10px; min-width:112px; font-family:Arial,Helvetica,sans-serif;}
+#trmlive .lv-fixtures{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; padding-bottom:12px; margin-bottom:10px;}
+#trmlive .lv-fx{align-self:start; background:var(--lp); border:1px solid var(--ll); border-radius:8px; padding:8px 11px; font-family:Arial,Helvetica,sans-serif;}
 #trmlive .lv-fx .t{font-weight:700; font-size:13px; color:var(--li);}
 #trmlive .lv-fx .s{font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:3px; color:var(--lm);}
 #trmlive .lv-fx.live{border-color:var(--lg);} #trmlive .lv-fx.live .s{color:var(--lg);}
 #trmlive .lv-fx.upcoming .s{color:var(--la);}
+#trmlive .lv-fx-pls{margin-top:8px; border-top:1px solid var(--ll); padding-top:6px;}
+#trmlive .lv-pl{display:flex; align-items:baseline; gap:6px; font-size:11.5px; padding:2px 0;}
+#trmlive .lv-pl-n{color:var(--li); flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#trmlive .lv-pl-m{color:var(--lm); font-size:10px; white-space:nowrap;}
+#trmlive .lv-pl-p{color:var(--lc); font-weight:800; min-width:20px; text-align:right; font-variant-numeric:tabular-nums;}
 #trmlive .lv-table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
 #trmlive .lv-table th{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--lm); text-align:left; padding:6px 8px; border-bottom:1px solid var(--ll);}
 #trmlive .lv-table th.r{text-align:right;}
@@ -89,7 +94,11 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-table tr.lead .lv-pos{color:var(--la);}
 #trmlive .lv-mv{width:26px; text-align:center; font-weight:900; font-size:13px;}
 #trmlive .up{color:var(--lg);} #trmlive .down{color:var(--lr);} #trmlive .same{color:var(--lm); opacity:.5;}
-#trmlive .lv-tm{font-weight:700; color:var(--li);} #trmlive .lv-mgr{color:var(--lm); font-size:12px;}
+#trmlive .lv-tm{font-weight:700; color:var(--li);}
+#trmlive .lv-move{font-weight:800; font-size:12px; margin-left:7px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+#trmlive .lv-move.up{color:var(--lg);}
+#trmlive .lv-move.down{color:var(--lr);}
+#trmlive .lv-move.same{color:#ffffff;}
 #trmlive .lv-round{color:var(--lc); font-weight:700; font-variant-numeric:tabular-nums;}
 #trmlive .lv-rem{color:var(--la); font-weight:700; font-variant-numeric:tabular-nums;}
 #trmlive .lv-total{font-weight:900; font-size:16px; font-variant-numeric:tabular-nums; color:var(--li);}
@@ -115,7 +124,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   <div id="lv-err" class="lv-err"></div>
   <div id="lv-fixtures" class="lv-fixtures"></div>
   <table class="lv-table">
-    <thead><tr><th class="lv-pos">#</th><th class="lv-mv"></th><th>Team</th><th class="r">Round</th><th class="r" title="Squad players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
+    <thead><tr><th class="lv-pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Squad players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
     <tbody id="lv-tbody"></tbody>
   </table>
   <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show movement since you opened the page.</div>
@@ -172,25 +181,51 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   function $(id){ return document.getElementById(id); }
   function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
   function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+  function inBatch(f){
+    // "today's batch" = live games, plus upcoming games kicking off within ~18h
+    // (this evening through the overnight). Finished games lose their date on
+    // the page, so they can't be placed in a day and just show the score.
+    if (f.status==="live") return true;
+    if (f.status!=="upcoming") return false;
+    if (!f.date || !f.kickoff) return true;
+    var dt = new Date(f.date+"T"+f.kickoff+":00").getTime();
+    return isNaN(dt) ? true : (dt - Date.now())/3600000 <= 18;
+  }
   function renderFixtures(fx){
     var order = {live:0, upcoming:1, finished:2};
     $("lv-fixtures").innerHTML = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).map(function(f){
       var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
       var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
-      return '<div class="lv-fx '+f.status+'"><div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div></div>';
+      var players = "";
+      if (inBatch(f) && f.players && f.players.length){
+        players = '<div class="lv-fx-pls">' + f.players.map(function(p){
+          return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
+               + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
+               + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
+        }).join('') + '</div>';
+      }
+      return '<div class="lv-fx '+f.status+'">'
+           + '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div>'
+           + '<div class="s">'+lab+'</div>'
+           + players + '</div>';
     }).join("");
   }
   function renderStandings(rows){
-    if(!baseline){ baseline = {}; rows.forEach(function(r){ baseline[r.slug]=r.rank; }); }
     var tb = $("lv-tbody");
+    // Movement = change in table position since the start of the current round
+    // (rank by points-before-this-round vs current rank). + = up, - = down.
+    var prev = rows.map(function(r){ return { slug:r.slug, p:(r.total||0)-(r.round||0) }; });
+    prev.sort(function(a,b){ return b.p - a.p; });
+    var prevRank = {}; prev.forEach(function(o,i){ prevRank[o.slug] = i+1; });
     tb.innerHTML = rows.map(function(r){
-      var d = (baseline[r.slug]==null ? r.rank : baseline[r.slug]) - r.rank;
-      var mv = d>0 ? '<span class="up">▲'+d+'</span>' : d<0 ? '<span class="down">▼'+(-d)+'</span>' : '<span class="same">–</span>';
+      var d = (prevRank[r.slug]||r.rank) - r.rank;
+      var move = d>0 ? '<span class="lv-move up">▲ '+d+'</span>'
+               : d<0 ? '<span class="lv-move down">▼ '+(-d)+'</span>'
+               : '';
       var ch = prevTotals[r.slug]!==undefined && prevTotals[r.slug]!==r.total;
       return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
         +'<td class="lv-pos">'+r.rank+'</td>'
-        +'<td class="lv-mv">'+mv+'</td>'
-        +'<td><a class="lv-link lv-tm" href="https://trm-fantasy.onrender.com/wc/team/'+encodeURIComponent(r.slug)+'" target="_blank" rel="noopener">'+esc(r.team)+'</a> <span class="lv-mgr">'+esc(r.manager)+'</span></td>'
+        +'<td><a class="lv-link lv-tm" href="https://trm-fantasy.onrender.com/wc/team/'+encodeURIComponent(r.slug)+'" target="_blank" rel="noopener">'+esc(r.team)+'</a> '+move+'</td>'
         +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
         +'<td class="r lv-rem">'+(r.remaining==null?'–':r.remaining)+'</td>'
         +'<td class="r lv-total">'+r.total+'</td></tr>';
