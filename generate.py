@@ -13,6 +13,7 @@ import sys
 import json
 import time
 import datetime
+import unicodedata
 import urllib.request
 
 import anthropic
@@ -25,6 +26,44 @@ OUTPUT_PATH = "docs/index.html"
 MODEL = "claude-sonnet-4-6"
 
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
+
+def _norm_name(s):
+    """Lowercase, strip accents and collapse spaces, so a name matches the
+    fallback table even if accents/casing differ between sources."""
+    s = unicodedata.normalize("NFKD", str(s or ""))
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return " ".join(s.lower().split())
+
+# Some teams' source pages don't show player nationalities (notably Lloyd's Food
+# and Wine / Chris). Without a country we can't tell which nation a player is in,
+# so their "to play" count and squad-page flags break. This table fills the gaps,
+# keyed by normalised player name -> the tournament's 3-letter nation code.
+NATION_FALLBACK = {
+    "bart verbruggen": "NED",
+    "lisandro martinez": "ARG",
+    "marquinhos": "BRA",
+    "odilon kossounou": "CIV",
+    "theo hernandez": "FRA",
+    "angelo preciado": "ECU",
+    "evan ndicka": "CIV",
+    "lucas paqueta": "BRA",
+    "alexis mac allister": "ARG",
+    "bukayo saka": "ENG",
+    "kevin de bruyne": "BEL",
+    "giovanni reyna": "USA",
+    "cody gakpo": "NED",
+    "anthony elanga": "SWE",
+    "yoane wissa": "COD",
+    "folarin balogun": "USA",
+    "son heung-min": "KOR",
+    "darwin nunez": "URU",
+}
+
+def player_nation(p):
+    """A player's 3-letter nation code: from the source page if present,
+    otherwise from NATION_FALLBACK (for pages that omit nationalities)."""
+    code = (p.get("nation") or "").strip().upper()
+    return code or NATION_FALLBACK.get(_norm_name(p.get("name", "")), "")
 
 MANAGERS = {
     "Joe S": "Back of the Van United — aka 'Sheerin'; universally popular ex-pro footballer, a real flair player whose career was forever interrupted by injuries; loved the party-boy lifestyle as much as the game; utterly baffled by modern tech (internet, apps, AI).",
@@ -242,10 +281,10 @@ def write_copy(standings_text, squads, teams=None):
                 continue
             played = [
                 {"name": p.get("name", ""),
-                 "nation": (p.get("nation") or "").strip().upper(),
+                 "nation": player_nation(p),
                  "points": int(p.get("round") or 0)}
                 for p in t.get("players", [])
-                if (p.get("nation") or "").strip().upper() in yset
+                if player_nation(p) in yset
             ]
             played.sort(key=lambda x: -x["points"])
             scoreboard[mgr] = {"yesterday_haul": sum(x["points"] for x in played),
@@ -484,7 +523,7 @@ def squad_page_html(team, manager, players):
         rows += (f'<tr data-p="{esc(p.get("name", ""))}" data-r="{int(p.get("round") or 0)}" data-t="{int(p.get("total") or 0)}">'
                  f'<td class="pos {esc(pos)}">{esc(pos)}</td>'
                  f'<td class="pn">{esc(p.get("name", ""))}</td>'
-                 f'<td class="nat">{esc(p.get("nation", "") or "—")}</td>'
+                 f'<td class="nat">{esc(player_nation(p) or "—")}</td>'
                  f'<td class="num">{esc(p.get("price", ""))}</td>'
                  f'<td class="num rd">{esc(p.get("round", 0))}</td>'
                  f'<td class="num tot">{esc(p.get("total", 0))}</td></tr>')
@@ -526,15 +565,17 @@ def squad_page_html(team, manager, players):
             "<footer>TRM Fantasy · World Cup 2026 · points update live during games; squad &amp; prices daily</footer>"
             "<script>(function(){var W=\"https://trm-live.dapperdon.workers.dev\";"
             f"var M={json.dumps(manager)};"
+            "function nrm(s){return (s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/\\s+/g,' ').trim();}"
             "function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var live={};"
-            "(d.fixtures||[]).forEach(function(f){(f.players||[]).forEach(function(p){if(p.manager===M&&p.pts!=null)live[p.name]=p.pts;});});"
+            "(d.fixtures||[]).forEach(function(f){(f.players||[]).forEach(function(p){if(p.manager===M&&p.pts!=null)live[nrm(p.name)]=p.pts;});});"
             "var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){"
             "var br=+tr.getAttribute('data-r'),bt=+tr.getAttribute('data-t');"
-            "var lv=live[tr.getAttribute('data-p')];var r=(lv!=null)?lv:br;var t=bt-br+r;"
-            "var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc)rc.textContent=r;if(tc)tc.textContent=t;rnd+=r;tot+=t;});"
+            "var lv=live[nrm(tr.getAttribute('data-p'))];var r=(lv!=null)?lv:br;var t=bt-br+r;"
+            "var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');"
+            "if(rc){rc.textContent=r;rc.style.color=(lv!=null)?'var(--cyan)':'';}if(tc)tc.textContent=t;rnd+=r;tot+=t;});"
             "var se=document.getElementById('sq-se'),sr=document.getElementById('sq-rd');if(se)se.textContent=tot;if(sr)sr.textContent=rnd;"
             "}).catch(function(){});}"
-            "poll();setInterval(poll,60000);})();</script>"
+            "poll();setInterval(poll,30000);})();</script>"
             "</div></body></html>")
 
 def write_squad_pages(teams):
@@ -622,7 +663,7 @@ def main():
         for t in teams:
             mgr = t.get("manager")
             for p in t.get("players", []):
-                code = (p.get("nation") or "").strip().upper()
+                code = player_nation(p)
                 if len(code) == 3 and code.isalpha():
                     nat.setdefault(code, []).append({"name": p.get("name", ""), "manager": mgr})
         with open(os.path.join(os.path.dirname(OUTPUT_PATH), "owned-by-nation.json"), "w", encoding="utf-8") as f:
