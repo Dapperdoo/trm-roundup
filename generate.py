@@ -333,6 +333,21 @@ def render(data):
     return html
 
 def main():
+    # Reliability: the schedule fires at a couple of backup times in case
+    # GitHub silently drops the first one. So that the backups don't rebuild a
+    # day that's already done, a SCHEDULED run skips if today's edition is
+    # already published. Manual ("workflow_dispatch") runs always rebuild, so
+    # you can still force a refresh or a fix whenever you like.
+    if os.environ.get("GITHUB_EVENT_NAME") == "schedule":
+        recap = datetime.datetime.utcnow().date() - datetime.timedelta(days=1)
+        recap_label = "Matchday · " + recap.strftime("%a %d %b")
+        try:
+            with open(OUTPUT_PATH, encoding="utf-8") as f:
+                if recap_label in f.read():
+                    print(f"Already built for {recap_label}; skipping this scheduled run.", flush=True)
+                    return
+        except FileNotFoundError:
+            pass
     print("Fetching league pages...", flush=True)
     standings_text, squads = gather()
     print(f"Writing the column with Claude... ({len(squads)} squads gathered)", flush=True)
