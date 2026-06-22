@@ -38,7 +38,6 @@ h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -web
 #trmlive .lv-dot.live{animation:lvpulse 1.8s infinite;}
 #trmlive .lv-dot.off{background:var(--lm);}
 @keyframes lvpulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
-#trmlive .lv-md{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lc); text-transform:uppercase; letter-spacing:.14em;}
 #trmlive .lv-meta{margin-left:auto; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lm);}
 #trmlive .lv-meta b{color:var(--li);}
 #trmlive .lv-btn{background:var(--lp); color:var(--li); border:1px solid var(--ll); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
@@ -132,7 +131,6 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   <div class="lv-head">
     <span class="lv-brand">LEAGUE <span>TABLE</span></span>
     <span id="lv-dot" class="lv-dot off" title="live status"></span>
-    <span id="lv-md" class="lv-md"></span>
     <span class="lv-meta"><span id="lv-status">Connecting…</span><button id="lv-refresh" class="lv-btn" title="Refresh">↻</button></span>
   </div>
   <div id="lv-err" class="lv-err"></div>
@@ -149,12 +147,13 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 <div class="triv-label">The numbers · refreshes live</div>
 <div class="triv">
   <div class="tcard"><h3>Best value <span class="unit">pts / £m</span></h3><div id="tv-value" class="tbody"></div></div>
-  <div class="tcard"><h3>Top matchday scorers <span class="unit">round pts</span></h3><div id="tv-mdscore" class="tbody"></div></div>
+  <div class="tcard"><h3>Top round scorers <span class="unit">round pts</span></h3><div id="tv-mdscore" class="tbody"></div></div>
   <div class="tcard"><h3>Top overall scorers <span class="unit">season pts</span></h3><div id="tv-overall" class="tbody"></div></div>
-  <div class="tcard"><h3>Manager of the matchday</h3><div id="tv-manager" class="tbody"></div></div>
+  <div class="tcard"><h3>Manager of the round</h3><div id="tv-manager" class="tbody"></div></div>
   <div class="tcard"><h3>Biggest table mover</h3><div id="tv-mover" class="tbody"></div></div>
-  <div class="tcard"><h3>Priciest flops <span class="unit">round pts</span></h3><div id="tv-flop" class="tbody"></div></div>
-  <div class="tcard"><h3>Top-scoring nations <span class="unit">round pts</span></h3><div id="tv-nation" class="tbody"></div></div>
+  <div class="tcard"><h3>Priciest flops <span class="unit">season pts</span></h3><div id="tv-flop" class="tbody"></div></div>
+  <div class="tcard"><h3>Top-scoring nations <span class="unit">season pts</span></h3><div id="tv-nation" class="tbody"></div></div>
+  <div class="tcard"><h3>Lowest-scoring nations <span class="unit">season pts</span></h3><div id="tv-nation-low" class="tbody"></div></div>
 </div>
 
 <footer>TRM Fantasy · World Cup 2026 · table &amp; fixtures live from the league · player points live from FIFA official</footer>
@@ -306,6 +305,12 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
          + (meta?'<span class="tm">'+esc(meta)+'</span>':'')
          + '<span class="tv'+(vClass?' '+vClass:'')+'">'+val+'</span></div>';
   }
+  function natRow(rank, code, val, vClass){
+    return '<div class="trow"><span class="trank">'+rank+'</span>'
+         + '<span class="tnat">'+esc(code)+'</span>'
+         + '<span class="tn"></span>'
+         + '<span class="tv'+(vClass?' '+vClass:'')+'">'+val+'</span></div>';
+  }
   function need(id){ $(id).innerHTML = '<div class="tneed">Awaiting squad price data — add <b>owned-players.json</b> (see build notes). The other panels run on the live feed.</div>'; }
   function empty(id, msg){ $(id).innerHTML = '<div class="tempty">'+esc(msg)+'</div>'; }
 
@@ -324,7 +329,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
         : '<div class="tempty">No priced players yet.</div>';
     }
 
-    // --- Top matchday (this-round) scorers ---
+    // --- Top round scorers (this-round points) ---
     if (!ps.length){ empty("tv-mdscore", "No squad data yet."); }
     else {
       var md = ps.slice().sort(function(a,b){ return b.round-a.round; }).slice(0,5);
@@ -388,38 +393,45 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       }
     }
 
-    // --- Priciest flops: expensive players returning least this round ---
+    // --- Priciest flops: expensive players returning least OVERALL (season pts) ---
     if (!hasRich()){ need("tv-flop"); }
     else {
-      var priced = ps.filter(function(p){ return p.price>0; });
+      var priced = ps.filter(function(p){ return p.price>0 && p.total!=null; });
       if (!priced.length){ empty("tv-flop", "No priced players yet."); }
       else {
         var prices = priced.map(function(p){ return p.price; }).sort(function(a,b){ return a-b; });
         var thr = prices[Math.floor(prices.length*0.65)] || prices[prices.length-1];
         var flops = priced.filter(function(p){ return p.price>=thr; })
-          .sort(function(a,b){ return (a.round-b.round) || (b.price-a.price); }).slice(0,4);
+          .sort(function(a,b){ return (a.total-b.total) || (b.price-a.price); }).slice(0,4);
         $("tv-flop").innerHTML = flops.map(function(it,i){
-          return rowHTML(i+1, it.name, "£"+it.price.toFixed(1)+"m", it.round,
-                         it.round<=0 ? "red" : "");
+          return rowHTML(i+1, it.name, "£"+it.price.toFixed(1)+"m", it.total,
+                         it.total<=0 ? "red" : "");
         }).join("");
       }
     }
 
-    // --- Top-scoring nations (this round, owned players) ---
-    if (!ps.length){ empty("tv-nation", "No squad data yet."); }
+    // --- Top-scoring nations (total tournament points, owned players) ---
+    if (!hasRich()){ need("tv-nation"); }
     else {
       var byNat = {};
-      ps.forEach(function(p){ if(p.nation){ byNat[p.nation] = (byNat[p.nation]||0) + p.round; } });
+      ps.forEach(function(p){ if(p.nation && p.total!=null){ byNat[p.nation] = (byNat[p.nation]||0) + p.total; } });
       var nats = Object.keys(byNat).map(function(c){ return {c:c, v:byNat[c]}; })
-        .sort(function(a,b){ return b.v-a.v; }).slice(0,5);
-      $("tv-nation").innerHTML = (nats[0] && nats[0].v>0)
-        ? nats.map(function(it,i){
-            return '<div class="trow"><span class="trank">'+(i+1)+'</span>'
-                 + '<span class="tnat">'+esc(it.c)+'</span>'
-                 + '<span class="tn"></span>'
-                 + '<span class="tv">'+it.v+'</span></div>';
-          }).join("")
-        : '<div class="tempty">No points on the board yet this round.</div>';
+        .sort(function(a,b){ return (b.v-a.v) || (a.c<b.c?-1:1); }).slice(0,5);
+      $("tv-nation").innerHTML = nats.length
+        ? nats.map(function(it,i){ return natRow(i+1, it.c, it.v); }).join("")
+        : '<div class="tempty">No nation points yet.</div>';
+    }
+
+    // --- Lowest-scoring nations (total tournament points, owned players) ---
+    if (!hasRich()){ need("tv-nation-low"); }
+    else {
+      var byNatL = {};
+      ps.forEach(function(p){ if(p.nation && p.total!=null){ byNatL[p.nation] = (byNatL[p.nation]||0) + p.total; } });
+      var natsL = Object.keys(byNatL).map(function(c){ return {c:c, v:byNatL[c]}; })
+        .sort(function(a,b){ return (a.v-b.v) || (a.c<b.c?-1:1); }).slice(0,5);
+      $("tv-nation-low").innerHTML = natsL.length
+        ? natsL.map(function(it,i){ return natRow(i+1, it.c, it.v, it.v<=0?"red":""); }).join("")
+        : '<div class="tempty">No nations yet.</div>';
     }
   }
 
@@ -433,7 +445,6 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       if(d.error) throw new Error(d.error);
       $("lv-err").style.display="none";
       lastUpdated = d.updated;
-      $("lv-md").textContent = d.matchday || "";
       $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
       lastFixtures = d.fixtures||[];
       lastStandings = d.standings||[];
