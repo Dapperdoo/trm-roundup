@@ -83,6 +83,31 @@ h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -web
 #trmlive .lv-link{color:var(--li); text-decoration:none; border-bottom:1px dotted var(--lm);}
 #trmlive .lv-link:hover{color:var(--lc); border-bottom-color:var(--lc);}
 
+/* ===== In-play matches (live boxes from FIFA: score, clock, scorers) ===== */
+#trmlive .lv-inplay-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--lg); margin:8px 0 9px; display:flex; align-items:center; gap:8px;}
+#trmlive .lv-inplay-label .lv-dot{width:8px; height:8px;}
+#trmlive .lv-inplay{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:10px; margin-bottom:18px;}
+#trmlive .lv-mx{background:var(--lp); border:1px solid var(--lg); border-radius:10px; overflow:hidden; box-shadow:0 0 0 1px rgba(52,211,153,.12);}
+#trmlive details.lv-mx{padding:0;}
+#trmlive .lv-mx-sum{list-style:none; cursor:pointer; padding:11px 28px 11px 13px; position:relative;}
+#trmlive .lv-mx-sum::-webkit-details-marker{display:none;}
+#trmlive .lv-mx-sum:hover{background:rgba(255,255,255,.04);}
+#trmlive .lv-mx-top{display:flex; align-items:center; gap:10px; font-family:Arial,Helvetica,sans-serif;}
+#trmlive .lv-mx-teams{font-weight:800; font-size:16px; color:var(--li); font-variant-numeric:tabular-nums;}
+#trmlive .lv-mx-teams .sc{color:var(--lg); padding:0 4px;}
+#trmlive .lv-mx-min{margin-left:auto; font-size:11px; color:var(--lg); font-weight:800; text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; display:flex; align-items:center; gap:5px;}
+#trmlive .lv-mx-min .pdot{width:7px; height:7px; border-radius:50%; background:var(--lg); display:inline-block; animation:lvpulse 1.8s infinite;}
+#trmlive .lv-mx-gsa{font-family:Arial,Helvetica,sans-serif; font-size:11.5px; color:var(--lm); line-height:1.6; margin-top:8px;}
+#trmlive .lv-mx-gsa .gi{display:inline-block; margin:0 10px 2px 0; white-space:nowrap;}
+#trmlive .lv-mx-gsa .gi::before{content:"\26BD"; margin-right:4px; opacity:.7;}
+#trmlive .lv-mx-gsa .own{color:var(--lc); font-weight:700;}
+#trmlive .lv-mx-gsa .own .mgr{color:var(--la); font-weight:700; font-size:10px; margin-left:3px;}
+#trmlive .lv-mx-none{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin-top:7px; font-style:italic;}
+#trmlive .lv-mx-caret{position:absolute; right:11px; top:13px; color:var(--lm); font-size:11px;}
+#trmlive details[open] .lv-mx-caret{color:var(--lc);}
+#trmlive .lv-mx-pls{margin:0 13px 11px; border-top:1px solid var(--ll); padding-top:8px;}
+#trmlive .lv-mx-pls-h{font-family:Arial,Helvetica,sans-serif; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--lm); margin-bottom:5px;}
+
 /* ===== Trivia panels ===== */
 .triv-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.18em; color:var(--mut); margin:30px 0 12px; border-top:1px solid var(--line); padding-top:20px;}
 .triv{display:grid; grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:16px;}
@@ -139,6 +164,10 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     <tbody id="lv-tbody"></tbody>
   </table>
   <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show how teams have moved this round.</div>
+  <div id="lv-inplay-wrap" style="display:none">
+    <div class="lv-inplay-label"><span class="lv-dot live"></span> Live now · tap a match for owned players</div>
+    <div id="lv-inplay" class="lv-inplay"></div>
+  </div>
   <div class="lv-fixtures-label">Fixtures · tap a match to see owned players</div>
   <div id="lv-fixtures" class="lv-fixtures"></div>
 </section>
@@ -163,10 +192,12 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 (function(){
   var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
   var PLAYERS_URL = WORKER_URL + "/players";
+  var MATCHES_URL = WORKER_URL + "/matches";
   var POLL_MS = 60000;
 
   // ---- state ----
   var prevTotals = {}, lastUpdated = null, lastFixtures = [], lastStandings = [];
+  var lastMatches = [], liveKeys = {};   // FIFA current-round matches + live-match keys
   var baselineRanks = null;     // ranks before the last matchday (baseline.json)
   var ownedByNation = null;     // nation code -> [{name, manager}]  (fallback / to-play)
   var ownedPlayers = null;      // rich list: [{name, manager, nation, price, round, total}]
@@ -178,6 +209,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
   // MUST match the worker's norm() and the squad page's nrm() so names line up.
   function nrm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
+  function fxKey(h,a){ return (h||"")+"|"+(a||""); }
 
   // ---- static data files (loaded once) ----
   fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
@@ -191,7 +223,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   fetch("owned-players.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
     .then(function(j){ if(j && j.length){ ownedPlayers = j; redraw(); } }).catch(function(){});
 
-  function redraw(){ renderFixtures(lastFixtures); if(lastStandings.length){ renderStandings(lastStandings); } renderTrivia(); }
+  function redraw(){ renderInplay(); renderFixtures(lastFixtures); if(lastStandings.length){ renderStandings(lastStandings); } renderTrivia(); }
 
   // ---- the working player list (rich if available, else nation fallback) ----
   function basePlayers(){
@@ -248,6 +280,7 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     var order = {live:0, upcoming:1, finished:2};
     var upc = 0;
     var list = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).filter(function(f){
+      if (liveKeys[fxKey(f.home,f.away)]) return false;  // shown in the richer "Live now" box above
       if (f.status==="upcoming"){ upc++; return upc<=8; }
       return true;
     });
@@ -270,6 +303,105 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
              + pls + '</details>';
       }
       return '<div class="lv-fx '+f.status+'">'+head+'</div>';
+    }).join("");
+  }
+
+  // ===== in-play matches (rich live boxes from FIFA /matches) =====
+  // Defensive helpers: FIFA's status/period strings and the goal-scorers field
+  // format are not fully known until a match is live, so we read them loosely.
+  function matchState(m){
+    var s = (m.status||"").toLowerCase(), p = (m.period||"").toLowerCase();
+    if (/complete|played|finish|full|ended|abandon|post/.test(s) || /full|complete|finish|ended/.test(p)) return "finished";
+    if (m.homeScore==null && m.awayScore==null) return "scheduled";
+    if (/sched|pre|upcoming|not.?start/.test(s) && !/half|play|live|progress/.test(p)) return "scheduled";
+    return "live";
+  }
+  function minuteLabel(m){
+    var p = (m.period||"").toLowerCase();
+    if (/half.?time|interval|^ht$|break/.test(p)) return "HT";
+    var mn = m.minute||0, ex = m.extraMinute||0;
+    if (mn>0) return mn + (ex>0?("+"+ex):"") + "'";
+    if (p) return p.replace(/_/g," ");
+    return "Live";
+  }
+  function cleanName(s){
+    return String(s||"").replace(/\([^)]*\)/g," ").replace(/\d+\s*['’+]+\s*\d*/g," ")
+      .replace(/\b\d+\b/g," ").replace(/[•·,;]+/g," ").replace(/\s+/g," ").trim();
+  }
+  // Turn the goal-scorers/assists field into display items, whatever its shape
+  // (array of strings, array of objects, or a single delimited string).
+  function gsaItems(gsa){
+    if (gsa==null || gsa==="") return [];
+    var arr;
+    if (Array.isArray(gsa)) arr = gsa;
+    else if (typeof gsa === "object") arr = [gsa];
+    else arr = String(gsa).split(/\s*[,;]\s*|\s{2,}/);
+    return arr.map(function(x){
+      if (x==null) return null;
+      if (typeof x === "string"){ var t=x.trim(); return t ? {label:t, name:cleanName(t)} : null; }
+      if (typeof x === "object"){
+        var nm = x.name||x.player||x.playerName||x.scorer||x.fullName||x.shortName||x.displayName||"";
+        var mn = x.minute||x.time||x.min||x.minutes||"";
+        var lab = (nm + (mn?(" "+mn+"'"):"")).trim() || JSON.stringify(x);
+        return {label:lab, name:cleanName(nm||lab)};
+      }
+      return null;
+    }).filter(Boolean);
+  }
+  function ownedIndexFor(home, away){
+    var idx = {};
+    if (ownedByNation){
+      [home,away].forEach(function(nat){ (ownedByNation[nat]||[]).forEach(function(p){ idx[nrm(p.name)] = p.manager; }); });
+    }
+    return idx;
+  }
+  function renderInplay(){
+    var live = (lastMatches||[]).filter(function(m){ return matchState(m)==="live"; });
+    liveKeys = {};
+    live.forEach(function(m){ liveKeys[fxKey(m.home,m.away)] = 1; });
+    var wrap = $("lv-inplay-wrap");
+    if (!wrap) return;
+    if (!live.length){ wrap.style.display="none"; $("lv-inplay").innerHTML=""; return; }
+    wrap.style.display="";
+    $("lv-inplay").innerHTML = live.map(function(m){
+      var idx = ownedIndexFor(m.home, m.away);
+      // Goal scorers / assists — ALL of them; owned players get the cyan style + manager.
+      var items = gsaItems(m.homeGSA).concat(gsaItems(m.awayGSA));
+      var gsaHTML = items.map(function(it){
+        var mgr = it.name && idx[nrm(it.name)];
+        return mgr
+          ? '<span class="gi own">'+esc(it.label)+'<span class="mgr">'+esc(mgr)+'</span></span>'
+          : '<span class="gi">'+esc(it.label)+'</span>';
+      }).join("");
+      var gsaBlock = gsaHTML ? '<div class="lv-mx-gsa">'+gsaHTML+'</div>' : '<div class="lv-mx-none">No goals yet.</div>';
+      var hs = (m.homeScore==null?0:m.homeScore), as = (m.awayScore==null?0:m.awayScore);
+      var head = '<div class="lv-mx-top">'
+        + '<span class="lv-mx-teams">'+esc(m.home)+' <span class="sc">'+esc(hs)+'–'+esc(as)+'</span> '+esc(m.away)+'</span>'
+        + '<span class="lv-mx-min"><span class="pdot"></span>'+esc(minuteLabel(m))+'</span>'
+        + '</div>' + gsaBlock;
+      // Owned players in the match + live points (independent of the scorers field).
+      var owned = [];
+      if (ownedByNation){
+        [m.home, m.away].forEach(function(nat){
+          (ownedByNation[nat]||[]).forEach(function(p){
+            var lp = livePoints[nrm(p.name)];
+            owned.push({name:p.name, manager:p.manager, pts:(lp==null?null:lp)});
+          });
+        });
+      }
+      owned.sort(function(a,b){ return (b.pts==null?-1:b.pts)-(a.pts==null?-1:a.pts); });
+      var plsBody = owned.length
+        ? owned.map(function(p){
+            return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
+                 + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
+                 + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
+          }).join("")
+        : '<div class="lv-mx-none" style="margin:0">No squad players in this match.</div>';
+      var n = owned.length;
+      return '<details class="lv-mx" open><summary class="lv-mx-sum">'+head
+        + '<span class="lv-mx-caret">▾</span></summary>'
+        + '<div class="lv-mx-pls"><div class="lv-mx-pls-h">'+n+' owned player'+(n===1?'':'s')+' · live points</div>'+plsBody+'</div>'
+        + '</details>';
     }).join("");
   }
 
@@ -453,7 +585,12 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       if(d && d.players){ livePoints = d.players; }
     }).catch(function(){ /* per-player feed is best-effort; trivia falls back to base points */ });
   }
-  function poll(){ pollTable(); pollPlayers().then(renderTrivia); }
+  function pollMatches(){
+    return fetch(MATCHES_URL, {cache:"no-store"}).then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(d){ if(d && d.matches){ lastMatches = d.matches; renderInplay(); renderFixtures(lastFixtures); } })
+      .catch(function(){ /* in-play box is best-effort; the fixtures strip still covers live games */ });
+  }
+  function poll(){ pollTable(); pollPlayers().then(renderTrivia); pollMatches(); }
 
   $("lv-refresh").addEventListener("click", poll);
   poll();
