@@ -153,7 +153,6 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   <div class="tcard"><h3>Biggest table mover</h3><div id="tv-mover" class="tbody"></div></div>
   <div class="tcard"><h3>Priciest flops <span class="unit">season pts</span></h3><div id="tv-flop" class="tbody"></div></div>
   <div class="tcard"><h3>Top-scoring nations <span class="unit">season pts</span></h3><div id="tv-nation" class="tbody"></div></div>
-  <div class="tcard"><h3>Lowest-scoring nations <span class="unit">season pts</span></h3><div id="tv-nation-low" class="tbody"></div></div>
 </div>
 
 <footer>TRM Fantasy · World Cup 2026 · table &amp; fixtures live from the league · player points live from FIFA official</footer>
@@ -396,16 +395,19 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     // --- Priciest flops: expensive players returning least OVERALL (season pts) ---
     if (!hasRich()){ need("tv-flop"); }
     else {
-      var priced = ps.filter(function(p){ return p.price>0 && p.total!=null; });
-      if (!priced.length){ empty("tv-flop", "No priced players yet."); }
+      // A flop is an expensive player who HAS returned, but returned poorly.
+      // Players on 0 are excluded: a 0 usually means they did not feature or were
+      // only just transferred in (points scored before a transfer do not follow
+      // them, e.g. Barcola's pre-purchase goal), which is "no return yet", not a flop.
+      var priced = ps.filter(function(p){ return p.price>0 && p.total!=null && p.total>0; });
+      if (!priced.length){ empty("tv-flop", "No returns to judge yet."); }
       else {
         var prices = priced.map(function(p){ return p.price; }).sort(function(a,b){ return a-b; });
         var thr = prices[Math.floor(prices.length*0.65)] || prices[prices.length-1];
         var flops = priced.filter(function(p){ return p.price>=thr; })
           .sort(function(a,b){ return (a.total-b.total) || (b.price-a.price); }).slice(0,4);
         $("tv-flop").innerHTML = flops.map(function(it,i){
-          return rowHTML(i+1, it.name, "£"+it.price.toFixed(1)+"m", it.total,
-                         it.total<=0 ? "red" : "");
+          return rowHTML(i+1, it.name, "£"+it.price.toFixed(1)+"m", it.total);
         }).join("");
       }
     }
@@ -420,18 +422,6 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       $("tv-nation").innerHTML = nats.length
         ? nats.map(function(it,i){ return natRow(i+1, it.c, it.v); }).join("")
         : '<div class="tempty">No nation points yet.</div>';
-    }
-
-    // --- Lowest-scoring nations (total tournament points, owned players) ---
-    if (!hasRich()){ need("tv-nation-low"); }
-    else {
-      var byNatL = {};
-      ps.forEach(function(p){ if(p.nation && p.total!=null){ byNatL[p.nation] = (byNatL[p.nation]||0) + p.total; } });
-      var natsL = Object.keys(byNatL).map(function(c){ return {c:c, v:byNatL[c]}; })
-        .sort(function(a,b){ return (a.v-b.v) || (a.c<b.c?-1:1); }).slice(0,5);
-      $("tv-nation-low").innerHTML = natsL.length
-        ? natsL.map(function(it,i){ return natRow(i+1, it.c, it.v, it.v<=0?"red":""); }).join("")
-        : '<div class="tempty">No nations yet.</div>';
     }
   }
 
