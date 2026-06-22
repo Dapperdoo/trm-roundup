@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 BASE = "https://trm-fantasy.onrender.com"
 INDEX_URL = f"{BASE}/wc"
 TEMPLATE_PATH = "template.html"
-OUTPUT_PATH = "docs/index.html"
+OUTPUT_PATH = "docs/roundup.html"
 MODEL = "claude-sonnet-4-6"
 
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
@@ -667,6 +667,29 @@ def main():
         with open(os.path.join(os.path.dirname(OUTPUT_PATH), "owned-by-nation.json"), "w", encoding="utf-8") as f:
             json.dump(nat, f)
         print(f"Wrote owned-by-nation.json ({len(nat)} nations)", flush=True)
+
+        # Rich per-player data for the LIVE page trivia panels. The Worker's
+        # /players feed carries only live round points; the value, top-overall
+        # and priciest-flop panels also need each owned player's PRICE and their
+        # base round/season points. We have all of that in the structured squads,
+        # so emit it here. The LIVE page reads price as a number in £m and
+        # computes live values the same way the squad pages do.
+        owned_players = []
+        for t in teams:
+            mgr = t.get("manager")
+            for p in t.get("players", []):
+                m = re.search(r"[\d.]+", str(p.get("price", "")))
+                owned_players.append({
+                    "name": p.get("name", ""),
+                    "manager": mgr,
+                    "nation": player_nation(p),
+                    "price": float(m.group()) if m else 0.0,
+                    "round": int(p.get("round") or 0),
+                    "total": int(p.get("total") or 0),
+                })
+        with open(os.path.join(os.path.dirname(OUTPUT_PATH), "owned-players.json"), "w", encoding="utf-8") as f:
+            json.dump(owned_players, f)
+        print(f"Wrote owned-players.json ({len(owned_players)} players)", flush=True)
     except Exception as e:
         print(f"  warn: squad pages skipped this run: {e}", file=sys.stderr, flush=True)
 

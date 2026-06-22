@@ -14,6 +14,14 @@
 *{box-sizing:border-box;}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
 .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+
+/* ===== Tabs ===== */
+.tabs{display:flex; gap:6px; justify-content:center; padding:22px 0 0;}
+.tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2); transition:color .15s, background .15s;}
+.tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+.tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta); box-shadow:0 0 22px rgba(244,114,182,.28);}
+.tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+
 header.mast{
 border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
 position:relative; overflow:hidden;
@@ -58,90 +66,20 @@ tr.r1 .pos{color:var(--gold);}
 tr.r13 .pos{color:var(--red);}
 .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
 footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
-
-/* ===== TRM LIVE scoreboard (client-side; polls the Cloudflare Worker) ===== */
-#trmlive{--lg:#34d399; --la:#f5c451; --lr:#f0556b; --lc:#22d3ee; --ll:#1b2636; --lp:#0e1622; --lm:#7e8ca0; --li:#e8eef6; margin:22px 0 8px;}
-#trmlive .lv-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--ll); padding-bottom:12px; margin-bottom:14px;}
-#trmlive .lv-brand{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:22px; letter-spacing:.04em; color:var(--li);}
-#trmlive .lv-brand span{color:var(--lg);}
-#trmlive .lv-dot{width:9px; height:9px; border-radius:50%; background:var(--lg); display:inline-block;}
-#trmlive .lv-dot.live{animation:lvpulse 1.8s infinite;}
-#trmlive .lv-dot.off{background:var(--lm);}
-@keyframes lvpulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
-#trmlive .lv-md{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lc); text-transform:uppercase; letter-spacing:.14em;}
-#trmlive .lv-meta{margin-left:auto; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lm);}
-#trmlive .lv-meta b{color:var(--li);}
-#trmlive .lv-btn{background:var(--lp); color:var(--li); border:1px solid var(--ll); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
-#trmlive .lv-btn:hover{border-color:var(--lc);}
-#trmlive .lv-fixtures-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--lm); margin:18px 0 8px;}
-#trmlive .lv-fixtures{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; padding-bottom:12px; margin-bottom:10px;}
-#trmlive .lv-fx{align-self:start; background:var(--lp); border:1px solid var(--ll); border-radius:8px; padding:8px 11px; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-fx .t{font-weight:700; font-size:13px; color:var(--li);}
-#trmlive .lv-fx .s{font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:3px; color:var(--lm);}
-#trmlive .lv-fx.live{border-color:var(--lg);} #trmlive .lv-fx.live .s{color:var(--lg);}
-#trmlive .lv-fx.upcoming .s{color:var(--la);}
-#trmlive details.lv-fx{padding:0; overflow:hidden;}
-#trmlive .lv-fx-sum{list-style:none; cursor:pointer; padding:8px 26px 8px 11px; position:relative;}
-#trmlive .lv-fx-sum::-webkit-details-marker{display:none;}
-#trmlive .lv-fx-sum:hover{background:rgba(255,255,255,.04);}
-#trmlive .lv-fx-caret{position:absolute; right:10px; top:9px; color:var(--lm); font-size:10px;}
-#trmlive .lv-fx-count{display:inline-block; margin-top:4px; font-size:11px; font-weight:700; color:var(--lc);}
-#trmlive details[open] .lv-fx-caret{color:var(--lc);}
-#trmlive .lv-fx-pls{margin:0 11px 9px; border-top:1px solid var(--ll); padding-top:7px;}
-#trmlive .lv-pl{display:flex; align-items:baseline; gap:6px; font-size:11.5px; padding:2px 0;}
-#trmlive .lv-pl-n{color:var(--li); flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-#trmlive .lv-pl-m{color:var(--lm); font-size:10px; white-space:nowrap;}
-#trmlive .lv-pl-p{color:var(--lc); font-weight:800; min-width:20px; text-align:right; font-variant-numeric:tabular-nums;}
-#trmlive .lv-table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-table th{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--lm); text-align:left; padding:6px 8px; border-bottom:1px solid var(--ll);}
-#trmlive .lv-table th.r{text-align:right;}
-#trmlive .lv-table td{padding:10px 8px; font-size:15px; border-bottom:1px solid var(--ll); transition:background .8s ease;}
-#trmlive .lv-table td.r{text-align:right;}
-#trmlive .lv-table tr.flash td{background:rgba(34,211,238,.16); transition:background 0s;}
-#trmlive .lv-pos{width:28px; color:var(--lm); font-weight:800;}
-#trmlive .lv-table tr.lead .lv-pos{color:var(--la);}
-#trmlive .lv-mv{width:26px; text-align:center; font-weight:900; font-size:13px;}
-#trmlive .up{color:var(--lg);} #trmlive .down{color:var(--lr);} #trmlive .same{color:var(--lm); opacity:.5;}
-#trmlive .lv-tm{font-weight:700; color:var(--li);}
-#trmlive .lv-move{font-weight:800; font-size:12px; margin-left:7px; font-variant-numeric:tabular-nums; white-space:nowrap;}
-#trmlive .lv-move.up{color:var(--lg);}
-#trmlive .lv-move.down{color:var(--lr);}
-#trmlive .lv-move.same{color:#ffffff;}
-#trmlive .lv-round{color:var(--lc); font-weight:700; font-variant-numeric:tabular-nums;}
-#trmlive .lv-rem{color:var(--la); font-weight:700; font-variant-numeric:tabular-nums;}
-#trmlive .lv-total{font-weight:900; font-size:16px; font-variant-numeric:tabular-nums; color:var(--li);}
-#trmlive .lv-table tr.lead .lv-total{color:var(--la);}
-#trmlive .lv-note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin:12px 0 0; border-top:1px solid var(--ll); padding-top:10px;}
-#trmlive .lv-err{display:none; background:rgba(240,85,107,.12); border:1px solid var(--lr); color:#ffd7dd; border-radius:8px; padding:9px 12px; font-size:13px; margin-bottom:12px; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-link{color:var(--li); text-decoration:none; border-bottom:1px dotted var(--lm);}
-#trmlive .lv-link:hover{color:var(--lc); border-bottom-color:var(--lc);}
-.lv-divider{text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--mut); border-top:1px solid var(--line); margin:34px 0 0; padding-top:18px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<!-- ===== LIVE SCOREBOARD (top, centre stage) ===== -->
-<section id="trmlive">
-  <div class="lv-head">
-    <span class="lv-brand">LEAGUE <span>TABLE</span></span>
-    <span id="lv-dot" class="lv-dot off" title="live status"></span>
-    <span id="lv-md" class="lv-md"></span>
-    <span class="lv-meta"><span id="lv-status">Connecting…</span><button id="lv-refresh" class="lv-btn" title="Refresh">↻</button></span>
+<!-- ===== Tabs ===== -->
+<nav class="tabwrap">
+  <div class="tabs">
+    <a class="tab" href="./">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
   </div>
-  <div id="lv-err" class="lv-err"></div>
-  <table class="lv-table">
-    <thead><tr><th class="lv-pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Squad players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
-    <tbody id="lv-tbody"></tbody>
-  </table>
-  <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show how teams have moved this round.</div>
-  <div class="lv-fixtures-label">Fixtures · tap a match to see owned players</div>
-  <div id="lv-fixtures" class="lv-fixtures"></div>
-</section>
+</nav>
 
-<div class="lv-divider">Yesterday's Report</div>
-
-<!-- ===== THE MORNING AFTER (daily roundup, below) ===== -->
+<!-- ===== THE MORNING AFTER (daily roundup) ===== -->
 <header class="mast">
 <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
 <h1 class="title">THE MORNING <span>AFTER</span></h1>
@@ -181,129 +119,5 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
 
 </div>
-
-<script>
-(function(){
-  var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
-  var POLL_MS = 60000;
-  var prevTotals = {}, lastUpdated = null, lastFixtures = [], lastStandings = null;
-  var baselineRanks = null;  // ranks before the last matchday, from baseline.json
-  fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j && j.ranks){ baselineRanks = j.ranks; redraw(); } }).catch(function(){});
-  // Owned players by 3-letter nation code. The live feed only lists a fixture's
-  // owned players once it's live/finished; before kickoff we fall back to this
-  // map so "to play" and the fixture boxes still work all day. Loaded once.
-  var ownedByNation = null;
-  fetch("owned-by-nation.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j){ ownedByNation = j; redraw(); } }).catch(function(){});
-  function redraw(){ if(lastStandings){ renderFixtures(lastFixtures); renderStandings(lastStandings); } }
-  function $(id){ return document.getElementById(id); }
-  function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
-  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
-  // A fixture's owned players: the live feed's list (with points) if present,
-  // otherwise derived from the squad nation map (names only, points not yet in).
-  function fxPlayers(f){
-    if (f.players && f.players.length) return f.players;
-    if (ownedByNation){
-      return ((ownedByNation[f.home]||[]).concat(ownedByNation[f.away]||[]))
-        .map(function(p){ return {name:p.name, manager:p.manager, pts:null}; });
-    }
-    return [];
-  }
-  // "To play" = a manager's owned players whose nation still has a match left
-  // this round (any fixture not yet finished).
-  function toPlayMap(){
-    if (!ownedByNation) return null;
-    var rem = {};
-    lastFixtures.forEach(function(f){ if(f.status!=="finished"){ rem[f.home]=1; rem[f.away]=1; } });
-    var m = {};
-    Object.keys(ownedByNation).forEach(function(nat){
-      if (rem[nat]) ownedByNation[nat].forEach(function(p){ m[p.manager] = (m[p.manager]||0)+1; });
-    });
-    return m;
-  }
-  function renderFixtures(fx){
-    var order = {live:0, upcoming:1, finished:2};
-    var upc = 0;
-    var list = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).filter(function(f){
-      if (f.status==="upcoming"){ upc++; return upc<=8; }  // never show more than 8 upcoming fixtures
-      return true;
-    });
-    $("lv-fixtures").innerHTML = list.map(function(f){
-      var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
-      var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
-      var head = '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div>';
-      // Each fixture with owned players is a click-to-expand panel listing every
-      // owned player in the match and which manager owns them (live ones open).
-      var pl = fxPlayers(f);
-      if (pl.length){
-        var pls = '<div class="lv-fx-pls">' + pl.map(function(p){
-          return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
-               + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
-               + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
-        }).join('') + '</div>';
-        var n = pl.length;
-        return '<details class="lv-fx '+f.status+'"'+(f.status==="live"?" open":"")+'>'
-             + '<summary class="lv-fx-sum">'+head
-             + '<span class="lv-fx-count">'+n+' player'+(n===1?'':'s')+'</span>'
-             + '<span class="lv-fx-caret">▾</span></summary>'
-             + pls + '</details>';
-      }
-      return '<div class="lv-fx '+f.status+'">'+head+'</div>';
-    }).join("");
-  }
-  function renderStandings(rows){
-    var tb = $("lv-tbody");
-    // Movement = change in table position over the LAST matchday: current rank
-    // vs the rank in baseline.json (the table before last night's games).
-    var tp = toPlayMap();  // null until the nation map loads; then per-manager counts
-    tb.innerHTML = rows.map(function(r){
-      var d = (baselineRanks && baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager] - r.rank) : 0;
-      var move = d>0 ? '<span class="lv-move up">▲ '+d+'</span>'
-               : d<0 ? '<span class="lv-move down">▼ '+(-d)+'</span>'
-               : '';
-      var ch = prevTotals[r.slug]!==undefined && prevTotals[r.slug]!==r.total;
-      return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
-        +'<td class="lv-pos">'+r.rank+'</td>'
-        +'<td><a class="lv-link lv-tm" href="team-'+encodeURIComponent(r.slug)+'.html">'+esc(r.team)+'</a> '+move+'</td>'
-        +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
-        +'<td class="r lv-rem">'+(tp?(tp[r.manager]||0):(r.remaining==null?'–':r.remaining))+'</td>'
-        +'<td class="r lv-total">'+r.total+'</td></tr>';
-    }).join("");
-    Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ch="1"]'), function(tr){
-      tr.classList.add("flash");
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ tr.classList.remove("flash"); }); });
-    });
-    rows.forEach(function(r){ prevTotals[r.slug]=r.total; });
-  }
-  function tick(){ var el=$("lv-status"); if(el) el.innerHTML = "Updated <b>"+ago(lastUpdated)+"</b>"; }
-  function poll(){
-    fetch(WORKER_URL, {cache:"no-store"}).then(function(res){
-      if(!res.ok) throw new Error("feed "+res.status);
-      return res.json();
-    }).then(function(d){
-      if(d.error) throw new Error(d.error);
-      $("lv-err").style.display="none";
-      lastUpdated = d.updated;
-      // The league table is shown at ALL times. The "live" dot, the fixtures
-      // strip and the movement flashes simply switch on while a game is in play.
-      $("lv-md").textContent = d.matchday || "";
-      $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
-      lastFixtures = d.fixtures||[];
-      lastStandings = d.standings||[];
-      renderFixtures(lastFixtures);
-      renderStandings(lastStandings);
-      tick();
-    }).catch(function(e){
-      var el=$("lv-err"); el.textContent = "Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block";
-      $("lv-status").textContent = "offline";
-    });
-  }
-  $("lv-refresh").addEventListener("click", poll);
-  poll();
-  setInterval(poll, POLL_MS);
-  setInterval(tick, 1000);
-})();
-</script>
 </body>
 </html>
