@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Morning After — Matchday · Sun 21 Jun</title>
+<title>TRM Fantasy — Live · World Cup 2026</title>
 <style>
 :root{
 --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
@@ -14,53 +14,23 @@
 *{box-sizing:border-box;}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
 .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
-header.mast{
-border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
-position:relative; overflow:hidden;
-background:
-radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
-radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
-radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
-}
-.kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
-.subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
-h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
-h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-.dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
-.live{color:var(--green);}
-.live::before{content:"●"; margin-right:5px; color:var(--green);}
-.layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
-@media(max-width:820px){.layout{grid-template-columns:1fr;}}
-.lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
-.lead b{color:var(--ink);}
-article{border-top:1px solid var(--line); padding:24px 0;}
-article:first-of-type{border-top:none; padding-top:4px;}
-.rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
-.rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
-.rank.low{background:var(--red); color:#fff;}
-.rank.top{background:var(--gold); color:#241c00;}
-.team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
-.pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
-h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
-article p{margin:0; color:#c7d1de; font-size:16.5px;}
-.byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
-aside{align-self:start; position:sticky; top:18px;}
-.panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
-.panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
-table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
-td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
-tr:last-child td{border-bottom:none;}
-.pos{color:var(--mut); width:26px; font-weight:700;}
-.tname{color:var(--ink); font-weight:600;}
-.mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
-.tot{text-align:right; font-weight:900; color:var(--cyan);}
-tr.r1 .pos{color:var(--gold);}
-tr.r13 .pos{color:var(--red);}
-.note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
-footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
 
-/* ===== TRM LIVE scoreboard (client-side; polls the Cloudflare Worker) ===== */
-#trmlive{--lg:#34d399; --la:#f5c451; --lr:#f0556b; --lc:#22d3ee; --ll:#1b2636; --lp:#0e1622; --lm:#7e8ca0; --li:#e8eef6; margin:22px 0 8px;}
+/* ===== Tabs ===== */
+.tabs{display:flex; gap:6px; justify-content:center; padding:22px 0 0;}
+.tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2); transition:color .15s, background .15s;}
+.tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+.tab.active{color:var(--bg); background:var(--cyan); border-color:var(--cyan); box-shadow:0 0 22px rgba(34,211,238,.28);}
+.tabwrap{border-bottom:2px solid var(--cyan); margin-bottom:8px;}
+
+/* ===== Masthead (compact, live) ===== */
+header.mast{text-align:center; padding:26px 0 14px;}
+.kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(30px,5vw,50px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(34,211,238,.30);}
+h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+
+/* ===== Live scoreboard (table + fixtures) ===== */
+#trmlive{--lg:#34d399; --la:#f5c451; --lr:#f0556b; --lc:#22d3ee; --ll:#1b2636; --lp:#0e1622; --lm:#7e8ca0; --li:#e8eef6; margin:14px 0 8px;}
 #trmlive .lv-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--ll); padding-bottom:12px; margin-bottom:14px;}
 #trmlive .lv-brand{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:22px; letter-spacing:.04em; color:var(--li);}
 #trmlive .lv-brand span{color:var(--lg);}
@@ -100,13 +70,11 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-table tr.flash td{background:rgba(34,211,238,.16); transition:background 0s;}
 #trmlive .lv-pos{width:28px; color:var(--lm); font-weight:800;}
 #trmlive .lv-table tr.lead .lv-pos{color:var(--la);}
-#trmlive .lv-mv{width:26px; text-align:center; font-weight:900; font-size:13px;}
 #trmlive .up{color:var(--lg);} #trmlive .down{color:var(--lr);} #trmlive .same{color:var(--lm); opacity:.5;}
 #trmlive .lv-tm{font-weight:700; color:var(--li);}
 #trmlive .lv-move{font-weight:800; font-size:12px; margin-left:7px; font-variant-numeric:tabular-nums; white-space:nowrap;}
 #trmlive .lv-move.up{color:var(--lg);}
 #trmlive .lv-move.down{color:var(--lr);}
-#trmlive .lv-move.same{color:#ffffff;}
 #trmlive .lv-round{color:var(--lc); font-weight:700; font-variant-numeric:tabular-nums;}
 #trmlive .lv-rem{color:var(--la); font-weight:700; font-variant-numeric:tabular-nums;}
 #trmlive .lv-total{font-weight:900; font-size:16px; font-variant-numeric:tabular-nums; color:var(--li);}
@@ -115,13 +83,51 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
 #trmlive .lv-err{display:none; background:rgba(240,85,107,.12); border:1px solid var(--lr); color:#ffd7dd; border-radius:8px; padding:9px 12px; font-size:13px; margin-bottom:12px; font-family:Arial,Helvetica,sans-serif;}
 #trmlive .lv-link{color:var(--li); text-decoration:none; border-bottom:1px dotted var(--lm);}
 #trmlive .lv-link:hover{color:var(--lc); border-bottom-color:var(--lc);}
-.lv-divider{text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--mut); border-top:1px solid var(--line); margin:34px 0 0; padding-top:18px;}
+
+/* ===== Trivia panels ===== */
+.triv-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.18em; color:var(--mut); margin:30px 0 12px; border-top:1px solid var(--line); padding-top:20px;}
+.triv{display:grid; grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:16px;}
+.tcard{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; display:flex; flex-direction:column;}
+.tcard h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); padding:13px 16px 12px; border-bottom:1px solid var(--line); background:var(--panel2); display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+.tcard h3 .unit{color:var(--mut); font-size:10px; letter-spacing:.08em; font-weight:400;}
+.tcard .tbody{font-family:Arial,Helvetica,sans-serif;}
+.trow{display:flex; align-items:baseline; gap:9px; padding:9px 16px; font-size:13px; border-bottom:1px solid var(--line);}
+.trow:last-child{border-bottom:none;}
+.trank{color:var(--mut); font-weight:800; width:14px; flex:0 0 auto; font-variant-numeric:tabular-nums;}
+.tn{color:var(--ink); font-weight:600; flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.tm{color:var(--mut); font-size:11px; white-space:nowrap; flex:0 0 auto;}
+.tv{color:var(--cyan); font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; flex:0 0 auto; min-width:30px; text-align:right;}
+.tv.gold{color:var(--gold);} .tv.red{color:var(--red);} .tv.green{color:var(--green);}
+.tnat{display:inline-block; font-weight:800; color:var(--ink); font-size:11px; letter-spacing:.06em; background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:1px 7px; flex:0 0 auto;}
+.tbig{padding:18px 16px; text-align:center;}
+.tbig .big{font-size:20px; font-weight:900; color:var(--ink); line-height:1.2;}
+.tbig .big .mv{font-size:22px;}
+.tbig .sub{color:var(--mut); font-size:12px; margin-top:6px; line-height:1.4;}
+.tbig .sub b{color:var(--ink);}
+.tneed{padding:16px; font-size:12px; color:var(--mut); line-height:1.5; font-family:Arial,Helvetica,sans-serif;}
+.tempty{padding:16px; font-size:12px; color:var(--mut); font-family:Arial,Helvetica,sans-serif;}
+
+footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<!-- ===== LIVE SCOREBOARD (top, centre stage) ===== -->
+<!-- ===== Tabs ===== -->
+<nav class="tabwrap">
+  <div class="tabs">
+    <a class="tab active" href="./" aria-current="page">Live</a>
+    <a class="tab" href="roundup.html">Roundup</a>
+  </div>
+</nav>
+
+<header class="mast">
+  <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+  <h1 class="title">LIVE <span>HUB</span></h1>
+  <div class="subtitle">League table · Fixtures · The numbers behind the noise</div>
+</header>
+
+<!-- ===== Live scoreboard ===== -->
 <section id="trmlive">
   <div class="lv-head">
     <span class="lv-brand">LEAGUE <span>TABLE</span></span>
@@ -139,93 +145,88 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
   <div id="lv-fixtures" class="lv-fixtures"></div>
 </section>
 
-<div class="lv-divider">Yesterday's Report</div>
-
-<!-- ===== THE MORNING AFTER (daily roundup, below) ===== -->
-<header class="mast">
-<div class="kicker">The TRM Fantasy League · World Cup 2026</div>
-<h1 class="title">THE MORNING <span>AFTER</span></h1>
-<div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
-<div class="dateline">
-<span>Monday 22 June 2026</span>
-<span>Matchday · Sun 21 Jun</span>
-<span class="live">All games settled</span>
-</div>
-</header>
-
-<div class="layout">
-<main>
-<p class="lead">Sunday served up four fixtures and a very Spanish afternoon: <b>ESP 4–0 KSA</b> was the day's centrepiece, a Lamine Yamal-and-Oyarzabal masterclass that sent fantasy points cascading across the league. <b>BEL 0–0 IRN</b> was the dour companion piece — clean sheets for the defenders, crumbs for everyone else. <b>URU 2–2 CPV</b> provided the drama, Maxi Araújo bagging big for the brave few who trusted him, while <b>NZL 1–3 EGY</b> gave Mohamed Salah the stage he never really needs an invitation for. The day's hauls ranged from a tidy 27 down to a pair of goose eggs — and as ever, the gap between genius and disaster was exactly one transfer window of better decisions.</p>
-<article><div class="rankbar"><span class="rank top">1st</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">118 pts</span></div><h2 class="head">Doku Delivers Precisely Nothing</h2><p>Tom is still top of the league — which is either a testament to his Round 1 brilliance or a warning that the wheels are about to come off somewhere over South-East Asia. Sunday was not kind to Anamaduwa Athletic: Jérémy Doku started, played, and contributed a grand total of zero points in Belgium's goalless slog against Iran. That's it. That's the whole entry. Zero from one. The DJ who never knows which country he's in picked a Belgian winger for a match that finished 0–0 and got exactly what the scoreline promised. Still, he stays top — for now. Nick is only three points behind and closing fast, and if Tom's currently somewhere eating a curry with his hands and hasn't checked the app, somebody should probably tell him the pack is coming.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">115 pts</span></div><h2 class="head">Yamal and Porro Put the Rust Back in the Iron</h2><p>Fifteen points and a climb to second — not bad for a Sunday. Nick's big guns in Spain delivered the goods: Pedro Porro (7 pts) and Lamine Yamal (7 pts) both cashed in on the Spain rout, with Romelu Lukaku chipping in a single point from the Belgian stalemate. It's the kind of return that has Nick's loud baritone echoing around whatever pub he's currently occupying, and fair enough — he's now breathing right down Tom's neck at the top. Three points is nothing. Tom had Doku blanking while Nick's lads were tearing Saudi Arabia apart. The tactical football mind is working. The beer is presumably also working. Nick sits second and very much fancies it.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">3rd</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">114 pts</span></div><h2 class="head">Salah Does the Heavy Lifting, As Per</h2><p>Thirteen points for Wigs, and eleven of them came from one man: Mohamed Salah, who scored and assisted as Egypt put three past New Zealand. No great surprise there — Salah in a World Cup is about as reliable a fantasy asset as exists on earth. Mehdi Taremi chipped in 2 from the Iran clean sheet, while Stopira — Cape Verde's defensive stalwart and a man whose name sounds like a pharmaceutical side-effect — played and blanked. Still, 13 points is a solid Sunday, and Wigs holds third, level on 114 with Dave below him. Brother Sam, meanwhile, had no players on the pitch at all yesterday, which means the gap between the siblings is now a very awkward dinner-table conversation. Wigs: 114. Sam: 99. Pass the gravy.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">4th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">114 pts</span></div><h2 class="head">Araújo Haul Lifts Trossy Into the Thick of It</h2><p>Twenty-four points — the day's second-best haul — and Dave has every right to be insufferably pleased about it. The star of the show was Maxi Araújo, who scored in Uruguay's 2–2 draw with Cape Verde and banked a whopping 13 points. Thibaut Courtois added 8 from Belgium's clean sheet, Omar Marmoush chipped in 2, and Nico Williams contributed 1 from the Spain demolition. Trossy's Giants climb to fourth, level with Wigs on 114 — which means Dave has pulled level with Wigs and is now only four points off second. Tom, you have been warned. Jake, meanwhile, is still 30 points behind Dave, which means their perennial scrap near the bottom is looking increasingly one-sided. Dave will absolutely be noting that with quiet, wordplay-laden satisfaction.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">5th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">105 pts</span></div><h2 class="head">The Professor Tops the Class With 27 Points</h2><p>The day's top haul belongs to Jeremy, and honestly, should anyone be surprised? The man who codes the league website, runs the algorithms and niggle-tackles you into submission at five-a-side has picked Mikel Oyarzabal — 15 points, two goals, the day's standout performer — and Marc Cucurella for a tidy 10 from Spain's clean sheet. Elijah Just added 2 from New Zealand's defeat. Twenty-seven points is measured, efficient, quietly devastating — very Jeremy. Von Neumann Trombone climbs to fifth on 105, and while the top four are pulling away, Jezza is doing what Jezza does: compiling, accumulating, waiting. The boffin plays the long game. He always does. Joe A is seven points behind in ninth and will be grinding his teeth about it.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">6th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">101 pts</span></div><h2 class="head">Sheerin's Spain Picks Pay Off — Just About</h2><p>Thirteen points for Joe S, which is fine — respectable, even — but the ghost of David Raya looms large. Dani Olmo was excellent, bagging 8 points in Spain's four-nil thrashing of Saudi Arabia. Federico Valverde chipped in 5 from Uruguay's draw. But David Raya, Spain's goalkeeper in a game that finished 4–0, somehow blanked — presumably because the man who coded the scoring system is in fifth place and has a vested interest. Sheerin stays sixth on 101. The good news: he's still in the top half. The bad news: he almost certainly had to ask someone how to check. Whether he navigated the app, found the website, or just rang Jeremy and asked him to read it out over the phone, we'll never know. But the points are there. Six points behind Jeremy. Raya, though. Raya.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">7th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">100 pts</span></div><h2 class="head">De Bruyne and Núñez Leave Lloydy Wanting More</h2><p>Four points. That's what Sunday delivered for Chris, and it's the kind of return that has the mad scientist staring at his half-built contraptions wondering where the optimisation theory went wrong. Kevin De Bruyne managed 3 points from Belgium's 0–0 against Iran — a match so devoid of goals it made a goalless draw look exciting — while Darwin Núñez contributed 1 from Uruguay's 2–2 with Cape Verde. Lloyd's Food and Wine sit seventh on 100, one point ahead of Sam and two ahead of rival Jake. Chris will be consoling himself with a mountain bike ride and some very elaborate electrical kit. The Kane-splurger Jake is right behind him, though — oh wait, no he isn't, Jake got zero yesterday. Never mind. Chris is fine.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">8th</span><span class="team">Look at his face. Just Look at his FACE! &middot; Sam</span><span class="pts">99 pts</span></div><h2 class="head">The Bard Had Nothing On The Pitch And Everything To Say About It</h2><p>None of Sam's players featured in yesterday's games. Not one. Zilch. The Bard of the fantasy league — expressive, witty, lover of Shakespeare and a cold pint — had no one on the pitch across all four Sunday fixtures and therefore hauled precisely zero points. Look at his face. Just look at his face. He stays eighth on 99, with Chris one point above him and Joe A one point below — the mid-table squeeze is very real. Meanwhile, brother Wigs is up in third on 114 and absolutely will not be letting that go at the next family gathering. Sam's response will no doubt be eloquent, theatrical, and delivered at considerable volume. The football, however, was silent. Entirely, completely, mortifyingly silent.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">9th</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">98 pts</span></div><h2 class="head">Rodri and Ruiz Offer Slim Pickings for Shatner's Bassoon</h2><p>Four points from three Spanish players — and Joe A will know exactly where it went wrong. Rodri picked up 3, Fabián Ruiz added 1, and Marcos Llorente, who played in a game Spain won 4–0, somehow blanked. Four points from the world champions' demolition of Saudi Arabia is the kind of return that makes you throw your hands up — though that's more Tristan's move, to be fair. Joe A stays ninth on 98, seven points off Jeremy in fifth and the wrong side of the mid-table pack. His main rival Tristan, meanwhile, picked up 15 yesterday and is climbing. The Russian is coming. Well — the man who looks like a Russian is coming. Joe A had better find some form, and fast.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">10th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">84 pts</span></div><h2 class="head">Gavi Blanks, Snakey Stays Rooted</h2><p>Gavi played. Gavi blanked. That's the entirety of Jake's Sunday. Zero points from Spain's 4–0 rout of Saudi Arabia — a game in which several of his rivals' players ran riot — because the one Spanish player Jake owns decided this was the afternoon for a quiet stroll. Meanwhile, Harry Kane hasn't played yet, which means the £33.4m man is still sitting in the squad like an expensive piece of furniture nobody's allowed to sit on. Jake stays tenth on 84, a full 16 points behind ninth-placed Joe A and 30 behind Dave. Chris, his rival, is seven points clear in seventh. The renewable energy project manager, the man who turned up to the school sports day with his own starting block, is currently going nowhere very fast. Gavi. Honestly. Gavi.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">11th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">80 pts</span></div><h2 class="head">De Cuyper, Cubarsí and Simón Fire Denton Burn Up the Table</h2><p>Twenty-six points — the day's second-best haul — and Dan has quietly, brilliantly, very Dan-ishly put together one of the best Sunday returns in the league. Maxim De Cuyper led the way with 9 from Belgium's clean sheet, Unai Simón and Pau Cubarsí both bagged 7 apiece from Spain's shutout, and Mostafa Shobeir added 3 from Egypt's win over New Zealand. José María Giménez and Ronald Araujo both played in Uruguay's draw and blanked, but it barely mattered. Denton Burn climbs to 80 — still eleventh, but the gap to the top half is narrowing. Dan lives off-grid and enjoys nature; it turns out he also enjoys picking defenders in clean-sheet games. Smart, alternative, very witty. And, on Sunday, very right.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank">12th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">72 pts</span></div><h2 class="head">The Russian Rises — Laporte the Unlikely Hero</h2><p>Fifteen points and a very satisfying Sunday for Tristan, who will have pumped his fist and then looked around to see if anyone noticed. Aymeric Laporte was the star, hauling 12 points from Spain's clean sheet and four-goal romp — a return that will have The Russian nodding with fierce, competitive approval. Leandro Trossard added 3 from Belgium's goalless draw with Iran. Trippier & Trippier climb to 72, still twelfth, but the gap to Joe A in ninth is now just 26 points and closing. Rival Joe A managed only 4 yesterday, which means Tristan is gaining ground. The fiercely competitive Londoner will have noted that. He always notes that. Hands up, Tristan. Hands very much up.</p><div class="byline">The Morning After</div></article>
-<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">51 pts</span></div><h2 class="head">Pedri Provides Propaganda Parade's Only Crumb</h2><p>Three points. Pedri, 3 points, from Spain's 4–0 win. That's Malik's entire Sunday — a single player, a single modest return, from a game that produced 15 points for Jeremy and 12 for Tristan. Propaganda Parade stay rooted to the bottom on 51, a full 21 points behind Tristan in twelfth. The quirky Icelandic manager, running his operation from afar, has built a squad heavy on Manchester United and Portugal connections — and on Sunday, none of that helped. Pedri is neither, of course, which makes him the surprise pragmatic pick in an otherwise ideologically committed squad. Three points is three points. It's not enough. It's never enough. But at least Pedri turned up, which is more than Gavi managed for Jake.</p><div class="byline">The Morning After</div></article>
-</main>
-
-<aside>
-<div class="panel">
-<h3>Standings · MD · Sun 21 Jun</h3>
-<table><tr class="r1"><td class="pos">1</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">118</td></tr>
-<tr><td class="pos">2</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">115</td></tr>
-<tr><td class="pos">3</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">114</td></tr>
-<tr><td class="pos">4</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">114</td></tr>
-<tr><td class="pos">5</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">105</td></tr>
-<tr><td class="pos">6</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">101</td></tr>
-<tr><td class="pos">7</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">100</td></tr>
-<tr><td class="pos">8</td><td><span class="tname">Look at his face. Just Look at his FACE!</span><span class="mgr">Sam</span></td><td class="tot">99</td></tr>
-<tr><td class="pos">9</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">98</td></tr>
-<tr><td class="pos">10</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">84</td></tr>
-<tr><td class="pos">11</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">80</td></tr>
-<tr><td class="pos">12</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">72</td></tr>
-<tr class="r13"><td class="pos">13</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">51</td></tr></table>
-</div>
-<div class="panel">
-<h3>Round Highlights</h3>
-<table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Mikel Oyarzabal (Jeremy) — 15pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Maxim De Cuyper (Dan) — 9pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Priciest flop</span><span class="mgr">Gavi (Jake) — 0pts</span></td></tr></table>
-</div>
-<div class="panel">
-<h3>Still to play</h3>
-<table>
-<tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Tonight it's ARG v AUT, FRA v IRQ, NOR v SEN and JOR v ALG — Messi, Mbappé, Haaland and Mahrez all lurking for your rivals.</span></td></tr>
-</table>
+<!-- ===== Trivia panels ===== -->
+<div class="triv-label">The numbers · refreshes live</div>
+<div class="triv">
+  <div class="tcard"><h3>Best value <span class="unit">pts / £m</span></h3><div id="tv-value" class="tbody"></div></div>
+  <div class="tcard"><h3>Top matchday scorers <span class="unit">round pts</span></h3><div id="tv-mdscore" class="tbody"></div></div>
+  <div class="tcard"><h3>Top overall scorers <span class="unit">season pts</span></h3><div id="tv-overall" class="tbody"></div></div>
+  <div class="tcard"><h3>Manager of the matchday</h3><div id="tv-manager" class="tbody"></div></div>
+  <div class="tcard"><h3>Biggest table mover</h3><div id="tv-mover" class="tbody"></div></div>
+  <div class="tcard"><h3>Priciest flops <span class="unit">round pts</span></h3><div id="tv-flop" class="tbody"></div></div>
+  <div class="tcard"><h3>Top-scoring nations <span class="unit">round pts</span></h3><div id="tv-nation" class="tbody"></div></div>
 </div>
 
-</aside>
-</div>
-
-<footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+<footer>TRM Fantasy · World Cup 2026 · table &amp; fixtures live from the league · player points live from FIFA official</footer>
 
 </div>
 
 <script>
 (function(){
   var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
+  var PLAYERS_URL = WORKER_URL + "/players";
   var POLL_MS = 60000;
-  var prevTotals = {}, lastUpdated = null, lastFixtures = [], lastStandings = null;
-  var baselineRanks = null;  // ranks before the last matchday, from baseline.json
-  fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j && j.ranks){ baselineRanks = j.ranks; redraw(); } }).catch(function(){});
-  // Owned players by 3-letter nation code. The live feed only lists a fixture's
-  // owned players once it's live/finished; before kickoff we fall back to this
-  // map so "to play" and the fixture boxes still work all day. Loaded once.
-  var ownedByNation = null;
-  fetch("owned-by-nation.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j){ ownedByNation = j; redraw(); } }).catch(function(){});
-  function redraw(){ if(lastStandings){ renderFixtures(lastFixtures); renderStandings(lastStandings); } }
+
+  // ---- state ----
+  var prevTotals = {}, lastUpdated = null, lastFixtures = [], lastStandings = [];
+  var baselineRanks = null;     // ranks before the last matchday (baseline.json)
+  var ownedByNation = null;     // nation code -> [{name, manager}]  (fallback / to-play)
+  var ownedPlayers = null;      // rich list: [{name, manager, nation, price, round, total}]
+  var livePoints = {};          // nrm(name) -> this-round points (from /players)
+
+  // ---- helpers ----
   function $(id){ return document.getElementById(id); }
   function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
   function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
-  // A fixture's owned players: the live feed's list (with points) if present,
-  // otherwise derived from the squad nation map (names only, points not yet in).
+  // MUST match the worker's norm() and the squad page's nrm() so names line up.
+  function nrm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
+
+  // ---- static data files (loaded once) ----
+  fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if(j && j.ranks){ baselineRanks = j.ranks; redraw(); } }).catch(function(){});
+  fetch("owned-by-nation.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if(j){ ownedByNation = j; redraw(); } }).catch(function(){});
+  // Rich per-player data (prices + base round/season points) powers the value,
+  // overall-scorer and flop panels. Produced by generate.py (owned-players.json).
+  // If it's absent those three panels show a short "awaiting data" note; the rest
+  // run off owned-by-nation.json + the live /players feed.
+  fetch("owned-players.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if(j && j.length){ ownedPlayers = j; redraw(); } }).catch(function(){});
+
+  function redraw(){ renderFixtures(lastFixtures); if(lastStandings.length){ renderStandings(lastStandings); } renderTrivia(); }
+
+  // ---- the working player list (rich if available, else nation fallback) ----
+  function basePlayers(){
+    if (ownedPlayers) return ownedPlayers.map(function(p){
+      return {name:p.name, manager:p.manager, nation:(p.nation||"").toUpperCase(),
+              price:(typeof p.price==="number"?p.price:parseFloat(p.price)||0),
+              round:(p.round||0), total:(p.total==null?null:p.total)};
+    });
+    if (ownedByNation){
+      var out = [];
+      Object.keys(ownedByNation).forEach(function(nat){
+        (ownedByNation[nat]||[]).forEach(function(p){
+          out.push({name:p.name, manager:p.manager, nation:nat, price:0, round:0, total:null});
+        });
+      });
+      return out;
+    }
+    return [];
+  }
+  // Apply the live /players feed: live this-round points overrides the base; the
+  // live season total is base_total - base_round + live_round (same as squads).
+  function enriched(){
+    return basePlayers().map(function(p){
+      var lv = livePoints[nrm(p.name)];
+      var round = (lv!=null) ? lv : (p.round||0);
+      var total = (p.total==null) ? null : (p.total - (p.round||0) + round);
+      return {name:p.name, manager:p.manager, nation:p.nation, price:p.price, round:round, total:total};
+    });
+  }
+  function hasRich(){ return !!ownedPlayers; }
+  function mgrToTeam(){ var m={}; lastStandings.forEach(function(r){ m[r.manager]=r.team; }); return m; }
+
+  // ===== fixtures =====
   function fxPlayers(f){
     if (f.players && f.players.length) return f.players;
     if (ownedByNation){
@@ -234,8 +235,6 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     }
     return [];
   }
-  // "To play" = a manager's owned players whose nation still has a match left
-  // this round (any fixture not yet finished).
   function toPlayMap(){
     if (!ownedByNation) return null;
     var rem = {};
@@ -247,18 +246,17 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     return m;
   }
   function renderFixtures(fx){
+    if(!fx || !fx.length){ $("lv-fixtures").innerHTML = ""; return; }
     var order = {live:0, upcoming:1, finished:2};
     var upc = 0;
     var list = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).filter(function(f){
-      if (f.status==="upcoming"){ upc++; return upc<=8; }  // never show more than 8 upcoming fixtures
+      if (f.status==="upcoming"){ upc++; return upc<=8; }
       return true;
     });
     $("lv-fixtures").innerHTML = list.map(function(f){
       var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
       var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
       var head = '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div>';
-      // Each fixture with owned players is a click-to-expand panel listing every
-      // owned player in the match and which manager owns them (live ones open).
       var pl = fxPlayers(f);
       if (pl.length){
         var pls = '<div class="lv-fx-pls">' + pl.map(function(p){
@@ -276,11 +274,11 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       return '<div class="lv-fx '+f.status+'">'+head+'</div>';
     }).join("");
   }
+
+  // ===== standings =====
   function renderStandings(rows){
     var tb = $("lv-tbody");
-    // Movement = change in table position over the LAST matchday: current rank
-    // vs the rank in baseline.json (the table before last night's games).
-    var tp = toPlayMap();  // null until the nation map loads; then per-manager counts
+    var tp = toPlayMap();
     tb.innerHTML = rows.map(function(r){
       var d = (baselineRanks && baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager] - r.rank) : 0;
       var move = d>0 ? '<span class="lv-move up">▲ '+d+'</span>'
@@ -300,17 +298,141 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
     });
     rows.forEach(function(r){ prevTotals[r.slug]=r.total; });
   }
+
+  // ===== trivia =====
+  function rowHTML(rank, name, meta, val, vClass){
+    return '<div class="trow"><span class="trank">'+rank+'</span>'
+         + '<span class="tn">'+esc(name)+'</span>'
+         + (meta?'<span class="tm">'+esc(meta)+'</span>':'')
+         + '<span class="tv'+(vClass?' '+vClass:'')+'">'+val+'</span></div>';
+  }
+  function need(id){ $(id).innerHTML = '<div class="tneed">Awaiting squad price data — add <b>owned-players.json</b> (see build notes). The other panels run on the live feed.</div>'; }
+  function empty(id, msg){ $(id).innerHTML = '<div class="tempty">'+esc(msg)+'</div>'; }
+
+  function renderTrivia(){
+    var ps = enriched();
+    var m2t = mgrToTeam();
+
+    // --- Best value: season pts per £m (needs prices + totals) ---
+    if (!hasRich()){ need("tv-value"); }
+    else {
+      var val = ps.filter(function(p){ return p.price>0 && p.total!=null; })
+        .map(function(p){ return {n:p.name, m:p.manager, v:p.total/p.price}; })
+        .sort(function(a,b){ return b.v-a.v; }).slice(0,5);
+      $("tv-value").innerHTML = val.length
+        ? val.map(function(it,i){ return rowHTML(i+1, it.n, it.m, it.v.toFixed(1), "green"); }).join("")
+        : '<div class="tempty">No priced players yet.</div>';
+    }
+
+    // --- Top matchday (this-round) scorers ---
+    if (!ps.length){ empty("tv-mdscore", "No squad data yet."); }
+    else {
+      var md = ps.slice().sort(function(a,b){ return b.round-a.round; }).slice(0,5);
+      $("tv-mdscore").innerHTML = (md[0] && md[0].round>0)
+        ? md.map(function(it,i){ return rowHTML(i+1, it.name, it.manager, it.round); }).join("")
+        : '<div class="tempty">No points on the board yet this round.</div>';
+    }
+
+    // --- Top overall (season) scorers (needs totals) ---
+    if (!hasRich()){ need("tv-overall"); }
+    else {
+      var ov = ps.filter(function(p){ return p.total!=null; })
+        .sort(function(a,b){ return b.total-a.total; }).slice(0,5);
+      $("tv-overall").innerHTML = ov.length
+        ? ov.map(function(it,i){ return rowHTML(i+1, it.name, it.manager, it.total); }).join("")
+        : '<div class="tempty">No season points yet.</div>';
+    }
+
+    // --- Manager of the matchday: best combined this-round haul ---
+    if (!ps.length){ empty("tv-manager", "No squad data yet."); }
+    else {
+      var byMgr = {};
+      ps.forEach(function(p){ byMgr[p.manager] = (byMgr[p.manager]||0) + p.round; });
+      var ranked = Object.keys(byMgr).map(function(m){ return {m:m, v:byMgr[m]}; })
+        .sort(function(a,b){ return b.v-a.v; });
+      if (ranked.length && ranked[0].v>0){
+        var top = ranked[0];
+        var rest = ranked.slice(1,3).filter(function(x){ return x.v>0; });
+        var sub = rest.length
+          ? rest.map(function(x){ return esc(x.m)+' '+x.v; }).join(' · ')
+          : 'Out in front on their own.';
+        $("tv-manager").innerHTML =
+          '<div class="tbig"><div class="big">'+esc(m2t[top.m]||top.m)+'</div>'
+          + '<div class="sub"><b>'+esc(top.m)+'</b> · '+top.v+' pts this round<br>'+sub+'</div></div>';
+      } else {
+        empty("tv-manager", "No round points scored yet.");
+      }
+    }
+
+    // --- Biggest table mover (this round, vs baseline ranks) ---
+    if (!baselineRanks || !lastStandings.length){ empty("tv-mover", "Awaiting this round's movement."); }
+    else {
+      var mv = lastStandings.map(function(r){
+        var d = (baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager]-r.rank) : 0;
+        return {team:r.team, manager:r.manager, d:d};
+      });
+      var up = mv.slice().sort(function(a,b){ return b.d-a.d; })[0];
+      var down = mv.slice().sort(function(a,b){ return a.d-b.d; })[0];
+      if (up && (up.d>0 || (down && down.d<0))){
+        var upLine = up.d>0
+          ? '<span class="up">▲'+up.d+'</span> <b>'+esc(up.team)+'</b>'
+          : 'No risers this round';
+        var downLine = (down && down.d<0)
+          ? '<span class="down">▼'+(-down.d)+'</span> '+esc(down.team)
+          : 'No fallers this round';
+        $("tv-mover").innerHTML =
+          '<div class="tbig"><div class="big"><span class="mv">'+upLine+'</span></div>'
+          + '<div class="sub">'+downLine+'</div></div>';
+      } else {
+        empty("tv-mover", "Nobody's moved yet this round.");
+      }
+    }
+
+    // --- Priciest flops: expensive players returning least this round ---
+    if (!hasRich()){ need("tv-flop"); }
+    else {
+      var priced = ps.filter(function(p){ return p.price>0; });
+      if (!priced.length){ empty("tv-flop", "No priced players yet."); }
+      else {
+        var prices = priced.map(function(p){ return p.price; }).sort(function(a,b){ return a-b; });
+        var thr = prices[Math.floor(prices.length*0.65)] || prices[prices.length-1];
+        var flops = priced.filter(function(p){ return p.price>=thr; })
+          .sort(function(a,b){ return (a.round-b.round) || (b.price-a.price); }).slice(0,4);
+        $("tv-flop").innerHTML = flops.map(function(it,i){
+          return rowHTML(i+1, it.name, "£"+it.price.toFixed(1)+"m", it.round,
+                         it.round<=0 ? "red" : "");
+        }).join("");
+      }
+    }
+
+    // --- Top-scoring nations (this round, owned players) ---
+    if (!ps.length){ empty("tv-nation", "No squad data yet."); }
+    else {
+      var byNat = {};
+      ps.forEach(function(p){ if(p.nation){ byNat[p.nation] = (byNat[p.nation]||0) + p.round; } });
+      var nats = Object.keys(byNat).map(function(c){ return {c:c, v:byNat[c]}; })
+        .sort(function(a,b){ return b.v-a.v; }).slice(0,5);
+      $("tv-nation").innerHTML = (nats[0] && nats[0].v>0)
+        ? nats.map(function(it,i){
+            return '<div class="trow"><span class="trank">'+(i+1)+'</span>'
+                 + '<span class="tnat">'+esc(it.c)+'</span>'
+                 + '<span class="tn"></span>'
+                 + '<span class="tv">'+it.v+'</span></div>';
+          }).join("")
+        : '<div class="tempty">No points on the board yet this round.</div>';
+    }
+  }
+
+  // ===== polling =====
   function tick(){ var el=$("lv-status"); if(el) el.innerHTML = "Updated <b>"+ago(lastUpdated)+"</b>"; }
-  function poll(){
-    fetch(WORKER_URL, {cache:"no-store"}).then(function(res){
+  function pollTable(){
+    return fetch(WORKER_URL, {cache:"no-store"}).then(function(res){
       if(!res.ok) throw new Error("feed "+res.status);
       return res.json();
     }).then(function(d){
       if(d.error) throw new Error(d.error);
       $("lv-err").style.display="none";
       lastUpdated = d.updated;
-      // The league table is shown at ALL times. The "live" dot, the fixtures
-      // strip and the movement flashes simply switch on while a game is in play.
       $("lv-md").textContent = d.matchday || "";
       $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
       lastFixtures = d.fixtures||[];
@@ -323,6 +445,15 @@ footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; 
       $("lv-status").textContent = "offline";
     });
   }
+  function pollPlayers(){
+    return fetch(PLAYERS_URL, {cache:"no-store"}).then(function(res){
+      return res.ok ? res.json() : null;
+    }).then(function(d){
+      if(d && d.players){ livePoints = d.players; }
+    }).catch(function(){ /* per-player feed is best-effort; trivia falls back to base points */ });
+  }
+  function poll(){ pollTable(); pollPlayers().then(renderTrivia); }
+
   $("lv-refresh").addEventListener("click", poll);
   poll();
   setInterval(poll, POLL_MS);
