@@ -146,7 +146,9 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 </table>
 <div class="note">Tap a team to open its squad. Arrows show movement since the last matchday. Live points show in <span style="color:var(--today);font-weight:800">orange</span> while a game is in play.</div>
 
-<!-- results + upcoming below -->
+<!-- today's matchday (results + still-to-play), then upcoming, below the table -->
+<div class="seclabel" id="today-label" style="display:none">Today's matchday · tap a match for scorers &amp; owned players</div>
+<div id="today" class="matches"></div>
 <div class="seclabel" id="res-label">Upcoming fixtures · tap a match to see owned players</div>
 <div id="results" class="matches"></div>
 
@@ -217,13 +219,25 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
   function renderMatches(){
     var live=fixtures.filter(function(f){return f.status==="live";});
-    var up=fixtures.filter(function(f){return f.status==="upcoming";}).slice(0,8);
+    // Current matchday = the latest day that has a started (live/finished) game.
+    var started=fixtures.filter(function(f){return f.matchday && (f.status==="live"||f.status==="finished");});
+    var days=started.map(function(f){return f.matchday;}).sort();
+    var cur=days.length? days[days.length-1] : null;
+    // Today's matchday, minus the live ones (those go above the table): finished
+    // games show as results, not-yet-played show as upcoming. Same day only.
+    var today = cur ? fixtures.filter(function(f){ return f.matchday===cur && f.status!=="live"; }) : [];
+    today.sort(function(a,b){ var o={finished:0,upcoming:1}; return (o[a.status]==null?9:o[a.status])-(o[b.status]==null?9:o[b.status]); });
+    // Future upcoming fixtures (other matchdays), soonest first, max 8.
+    var future = fixtures.filter(function(f){ return f.status==="upcoming" && (!cur || f.matchday!==cur); }).slice(0,8);
+
     var lw=$("live-wrap");
     if(live.length){ lw.style.display=""; $("live").innerHTML=live.map(matchBox).join(""); }
     else { lw.style.display="none"; $("live").innerHTML=""; }
-    // Only upcoming fixtures here (next 8) — no past results.
-    $("results").innerHTML = up.map(matchBox).join("");
-    $("res-label").style.display = up.length?"":"none";
+
+    $("today").innerHTML = today.map(matchBox).join("");
+    $("today-label").style.display = today.length? "":"none";
+    $("results").innerHTML = future.map(matchBox).join("");
+    $("res-label").style.display = future.length? "":"none";
   }
 
   function renderTable(){
