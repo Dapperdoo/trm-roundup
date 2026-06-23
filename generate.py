@@ -32,14 +32,14 @@ MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
 MANAGERS = {
-    "Joe S":   "Back of the Van United — real name Sheerin; universally popular ex-pro footballer who loved the party-boy lifestyle as much as the game; utterly baffled by modern tech.",
+    "Joe S":   "Back of the Van United — real name Sheerin; a universally popular, supremely gifted ex-pro footballer whose flair career was repeatedly wrecked by injuries — he spent at least half of it stuck in the physio room on the treatment table rather than on the pitch, which is endlessly worth taking the piss out of; loved the party-boy lifestyle as much as the game; utterly baffled by modern tech.",
     "Sam":     "Look at his face. Just Look at his FACE! — expressive stage & TV performer; loves beer, dancing, music; witty, scatty; loves Shakespeare even more than football; brother of Wigs; a cricket man.",
     "Joe A":   "Shatner's Bassoon — an actor; faintly unbothered, relaxed air (hint at it lightly); main rival is Tristan.",
     "Tom":     "Anamaduwa Athletic — party animal and dance-music DJ; always travelling, never sure which country he's in; lives in Asia eating curries with his bare hands; main rival is Nick.",
     "Dave":    "Trossy's Giants — aka 'Trossy Ginge'; lecturer and poet; loves wordplay and puns; city-break traveller; food, beer and cigarettes.",
     "Wigs":    "50 Shades of O'Shea — counsellor; gregarious, gentle and witty; loves cricket as well as football; brother of Sam.",
     "Jeremy":  "Von Neumann Trombone — 'the professor'; programmer, super-smart and witty; historically a top fantasy manager; a niggling 5-a-side tackler; measured 'Swiss' type.",
-    "Nick":    "Dyer's Rusty 9 Iron — 'rusty iron' because he skies shots over the bar like a golf club; very tall, loud deep voice; sharp tactical mind; loves beer and food; main rival is Tom.",
+    "Nick":    "Dyer's Rusty 9 Iron — 'rusty iron' because he hammers his shots high over the crossbar like a wild golf swing; very tall, loud deep voice; a reckless, all-action menace who flies into rash, mistimed challenges; loves his beer and food; rib him for the wayward shooting and the crunching tackles, NOT for tactics; main rival is Tom.",
     "Dan":     "Denton Burn — musician who lives off-grid; smart, alternative, very witty; historically a top fantasy player; main ally is Malik.",
     "Chris":   "Lloyd's Food and Wine — aka 'Lloydy'; tall, eclectic, never sits still (biking, travelling, dancing); builds his own electrical kit; the 'mad scientist' to Jeremy's professor; main rival is Jake.",
     "Tristan": "Trippier & Trippier — big Russian guy raised in London; loves football and sweeties; witty but doesn't suffer fools; throws his hands up in disgust; main rival is Joe A.",
