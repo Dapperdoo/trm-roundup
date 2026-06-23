@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
-The Morning After — self-hosted daily generator (Claude version).
+The Morning After — daily fantasy roundup generator.
 
-Runs daily on GitHub Actions: fetches the league pages, has Claude write the
-playful roundup, renders it into template.html, and writes docs/roundup.html
-which GitHub Pages serves. Only secret needed: ANTHROPIC_API_KEY.
+Reads the league's own JSON feed (the Cloudflare worker), which already tags
+every fixture with its calendar matchday and attributes every owned player to a
+manager with exact points. The script:
+  1. picks the LATEST completed matchday (the most recent day of finished games),
+  2. computes each manager's points FROM THAT DAY's fixtures only, in Python,
+  3. hands those exact numbers to Claude purely to write the witty prose,
+  4. renders template.html -> docs/roundup.html.
 
-Each edition reports ONLY the fixtures completed since the previous edition. A
-tiny state file (docs/roundup-state.json), committed alongside the page, records
-which fixtures have already been written up; the next run diffs against it.
+Because the day's data is computed deterministically from the feed, the report
+is always scoped to a single matchday and the points/players can't drift.
+Only secret needed: ANTHROPIC_API_KEY.
 """
 
 import os
@@ -20,106 +24,44 @@ import datetime
 import urllib.request
 
 import anthropic
-from bs4 import BeautifulSoup
 
-BASE = "https://trm-fantasy.onrender.com"
-INDEX_URL = f"{BASE}/wc"
+FEED_URL = "https://trm-live.dapperdon.workers.dev"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/roundup.html"
-STATE_PATH = "docs/roundup-state.json"
 MODEL = "claude-sonnet-4-6"
-
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
 MANAGERS = {
-    "Joe S":   "Back of the Van United — real name Sheerin; universally popular ex-pro footballer who loved the party-boy lifestyle as much as the game; utterly baffled by modern tech (internet, apps, AI).",
-    "Sam":     "Look at his face. Just Look at his FACE! — expressive professional stage & TV performer; loves beer, dancing, music and a good yarn; very witty, slightly scatty; loves football but loves belting out Shakespeare even more; brother of Wigs; also a cricket man.",
-    "Joe A":   "Shatner's Bassoon — an actor; gives off a faintly unbothered, relaxed air (hint at it lightly at most, don't lean on it); main rival is Tristan.",
+    "Joe S":   "Back of the Van United — real name Sheerin; universally popular ex-pro footballer who loved the party-boy lifestyle as much as the game; utterly baffled by modern tech.",
+    "Sam":     "Look at his face. Just Look at his FACE! — expressive stage & TV performer; loves beer, dancing, music; witty, scatty; loves Shakespeare even more than football; brother of Wigs; a cricket man.",
+    "Joe A":   "Shatner's Bassoon — an actor; faintly unbothered, relaxed air (hint at it lightly); main rival is Tristan.",
     "Tom":     "Anamaduwa Athletic — party animal and dance-music DJ; always travelling, never sure which country he's in; lives in Asia eating curries with his bare hands; main rival is Nick.",
-    "Dave":    "Trossy's Giants — aka 'Trossy Ginge'; lecturer and poet; loves wordplay and puns; regular city-break traveller; loves food, beer and cigarettes (usually all together).",
+    "Dave":    "Trossy's Giants — aka 'Trossy Ginge'; lecturer and poet; loves wordplay and puns; city-break traveller; food, beer and cigarettes.",
     "Wigs":    "50 Shades of O'Shea — counsellor; gregarious, gentle and witty; loves cricket as well as football; brother of Sam.",
-    "Jeremy":  "Von Neumann Trombone — 'the professor'; computer programmer, super-smart and witty; historically one of the two most successful fantasy managers (with Dan); a niggling tackler at 5-a-side; a dependable, measured 'Swiss' type.",
-    "Nick":    "Dyer's Rusty 9 Iron — 'rusty iron' because he skies shots over the bar like a golf club; very tall, loud deep voice; sharp tactical football mind; loves his beer and food; main rival is Tom.",
+    "Jeremy":  "Von Neumann Trombone — 'the professor'; programmer, super-smart and witty; historically a top fantasy manager; a niggling 5-a-side tackler; measured 'Swiss' type.",
+    "Nick":    "Dyer's Rusty 9 Iron — 'rusty iron' because he skies shots over the bar like a golf club; very tall, loud deep voice; sharp tactical mind; loves beer and food; main rival is Tom.",
     "Dan":     "Denton Burn — musician who lives off-grid; smart, alternative, very witty; historically a top fantasy player; main ally is Malik.",
-    "Chris":   "Lloyd's Food and Wine — aka 'Lloydy'; tall, eclectic, always doing things (mountain biking, travelling, dancing) rather than sitting still; builds his own electrical kit; the 'mad scientist' to Jeremy's measured professor; main rival is Jake.",
-    "Tristan": "Trippier & Trippier — big Russian guy raised in London; loves football and sweeties; witty but doesn't suffer fools; throws his hands up in disgust when displeased; main rival is Joe A.",
+    "Chris":   "Lloyd's Food and Wine — aka 'Lloydy'; tall, eclectic, never sits still (biking, travelling, dancing); builds his own electrical kit; the 'mad scientist' to Jeremy's professor; main rival is Jake.",
+    "Tristan": "Trippier & Trippier — big Russian guy raised in London; loves football and sweeties; witty but doesn't suffer fools; throws his hands up in disgust; main rival is Joe A.",
     "Malik":   "Propaganda Parade — quirky, smart Icelandic man managing from afar; signs anyone who has worn a Manchester United or Portugal shirt; main ally is Dan.",
-    "Jake":    "Snacob's Ladder — renewable-energy project manager; loves wind turbines and mushrooms; never stops; spends a lot of time in the dentist's chair; overspent badly on Harry Kane and filled the rest of his squad with cheap players he'd never heard of; plays psy-trance/techno like Tom; main rival is Chris (Lloydy).",
+    "Jake":    "Snacob's Ladder — renewable-energy project manager; loves wind turbines and mushrooms; never stops; overspent badly on Harry Kane and filled the rest with cheap unknowns; plays psy-trance like Tom; main rival is Chris.",
 }
 RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake (rivals), "
                  "Malik & Dan (allies), Sam & Wigs (brothers).")
 
-SYSTEM_PROMPT = """You write "The Morning After", the DAILY bulletin of a private 13-manager World Cup 2026 fantasy football league.
+SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. It recaps ONE matchday — the most recent day of completed fixtures.
 
-WHAT THIS EDITION COVERS — THE MOST IMPORTANT RULE: this is a daily report on ONLY the fixtures that have FINISHED SINCE THE LAST EDITION — never the whole round. You are given:
-- "matchday_fixtures": the games (nation pairs) that went FULL TIME since the previous report. THESE, and only these, are what today's edition is about.
-- "previously_reported_fixtures": games already written up in earlier editions. Do NOT review these again — they are old news. You may reference them only lightly for table context.
-- Games that are still upcoming or live: "yet to come" — do not treat a 0 from them as a blank.
-Every manager write-up must LEAD with that manager's points from THIS edition's matchday_fixtures (the points their players earned in those specific games), naming those players. If a manager had no players in the matchday_fixtures, say so briefly — a quiet night for them — and move on. Do not pad the piece by re-listing their whole round.
+You are handed already-computed, already-correct figures: the day's finished fixtures with scores, and for each manager the exact players of theirs who featured in those fixtures with their exact points (and which blanked). You do NOT calculate anything and you do NOT decide who owns whom — just turn the supplied numbers into lively prose.
 
-You are also given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. Use the fixtures text to see each game's status (FULL TIME, LIVE, upcoming).
+HARD RULES:
+- Use ONLY the players and points supplied for that manager. Never add a player who is not in their supplied list. Never change a points value. Never invent.
+- "haul" is that manager's total for THIS matchday (already summed for you). Lead with it.
+- A player marked played=false did NOT feature (squad/bench) — do not call them a blank; ignore or note "rested/unused". A player who played with 0 or negative points IS a blank — fair game.
+- Mention current league position/total only as context.
 
-STRICT PLAYER OWNERSHIP: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Treat that list as a closed whitelist: name ONLY players from that exact list, with the exact points shown. Do NOT use your own football knowledge to assign players. Never invent players or points. When in doubt, leave a player out.
+TONE: dry, deadpan, affectionate ribbing; economical (~90-130 words per manager). Lean on each manager's character sparingly; let the football do the work. Use first names exactly as given.
 
-EVERY MANAGER WRITE-UP MUST INCLUDE:
-- Their points from THIS matchday (the matchday_fixtures), and their current league position for context.
-- The standout players BY NAME with their points from those games — who hauled and who blanked. A write-up with no named players/points from the matchday_fixtures has failed (unless they genuinely had none, in which case say so).
-- How it moved them in the table, and a dig at a rival where the table invites it.
-- A brief nod to any of their players still to come.
-
-TONE: dry and deadpan, affectionately ribbing the managers, economical (~90-130 words each). Lean on character sparingly; let the football do the work.
-
-ACCURACY: only call a 0 a blank if that player's nation is in matchday_fixtures (i.e. finished). If their game is upcoming/live, it is "yet to come". The "flop" note must name a player whose game finished this matchday.
-
-Use the manager FIRST NAMES exactly as given. Keep any thinking extremely brief. Your reply MUST contain the requested JSON value at the very end, with nothing after the final bracket, and no code fences."""
-
-
-# Work is split into small bounded calls. The frame call also reports the
-# fixtures so we can persist them and scope the next edition.
-
-def frame_task(prev_fixtures):
-    prev = ", ".join(prev_fixtures) if prev_fixtures else "(none — this is the first edition; treat all currently-finished games as this matchday)"
-    return (
-        "TASK: Produce ONLY the frame of today's bulletin — do NOT write the per-manager articles.\n\n"
-        f"previously_reported_fixtures (already covered, do NOT report again): {prev}\n\n"
-        "Identify, from the fixtures text, every game in this round currently at FULL TIME (as \"HOME-AWAY\" "
-        "using the three-letter codes shown, e.g. \"CZE-RSA\"). matchday_fixtures = those FULL TIME games "
-        "that are NOT in previously_reported_fixtures — i.e. the games finished since the last edition. "
-        "Scope the notes (top_haul / bargain / flop) to players who played in matchday_fixtures only.\n\n"
-        "Return valid JSON in exactly this shape, as the LAST thing in your reply (no code fences):\n"
-        "{\n"
-        '  "matchday_label": "<the round label exactly as shown, e.g. Group Matchday 2>",\n'
-        '  "status_live": <true if any games are still live or upcoming, else false>,\n'
-        '  "fulltime_fixtures": ["HOME-AWAY", ... every game currently FULL TIME this round],\n'
-        '  "matchday_fixtures": ["HOME-AWAY", ... the NEW finished games this edition reports on],\n'
-        '  "standings": [ {"team": "...", "manager": "...", "total": <int>}, ... ALL managers, 1st to last ],\n'
-        '  "still_to_play": "<comma-separated nations not yet kicked off, or \'Everyone has arrived.\'>",\n'
-        '  "notes": {\n'
-        '     "top_haul": "<player (manager) — pts>",\n'
-        '     "bargain": "<best points-per-million among players who played this matchday: player (manager) — pts from price>",\n'
-        '     "flop": "<worst return for price among players who played this matchday: player (manager) — pts from price>"\n'
-        '  },\n'
-        '  "lead": "<one-paragraph scene-setter for THIS matchday\'s action only, may include bold tags>"\n'
-        "}\n"
-        "Include every manager in standings."
-    )
-
-
-def article_task(batch, matchday_fixtures):
-    names = ", ".join(batch)
-    md = ", ".join(matchday_fixtures) if matchday_fixtures else "(none finished since last edition)"
-    return (
-        "TASK: Write the per-manager write-ups for ONLY these managers, in this exact order: "
-        f"{names}.\n\n"
-        f"matchday_fixtures (the ONLY games this edition covers): {md}\n\n"
-        "Each write-up LEADS with that manager's points from these matchday_fixtures and names the players "
-        "who scored them (and any who blanked in those games). Ignore players whose games were in earlier "
-        "editions; note upcoming players only as 'yet to come'. If a manager had no players in the "
-        "matchday_fixtures, say so in a line. Apply the STRICT PLAYER OWNERSHIP rule. ~90-130 words each.\n\n"
-        "Return, as the LAST thing in your reply, a JSON array (no code fences) of exactly "
-        f"{len(batch)} objects, one per manager named above, in that order:\n"
-        '[ {"manager": "<first name>", "headline": "<short headline>", "body": "<~90-130 words>"} ]'
-    )
+Keep any thinking extremely brief. Output ONLY the requested JSON value at the very end, no code fences."""
 
 
 def fetch(url, tries=4):
@@ -135,90 +77,74 @@ def fetch(url, tries=4):
     raise RuntimeError(f"Failed to fetch {url}: {last}")
 
 
-def to_text(html):
-    soup = BeautifulSoup(html, "html.parser")
-    for tag in soup(["script", "style", "noscript"]):
-        tag.decompose()
-    text = soup.get_text("\n")
-    lines = [ln.strip() for ln in text.splitlines()]
-    return "\n".join([ln for ln in lines if ln])
+def get_feed():
+    return json.loads(fetch(FEED_URL))
 
 
-def team_slugs(index_html):
-    m = re.search(r'<script[^>]*type="application/json"[^>]*>([^<]*\|[^<]*)</script>', index_html)
-    if m:
-        slugs = [s for s in m.group(1).strip().strip('"').split("|") if s]
-        if len(slugs) >= 5:
-            return slugs
-    return ["back-of-the-van-united", "look-at-his-face", "anamaduwa-athletic",
-            "shatners-bassoon", "trossys-giants", "50-shades-of-oshea",
-            "von-neumann-trombone", "dyers-rusty-9-iron", "lloyds-food-and-wine",
-            "denton-burn", "trippier-and-trippier", "propaganda-parade", "snacobs-ladder"]
-
-
-TEAM_BY_SLUG = {
-    "back-of-the-van-united": ("Back of the Van United", "Joe S"),
-    "look-at-his-face": ("Look at his face. Just Look at his FACE!", "Sam"),
-    "anamaduwa-athletic": ("Anamaduwa Athletic", "Tom"),
-    "shatners-bassoon": ("Shatner's Bassoon", "Joe A"),
-    "trossys-giants": ("Trossy's Giants", "Dave"),
-    "50-shades-of-oshea": ("50 Shades of O'Shea", "Wigs"),
-    "von-neumann-trombone": ("Von Neumann Trombone", "Jeremy"),
-    "dyers-rusty-9-iron": ("Dyer's Rusty 9 Iron", "Nick"),
-    "lloyds-food-and-wine": ("Lloyd's Food and Wine", "Chris"),
-    "denton-burn": ("Denton Burn", "Dan"),
-    "trippier-and-trippier": ("Trippier & Trippier", "Tristan"),
-    "propaganda-parade": ("Propaganda Parade", "Malik"),
-    "snacobs-ladder": ("Snacob's Ladder", "Jake"),
-}
-
-
-def load_state():
-    """Previously-reported fixtures. Tolerant of a missing/corrupt file (returns
-    empty, which makes the next edition a first-edition bootstrap)."""
+def pretty_day(iso):
     try:
-        with open(STATE_PATH, encoding="utf-8") as f:
-            data = json.load(f)
-        fx = data.get("reported_fixtures", [])
-        return [str(x) for x in fx] if isinstance(fx, list) else []
-    except Exception as e:
-        print(f"  no usable state ({e}); treating as first edition", flush=True)
-        return []
+        return datetime.datetime.strptime(iso, "%Y-%m-%d").strftime("%A %d %B")
+    except Exception:
+        return iso or ""
 
 
-def save_state(fixtures):
-    os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
-    payload = {
-        "reported_fixtures": sorted(set(fixtures)),
-        "updated": datetime.datetime.utcnow().isoformat() + "Z",
+def build_brief(feed):
+    """Deterministically reduce the feed to a single-matchday brief."""
+    standings = sorted(feed.get("standings", []), key=lambda s: s.get("rank", 99))
+    fixtures = feed.get("fixtures", [])
+    finished = [f for f in fixtures if f.get("status") == "finished" and f.get("matchday")]
+    if not finished:
+        raise RuntimeError("no finished fixtures in feed")
+    target = max(f["matchday"] for f in finished)
+    md = [f for f in finished if f["matchday"] == target]
+
+    mgr = {}
+    for s in standings:
+        mgr[s["manager"]] = {
+            "manager": s["manager"], "team": s["team"], "rank": s["rank"],
+            "total": s["total"], "round": s.get("round"), "remaining": s.get("remaining", 0),
+            "haul": 0, "players": [],
+        }
+    pool = []
+    fixture_lines = []
+    for f in md:
+        line = f'{f["home"]} {f.get("score","")} {f["away"]}'
+        fixture_lines.append(line)
+        for p in f.get("players", []):
+            m = p.get("manager")
+            if m not in mgr:
+                continue
+            played = p.get("pts") is not None
+            pts = p.get("pts") or 0
+            rec = {"name": p["name"], "pts": pts, "goals": p.get("goals", 0),
+                   "assists": p.get("assists", 0), "fixture": f'{f["home"]}-{f["away"]}',
+                   "played": played}
+            mgr[m]["players"].append(rec)
+            if played:
+                mgr[m]["haul"] += pts
+            pool.append({**rec, "manager": m})
+
+    played_pool = [r for r in pool if r["played"]]
+    top = max(played_pool, key=lambda r: r["pts"]) if played_pool else None
+
+    upcoming = [f for f in fixtures if f.get("status") != "finished"]
+    still = [f'{f["home"]}-{f["away"]}' for f in upcoming]
+
+    return {
+        "round_label": feed.get("matchday") or "World Cup 2026",
+        "matchday_date": target,
+        "matchday_day_label": pretty_day(target),
+        "fixtures": fixture_lines,
+        "managers_in_order": [s["manager"] for s in standings],
+        "standings": [{"team": s["team"], "manager": s["manager"], "total": s["total"]} for s in standings],
+        "by_manager": mgr,
+        "top_haul_player": top,
+        "day_player_pool": played_pool,
+        "still_to_play": still,
     }
-    with open(STATE_PATH, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2)
-    print(f"  state saved: {len(payload['reported_fixtures'])} reported fixtures", flush=True)
-
-
-def gather():
-    t0 = time.time()
-    index_html = fetch(INDEX_URL)
-    print(f"  index fetched in {time.time()-t0:.1f}s", flush=True)
-    standings_text = to_text(index_html)
-    squads = {}
-    for slug in team_slugs(index_html):
-        team, manager = TEAM_BY_SLUG.get(slug, (slug, slug))
-        label = f"{manager} — {team}"
-        ts = time.time()
-        try:
-            squads[label] = to_text(fetch(f"{BASE}/wc/team/{slug}"))
-            print(f"  {slug} in {time.time()-ts:.1f}s", flush=True)
-        except Exception as e:
-            print(f"  warn: {slug}: {e}", file=sys.stderr, flush=True)
-    return standings_text, squads
 
 
 def _loads(text, array=False):
-    """Parse the JSON value out of a reply that may be preceded by reasoning
-    prose. Tries each opening-bracket position (widest first) until one parses
-    to the final closing bracket — so a stray bracket in prose can't break it."""
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -227,28 +153,25 @@ def _loads(text, array=False):
     end = text.rfind(c)
     if end == -1:
         raise ValueError("no closing bracket in reply")
-    last_err = None
+    err = None
     for s, ch in enumerate(text):
         if ch != o:
             continue
         try:
             return json.loads(text[s:end + 1])
         except Exception as e:
-            last_err = e
-    raise ValueError(f"no parseable JSON found ({last_err})")
+            err = e
+    raise ValueError(f"no parseable JSON found ({err})")
 
 
 def _dump_raw(label, text, stop):
     t = (text or "").replace("\n", " ")
-    print(f"  [debug] {label}: raw_len={len(text or '')} stop_reason={stop}",
-          file=sys.stderr, flush=True)
-    print(f"  [debug] head: {t[:1000]}", file=sys.stderr, flush=True)
-    print(f"  [debug] tail: {t[-600:]}", file=sys.stderr, flush=True)
+    print(f"  [debug] {label}: raw_len={len(text or '')} stop_reason={stop}", file=sys.stderr, flush=True)
+    print(f"  [debug] head: {t[:900]}", file=sys.stderr, flush=True)
+    print(f"  [debug] tail: {t[-500:]}", file=sys.stderr, flush=True)
 
 
 def _ask(client, task, payload, max_tokens, array=False, tries=2):
-    """One bounded Claude call. Room for reasoning + JSON; JSON extracted from
-    the tail. Logs the raw reply on failure."""
     user = f"{task}\n\n<data>\n{json.dumps(payload)}\n</data>"
     last = None
     for attempt in range(tries):
@@ -256,19 +179,16 @@ def _ask(client, task, payload, max_tokens, array=False, tries=2):
         text, stop = "", None
         try:
             with client.messages.stream(
-                model=MODEL,
-                max_tokens=max_tokens,
-                temperature=0.5,
+                model=MODEL, max_tokens=max_tokens, temperature=0.6,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user}],
             ) as stream:
                 msg = stream.get_final_message()
             stop = getattr(msg, "stop_reason", None)
             text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
-            print(f"    call done in {time.time()-t0:.1f}s "
-                  f"(stop_reason={stop}, len={len(text)})", flush=True)
+            print(f"    call done in {time.time()-t0:.1f}s (stop={stop}, len={len(text)})", flush=True)
             if not text:
-                raise RuntimeError(f"empty response (stop_reason={stop})")
+                raise RuntimeError(f"empty response (stop={stop})")
             return _loads(text, array=array)
         except Exception as e:
             last = e
@@ -281,62 +201,86 @@ def _chunks(seq, n):
     return [seq[i:i + n] for i in range(0, len(seq), n)]
 
 
-def write_copy(standings_text, squads):
-    prev_fixtures = load_state()
-    print(f"  previously reported fixtures: {len(prev_fixtures)}", flush=True)
-    payload = {
-        "manager_profiles": MANAGERS,
-        "relationships": RELATIONSHIPS,
-        "previously_reported_fixtures": prev_fixtures,
-        "standings_and_fixtures_page_text": standings_text,
-        "each_managers_own_squad": squads,
-    }
-    client = anthropic.Anthropic(
-        api_key=os.environ["ANTHROPIC_API_KEY"],
-        timeout=600.0,
-        max_retries=1,
+def write_copy(brief):
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=600.0, max_retries=1)
+
+    # 1) Frame: lead + notes (phrasing only; figures come from the brief).
+    frame_task = (
+        "TASK: Write the scene-setting LEAD and the three sidebar NOTES for this edition, which recaps the "
+        f"matchday of {brief['matchday_day_label']} ({brief['round_label']}).\n"
+        "The day's finished fixtures and the day's player pool (name, manager, pts, goals, assists) are in the data. "
+        "top_haul_player is the single best score of the day — use it for top_haul. For bargain pick a strong return "
+        "from a less-glamorous name in the pool; for flop name a recognisable player from the pool who blanked "
+        "(pts 0 or less). Use ONLY players in day_player_pool, with their exact points.\n"
+        "Return ONLY this JSON at the end (no code fences):\n"
+        '{ "lead": "<one punchy paragraph on the day\'s action, may use <b>..</b>>",'
+        ' "notes": { "top_haul": "<Player (Manager) — N pts>", "bargain": "<Player (Manager) — N pts>",'
+        ' "flop": "<Player (Manager) — blank>" } }'
     )
+    frame_payload = {
+        "round_label": brief["round_label"],
+        "matchday_day_label": brief["matchday_day_label"],
+        "fixtures": brief["fixtures"],
+        "top_haul_player": brief["top_haul_player"],
+        "day_player_pool": brief["day_player_pool"],
+        "still_to_play": brief["still_to_play"],
+    }
+    frame = _ask(client, frame_task, frame_payload, max_tokens=3000, array=False)
 
-    print("  generating frame (fixtures/standings/notes/lead)...", flush=True)
-    frame = _ask(client, frame_task(prev_fixtures), payload, max_tokens=10000, array=False)
-    standings = frame.get("standings", [])
-    if len(standings) < 10:
-        raise RuntimeError(f"frame returned too few standings ({len(standings)})")
-    matchday_fixtures = frame.get("matchday_fixtures", []) or []
-    fulltime_fixtures = frame.get("fulltime_fixtures", []) or []
-    print(f"  matchday fixtures this edition: {len(matchday_fixtures)} "
-          f"(of {len(fulltime_fixtures)} finished)", flush=True)
-    payload["matchday_fixtures"] = matchday_fixtures
-
-    order = [r["manager"] for r in standings]
+    # 2) Articles in small batches; each manager gets their exact computed figures.
+    order = brief["managers_in_order"]
     articles = []
-    for batch in _chunks(order, 3):
-        print(f"  generating articles for {', '.join(batch)}...", flush=True)
+    for batch in _chunks(order, 4):
+        records = []
+        for m in batch:
+            r = brief["by_manager"][m]
+            records.append({
+                "manager": m, "team": r["team"], "rank": r["rank"], "total": r["total"],
+                "haul_this_matchday": r["haul"], "remaining_to_play": r["remaining"],
+                "profile": MANAGERS.get(m, ""),
+                "their_players_today": r["players"],
+            })
+        task = (
+            "TASK: Write the per-manager write-ups for these managers, in this exact order: "
+            f"{', '.join(batch)}.\n"
+            f"This edition recaps the matchday of {brief['matchday_day_label']}. RELATIONSHIPS: {RELATIONSHIPS}\n"
+            "For each manager use ONLY their_players_today (name, pts, goals, assists, played). Lead with "
+            "haul_this_matchday and name who scored it / who blanked (played=true, pts<=0). If their_players_today "
+            "is empty or all played=false, say it was a quiet matchday for them. ~90-130 words each.\n"
+            "Return ONLY a JSON array at the end (no code fences) of exactly "
+            f"{len(batch)} objects in that order:\n"
+            '[ {"manager": "<first name>", "headline": "<short headline>", "body": "<~90-130 words>"} ]'
+        )
         try:
-            arts = _ask(client, article_task(batch, matchday_fixtures), payload,
-                        max_tokens=4000 * len(batch), array=True)
+            arts = _ask(client, task, {"managers": records}, max_tokens=2500 * len(batch), array=True)
             if not isinstance(arts, list) or len(arts) < len(batch):
-                got = len(arts) if isinstance(arts, list) else "?"
-                raise RuntimeError(f"batch returned {got} of {len(batch)}")
+                raise RuntimeError(f"batch returned {len(arts) if isinstance(arts,list) else '?'} of {len(batch)}")
             articles.extend(arts)
         except Exception as e:
-            print(f"  batch failed ({e}); falling back to one manager at a time",
-                  file=sys.stderr, flush=True)
-            for mgr in batch:
-                arts = _ask(client, article_task([mgr], matchday_fixtures), payload,
-                            max_tokens=6000, array=True)
+            print(f"  batch failed ({e}); one at a time", file=sys.stderr, flush=True)
+            for m in batch:
+                r = brief["by_manager"][m]
+                rec = {"manager": m, "team": r["team"], "rank": r["rank"], "total": r["total"],
+                       "haul_this_matchday": r["haul"], "remaining_to_play": r["remaining"],
+                       "profile": MANAGERS.get(m, ""), "their_players_today": r["players"]}
+                one = (
+                    f"TASK: Write the write-up for {m} only, for the matchday of {brief['matchday_day_label']}. "
+                    "Use ONLY their_players_today; lead with haul_this_matchday. ~90-130 words. "
+                    'Return ONLY a JSON array of one object: [ {"manager":"' + m + '","headline":"..","body":".."} ]'
+                )
+                arts = _ask(client, one, {"managers": [rec]}, max_tokens=2500, array=True)
                 articles.extend(arts)
 
-    data = dict(frame)
-    data["articles"] = articles
-    if len(data.get("articles", [])) < 10:
-        raise RuntimeError(f"assembled too few articles ({len(data.get('articles', []))})")
-    print(f"  copy complete: {len(articles)} articles, {len(standings)} standings rows",
-          flush=True)
-    # Persist what we have now reported so the next edition only covers new games.
-    if fulltime_fixtures:
-        save_state(sorted(set(prev_fixtures) | set(fulltime_fixtures)))
-    return data
+    print(f"  copy complete: {len(articles)} articles", flush=True)
+    return {
+        "matchday_label": f"{brief['round_label']} · {brief['matchday_day_label']}",
+        "status_live": False,
+        "standings": brief["standings"],
+        "still_to_play": ", ".join(brief["still_to_play"]) if brief["still_to_play"] else "Everyone has played.",
+        "notes": frame.get("notes", {}),
+        "lead": frame.get("lead", ""),
+        "articles": articles,
+    }
 
 
 def esc(s):
@@ -365,8 +309,8 @@ def render(data):
                     f'<span class="{rcls}">{ordinal(i+1)}</span>'
                     f'<span class="team">{esc(r["team"])} &middot; {esc(r["manager"])}</span>'
                     f'<span class="pts">{esc(r["total"])} pts</span></div>'
-                    f'<h2 class="head">{esc(a["headline"])}</h2>'
-                    f'<p>{a["body"]}</p>'
+                    f'<h2 class="head">{esc(a.get("headline",""))}</h2>'
+                    f'<p>{a.get("body","")}</p>'
                     f'<div class="byline">The Morning After</div></article>')
     notes = data.get("notes", {})
     notes_rows = (
@@ -374,23 +318,20 @@ def render(data):
         f'<span class="mgr">{esc(notes.get("top_haul",""))}</span></td></tr>'
         f'<tr><td><span class="tname" style="color:var(--green)">Best-value pick</span>'
         f'<span class="mgr">{esc(notes.get("bargain",""))}</span></td></tr>'
-        f'<tr><td><span class="tname" style="color:var(--magenta)">Priciest flop</span>'
+        f'<tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span>'
         f'<span class="mgr">{esc(notes.get("flop",""))}</span></td></tr>')
-    is_live = bool(data.get("status_live"))
-    caveat = ('<p class="note">Figures are a live snapshot - some games were still in play when this '
-              'edition refreshed, so zeros for those nations mean still to come, not a no-show.</p>') if is_live else ""
     md = data.get("matchday_label", "World Cup 2026")
     repl = {
         "{{MATCHDAY_LABEL}}": esc(md),
-        "{{MATCHDAY_SHORT}}": esc(md.replace("Group ", "").replace("Matchday", "MD")),
+        "{{MATCHDAY_SHORT}}": esc(md.split("·")[-1].strip() if "·" in md else md),
         "{{DATE_LABEL}}": datetime.datetime.utcnow().strftime("%A %d %B %Y"),
-        "{{STATUS_CHIP}}": "Games still to come" if is_live else "All games settled",
+        "{{STATUS_CHIP}}": "Matchday settled",
         "{{LEAD}}": f'<p class="lead">{data.get("lead","")}</p>',
         "{{ARTICLES}}": "\n".join(arts),
         "{{STANDINGS_ROWS}}": "\n".join(rows),
         "{{NOTES_ROWS}}": notes_rows,
         "{{STILL_TO_PLAY}}": esc(data.get("still_to_play", "")),
-        "{{CAVEAT}}": caveat,
+        "{{CAVEAT}}": "",
     }
     html = open(TEMPLATE_PATH, encoding="utf-8").read()
     for k, v in repl.items():
@@ -399,10 +340,13 @@ def render(data):
 
 
 def main():
-    print("Fetching league pages...", flush=True)
-    standings_text, squads = gather()
-    print(f"Writing the column with Claude... ({len(squads)} squads gathered)", flush=True)
-    data = write_copy(standings_text, squads)
+    print("Fetching league feed...", flush=True)
+    feed = get_feed()
+    brief = build_brief(feed)
+    print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
+          f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)
+    print("Writing the column with Claude...", flush=True)
+    data = write_copy(brief)
     html = render(data)
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
