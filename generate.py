@@ -62,19 +62,18 @@ ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures 
 
 SCHEDULE: do NOT assume this is the opening day. It has been running for a while and earlier rounds may already be complete. Work out what has and hasn't happened ONLY from the fixture statuses in the data. Use the matchday label exactly as it appears in the data.
 
-Use the manager FIRST NAMES exactly as given in the profiles. Do all reasoning silently. Output ONLY the requested JSON value with no preamble, no explanation, no code fences — begin your reply with the opening bracket and nothing else."""
+Use the manager FIRST NAMES exactly as given in the profiles. Keep any thinking extremely brief. Your reply MUST contain the requested JSON value; put it at the very end with nothing after the final bracket, and do not wrap it in code fences."""
 
 
-# The work is split into small, bounded calls so a single huge completion can
-# never run away past max_tokens. One call produces the "frame" (standings +
-# notes + lead); the per-manager articles are then generated in small batches.
-# Each call's assistant turn is PREFILLED with the opening bracket, which forces
-# the model to emit JSON immediately instead of a long prose "let me work through
-# this" preamble (that preamble was eating the token budget and truncating output).
+# The work is split into small, bounded calls so no single completion has to
+# carry the whole bulletin. One call produces the "frame" (standings + notes +
+# lead); the per-manager articles are then generated in small batches. This
+# model reasons in its text output, so each call is given enough room for that
+# reasoning PLUS the JSON, and the JSON is extracted robustly from the tail.
 
 FRAME_TASK = """TASK: Produce ONLY the frame of today's bulletin — do NOT write the per-manager articles.
 
-Return ONLY valid JSON in exactly this shape (no other keys, no articles):
+Return valid JSON in exactly this shape (no other keys, no articles), as the LAST thing in your reply:
 {
   "matchday_label": "<e.g. Group Matchday 1, exactly as it appears in the data>",
   "status_live": <true if any of today's games were still live or upcoming, else false>,
@@ -87,7 +86,7 @@ Return ONLY valid JSON in exactly this shape (no other keys, no articles):
   },
   "lead": "<one-paragraph scene-setter, may include bold tags>"
 }
-Include every manager in "standings". Keep it compact."""
+Include every manager in "standings"."""
 
 
 def article_task(batch):
@@ -97,7 +96,7 @@ def article_task(batch):
         f"{names}.\n\n"
         "Apply the STRICT PLAYER OWNERSHIP rule and the 'EVERY MANAGER WRITE-UP MUST INCLUDE' "
         "checklist above. Keep each body to ~90-130 words.\n\n"
-        "Return ONLY a JSON array (no other text, no code fences) of exactly "
+        "Return, as the LAST thing in your reply, a JSON array (no code fences) of exactly "
         f"{len(batch)} objects, one per manager named above, in that order:\n"
         '[ {"manager": "<first name>", "headline": "<short headline>", "body": "<~90-130 words>"} ]'
     )
@@ -172,31 +171,42 @@ def gather():
     return standings_text, squads
 
 
-def _extract_json(text, array=False):
+def _loads(text, array=False):
+    """Parse the JSON value out of a reply that may be preceded by reasoning
+    prose. Strips code fences, then tries each opening-bracket position (widest
+    first) until one parses cleanly to the final closing bracket — so a stray
+    bracket in the prose can't break extraction."""
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
         text = re.sub(r"\s*```$", "", text).strip()
     o, c = ("[", "]") if array else ("{", "}")
-    if o in text and c in text:
-        text = text[text.find(o):text.rfind(c) + 1]
-    return text
+    end = text.rfind(c)
+    if end == -1:
+        raise ValueError("no closing bracket in reply")
+    last_err = None
+    for s, ch in enumerate(text):
+        if ch != o:
+            continue
+        try:
+            return json.loads(text[s:end + 1])
+        except Exception as e:
+            last_err = e
+    raise ValueError(f"no parseable JSON found ({last_err})")
 
 
 def _dump_raw(label, text, stop):
     t = (text or "").replace("\n", " ")
     print(f"  [debug] {label}: raw_len={len(text or '')} stop_reason={stop}",
           file=sys.stderr, flush=True)
-    print(f"  [debug] head: {t[:1200]}", file=sys.stderr, flush=True)
-    print(f"  [debug] tail: {t[-400:]}", file=sys.stderr, flush=True)
+    print(f"  [debug] head: {t[:1000]}", file=sys.stderr, flush=True)
+    print(f"  [debug] tail: {t[-600:]}", file=sys.stderr, flush=True)
 
 
 def _ask(client, task, payload, max_tokens, array=False, tries=2):
-    """One bounded Claude call. The assistant turn is prefilled with the opening
-    bracket so the model must emit JSON immediately (no prose preamble). Streams,
-    then parses. Logs the raw reply on failure."""
+    """One bounded Claude call. Gives room for the model's reasoning plus the
+    JSON, then extracts the JSON from the tail. Logs the raw reply on failure."""
     user = f"{task}\n\n<data>\n{json.dumps(payload)}\n</data>"
-    prefill = "[" if array else "{"
     last = None
     for attempt in range(tries):
         t0 = time.time()
@@ -205,12 +215,9 @@ def _ask(client, task, payload, max_tokens, array=False, tries=2):
             with client.messages.stream(
                 model=MODEL,
                 max_tokens=max_tokens,
-                temperature=0.6,
+                temperature=0.5,
                 system=SYSTEM_PROMPT,
-                messages=[
-                    {"role": "user", "content": user},
-                    {"role": "assistant", "content": prefill},
-                ],
+                messages=[{"role": "user", "content": user}],
             ) as stream:
                 msg = stream.get_final_message()
             stop = getattr(msg, "stop_reason", None)
@@ -219,10 +226,7 @@ def _ask(client, task, payload, max_tokens, array=False, tries=2):
                   f"(stop_reason={stop}, len={len(text)})", flush=True)
             if not text:
                 raise RuntimeError(f"empty response (stop_reason={stop})")
-            full = prefill + text
-            if stop == "max_tokens":
-                raise RuntimeError(f"response truncated at max_tokens (len={len(text)})")
-            return json.loads(_extract_json(full, array=array))
+            return _loads(text, array=array)
         except Exception as e:
             last = e
             _dump_raw(f"attempt {attempt+1} failed: {e}", text, stop)
@@ -247,19 +251,21 @@ def write_copy(standings_text, squads):
         max_retries=1,
     )
 
+    # Frame: standings + notes + lead. Roomy cap so reasoning + JSON both fit.
     print("  generating frame (standings/notes/lead)...", flush=True)
-    frame = _ask(client, FRAME_TASK, payload, max_tokens=3000, array=False)
+    frame = _ask(client, FRAME_TASK, payload, max_tokens=10000, array=False)
     standings = frame.get("standings", [])
     if len(standings) < 10:
         raise RuntimeError(f"frame returned too few standings ({len(standings)})")
 
+    # Articles in small batches; each batch falls back to one-at-a-time if needed.
     order = [r["manager"] for r in standings]
     articles = []
     for batch in _chunks(order, 3):
         print(f"  generating articles for {', '.join(batch)}...", flush=True)
         try:
             arts = _ask(client, article_task(batch), payload,
-                        max_tokens=2000 * len(batch), array=True)
+                        max_tokens=4000 * len(batch), array=True)
             if not isinstance(arts, list) or len(arts) < len(batch):
                 got = len(arts) if isinstance(arts, list) else "?"
                 raise RuntimeError(f"batch returned {got} of {len(batch)}")
@@ -269,7 +275,7 @@ def write_copy(standings_text, squads):
                   file=sys.stderr, flush=True)
             for mgr in batch:
                 arts = _ask(client, article_task([mgr]), payload,
-                            max_tokens=2500, array=True)
+                            max_tokens=6000, array=True)
                 articles.extend(arts)
 
     data = dict(frame)
