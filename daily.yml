@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name  "roundup-bot"
           git config user.email "roundup-bot@users.noreply.github.com"
-          git add docs/index.html
+          git add docs
           if git diff --staged --quiet; then
             echo "No changes."
           else
