@@ -3,7 +3,7 @@
 The Morning After — self-hosted daily generator (Claude version).
 
 Runs daily on GitHub Actions: fetches the league pages, has Claude write the
-playful roundup, renders it into template.html, and writes docs/index.html
+playful roundup, renders it into template.html, and writes docs/roundup.html
 which GitHub Pages serves. Only secret needed: ANTHROPIC_API_KEY.
 """
 
@@ -48,27 +48,29 @@ SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a privat
 
 You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time). READ it and WRITE the column from it.
 
-STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Before writing a manager's entry, look at THAT manager's player list, and treat it as a closed whitelist: you may name ONLY players from that exact list, with the exact points shown beside them. Do NOT rely on your own knowledge of football to decide who a player belongs to — a famous player (e.g. Lionel Messi) belongs to whichever manager's list actually contains him, and to NO ONE ELSE. Never put a player in a manager's write-up unless that player's name physically appears in that manager's own list. Never invent players or points. When in doubt, leave a player out.
+STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Before writing a manager's entry, look at THAT manager's player list, and treat it as a closed whitelist: you may name ONLY players from that exact list, with the exact points shown beside them. Do NOT rely on your own knowledge of football to decide who a player belongs to. Never put a player in a manager's write-up unless that player's name physically appears in that manager's own list. Never invent players or points. When in doubt, leave a player out.
 
 EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
 - Their points for this round and their current league position.
-- The standout players BY NAME with their points — who hauled and who blanked. Use ONLY the real player names and points from that manager's own squad list; do NOT copy any names from this instruction. (The shape to aim for reads like: "<their top scorer> led the way with <pts>, <another> chipped in <pts>, while <a player> drew a blank" — but filled only with that manager's actual players and actual points.) This player-by-player detail is the most important content; a write-up without named players and their points has failed.
+- The standout players BY NAME with their points — who hauled and who blanked. Use ONLY the real player names and points from that manager's own squad list. This player-by-player detail is the most important content; a write-up without named players and their points has failed.
 - How the result moved them in the table (climbed, slipped, held), and the gap to a rival where it's worth a dig.
 - Any of their players still to play (see accuracy rule).
 
-TONE: dry and deadpan, affectionately ribbing the managers, economical with words (~90-130 per manager). The league has a festival/party streak you may nod to — but only the occasional wry aside, never the frame of every sentence. Lean on each manager's character sparingly and let the football do the work.
+TONE: dry and deadpan, affectionately ribbing the managers, economical with words (~90-130 per manager). Lean on each manager's character sparingly and let the football do the work.
 
 ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures — only call a 0 a blank if that player's nation's game is FULL TIME. If it is upcoming or live, say "still to play" / "yet to come". The "flop" note must name a player whose game is finished.
 
-SCHEDULE: do NOT assume this is the opening day or the tournament's first night — it has been running for a while and earlier rounds may already be complete. Work out what has and hasn't happened ONLY from the fixture statuses in the data, and describe movement relative to this latest round. Use the matchday label exactly as it appears in the data.
+SCHEDULE: do NOT assume this is the opening day. It has been running for a while and earlier rounds may already be complete. Work out what has and hasn't happened ONLY from the fixture statuses in the data. Use the matchday label exactly as it appears in the data.
 
-Use the manager FIRST NAMES exactly as given in the profiles. Output ONLY the JSON you are asked for in each task — no preamble, no commentary, no code fences."""
+Use the manager FIRST NAMES exactly as given in the profiles. Do all reasoning silently. Output ONLY the requested JSON value with no preamble, no explanation, no code fences — begin your reply with the opening bracket and nothing else."""
 
 
 # The work is split into small, bounded calls so a single huge completion can
-# never run away past max_tokens (which is exactly what was breaking the build).
-# One call produces the "frame" (standings + notes + lead); the per-manager
-# articles are then generated in small batches.
+# never run away past max_tokens. One call produces the "frame" (standings +
+# notes + lead); the per-manager articles are then generated in small batches.
+# Each call's assistant turn is PREFILLED with the opening bracket, which forces
+# the model to emit JSON immediately instead of a long prose "let me work through
+# this" preamble (that preamble was eating the token budget and truncating output).
 
 FRAME_TASK = """TASK: Produce ONLY the frame of today's bulletin — do NOT write the per-manager articles.
 
@@ -77,13 +79,13 @@ Return ONLY valid JSON in exactly this shape (no other keys, no articles):
   "matchday_label": "<e.g. Group Matchday 1, exactly as it appears in the data>",
   "status_live": <true if any of today's games were still live or upcoming, else false>,
   "standings": [ {"team": "...", "manager": "...", "total": <int>}, ... ALL managers ordered 1st to last ],
-  "still_to_play": "<comma-separated nations not yet kicked off, or 'Everyone's arrived.'>",
+  "still_to_play": "<comma-separated nations not yet kicked off, or 'Everyone has arrived.'>",
   "notes": {
      "top_haul": "<player (manager) — pts>",
-     "bargain": "<best points-per-million among players who PLAYED: player (manager) — pts from £x.xm>",
-     "flop": "<worst return for price among players who PLAYED: player (manager) — pts from £x.xm>"
+     "bargain": "<best points-per-million among players who PLAYED: player (manager) — pts from price>",
+     "flop": "<worst return for price among players who PLAYED: player (manager) — pts from price>"
   },
-  "lead": "<one-paragraph scene-setter, may include <b>...</b>>"
+  "lead": "<one-paragraph scene-setter, may include bold tags>"
 }
 Include every manager in "standings". Keep it compact."""
 
@@ -135,8 +137,6 @@ def team_slugs(index_html):
             "denton-burn", "trippier-and-trippier", "propaganda-parade", "snacobs-ladder"]
 
 
-# Fixed mapping of team page slug -> (team name, manager). Lets us hand each
-# squad to the AI clearly tagged with its owner, so players can't be cross-attributed.
 TEAM_BY_SLUG = {
     "back-of-the-van-united": ("Back of the Van United", "Joe S"),
     "look-at-his-face": ("Look at his face. Just Look at his FACE!", "Sam"),
@@ -173,8 +173,6 @@ def gather():
 
 
 def _extract_json(text, array=False):
-    """Pull a JSON value out of the model's reply, tolerating code fences and any
-    stray prose around it. array=True narrows to the outermost [ ... ]."""
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -186,8 +184,6 @@ def _extract_json(text, array=False):
 
 
 def _dump_raw(label, text, stop):
-    """On any failure, print what Claude actually returned so the build log is
-    self-diagnosing instead of a black box."""
     t = (text or "").replace("\n", " ")
     print(f"  [debug] {label}: raw_len={len(text or '')} stop_reason={stop}",
           file=sys.stderr, flush=True)
@@ -196,9 +192,11 @@ def _dump_raw(label, text, stop):
 
 
 def _ask(client, task, payload, max_tokens, array=False, tries=2):
-    """One bounded Claude call. Streams, then parses the JSON value. Logs the raw
-    reply on failure. Returns the parsed value, or raises after `tries`."""
+    """One bounded Claude call. The assistant turn is prefilled with the opening
+    bracket so the model must emit JSON immediately (no prose preamble). Streams,
+    then parses. Logs the raw reply on failure."""
     user = f"{task}\n\n<data>\n{json.dumps(payload)}\n</data>"
+    prefill = "[" if array else "{"
     last = None
     for attempt in range(tries):
         t0 = time.time()
@@ -209,18 +207,22 @@ def _ask(client, task, payload, max_tokens, array=False, tries=2):
                 max_tokens=max_tokens,
                 temperature=0.6,
                 system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user}],
+                messages=[
+                    {"role": "user", "content": user},
+                    {"role": "assistant", "content": prefill},
+                ],
             ) as stream:
                 msg = stream.get_final_message()
             stop = getattr(msg, "stop_reason", None)
             text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
             print(f"    call done in {time.time()-t0:.1f}s "
                   f"(stop_reason={stop}, len={len(text)})", flush=True)
-            if stop == "max_tokens":
-                raise RuntimeError("response truncated at max_tokens")
             if not text:
                 raise RuntimeError(f"empty response (stop_reason={stop})")
-            return json.loads(_extract_json(text, array=array))
+            full = prefill + text
+            if stop == "max_tokens":
+                raise RuntimeError(f"response truncated at max_tokens (len={len(text)})")
+            return json.loads(_extract_json(full, array=array))
         except Exception as e:
             last = e
             _dump_raw(f"attempt {attempt+1} failed: {e}", text, stop)
@@ -245,16 +247,12 @@ def write_copy(standings_text, squads):
         max_retries=1,
     )
 
-    # 1) Frame: standings + notes + lead + matchday. Small, bounded, reliable.
     print("  generating frame (standings/notes/lead)...", flush=True)
     frame = _ask(client, FRAME_TASK, payload, max_tokens=3000, array=False)
     standings = frame.get("standings", [])
     if len(standings) < 10:
         raise RuntimeError(f"frame returned too few standings ({len(standings)})")
 
-    # 2) Articles in small batches so no single call can run away past the cap.
-    #    Each batch is generously bounded; a strained batch falls back to one
-    #    manager at a time, which always fits comfortably.
     order = [r["manager"] for r in standings]
     articles = []
     for batch in _chunks(order, 3):
@@ -309,6 +307,7 @@ def render(data):
                     f'<span class="{rcls}">{ordinal(i+1)}</span>'
                     f'<span class="team">{esc(r["team"])} &middot; {esc(r["manager"])}</span>'
                     f'<span class="pts">{esc(r["total"])} pts</span></div>'
+                    f'<h2 class="head">{esc(a["headline"])}</h2>'
                     f'<p>{a["body"]}</p>'
                     f'<div class="byline">The Morning After</div></article>')
     notes = data.get("notes", {})
@@ -321,8 +320,7 @@ def render(data):
         f'<span class="mgr">{esc(notes.get("flop",""))}</span></td></tr>')
     is_live = bool(data.get("status_live"))
     caveat = ('<p class="note">Figures are a live snapshot - some games were still in play when this '
-              'edition refreshed, so zeros for those nations mean "still to come", not a no-show. '
-              'The page refreshes again after the next round of games.</p>') if is_live else ""
+              'edition refreshed, so zeros for those nations mean still to come, not a no-show.</p>') if is_live else ""
     md = data.get("matchday_label", "World Cup 2026")
     repl = {
         "{{MATCHDAY_LABEL}}": esc(md),
