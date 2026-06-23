@@ -166,12 +166,13 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 <div class="seclabel">The numbers · refreshes live</div>
 <div class="triv">
   <div class="tc"><h3>Top round scorers <span class="u">round pts</span></h3><div id="tv-scorers"></div></div>
-  <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
-  <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
+  <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
   <div class="tc"><h3>Best value <span class="u">pts / £m</span></h3><div id="tv-value"></div></div>
   <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
-  <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
+  <div class="tc"><h3>Avg points per squad player <span class="u">total / 18</span></h3><div id="tv-avg"></div></div>
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
+  <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
+  <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
 </div>
 
 <footer>TRM Fantasy · World Cup 2026 · table, scores &amp; player points live from the league</footer>
@@ -291,6 +292,13 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       ? allp.slice(0,6).map(function(it,i){return row(i+1,it.name,it.manager,it.pts);}).join("")
       : '<div class="tempty">No points on the board yet this round.</div>';
 
+    // Average points per squad player — season total / 18
+    if(standings.length){
+      var av=standings.map(function(r){return {team:r.team,manager:r.manager,v:r.total/18};})
+        .sort(function(a,b){return b.v-a.v;}).slice(0,5);
+      $("tv-avg").innerHTML = av.map(function(it,i){return row(i+1,it.team,it.manager,it.v.toFixed(1));}).join("");
+    } else empty("tv-avg","Awaiting the table.");
+
     // Manager of the round — from standings round column
     var byR=standings.slice().sort(function(a,b){return b.round-a.round;});
     if(byR.length){
@@ -354,7 +362,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   function poll(){
     fetch(WORKER,{cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error("feed "+r.status); return r.json(); }).then(function(d){
       if(d.error) throw new Error(d.error);
-      $("err").style.display="none";
       lastUpdated=d.updated;
       $("dot").className="dot "+(d.anyLive?"live":"");
       standings=d.standings||[]; fixtures=d.fixtures||[];
