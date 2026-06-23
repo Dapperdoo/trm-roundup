@@ -162,20 +162,24 @@ def write_copy(standings_text, squads):
     # and the outer loop tries 3 times.
     client = anthropic.Anthropic(
         api_key=os.environ["ANTHROPIC_API_KEY"],
-        timeout=120.0,
+        timeout=600.0,
         max_retries=1,
     )
     last = None
     for attempt in range(3):
         t0 = time.time()
         try:
-            msg = client.messages.create(
+            # Stream the response. A long single completion (13 write-ups) can
+            # exceed the non-streaming request window and get cut off mid-flight,
+            # so we stream the tokens and assemble the final message.
+            with client.messages.stream(
                 model=MODEL,
                 max_tokens=8000,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": json.dumps(payload)}],
-            )
+            ) as stream:
+                msg = stream.get_final_message()
             print(f"  Claude responded in {time.time()-t0:.1f}s "
                   f"(stop_reason={getattr(msg, 'stop_reason', None)})", flush=True)
             text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
