@@ -62,21 +62,43 @@ ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures 
 
 SCHEDULE: do NOT assume this is the opening day or the tournament's first night — it has been running for a while and earlier rounds may already be complete. Work out what has and hasn't happened ONLY from the fixture statuses in the data, and describe movement relative to this latest round. Use the matchday label exactly as it appears in the data.
 
-Return ONLY valid JSON in exactly this shape:
+Use the manager FIRST NAMES exactly as given in the profiles. Output ONLY the JSON you are asked for in each task — no preamble, no commentary, no code fences."""
+
+
+# The work is split into small, bounded calls so a single huge completion can
+# never run away past max_tokens (which is exactly what was breaking the build).
+# One call produces the "frame" (standings + notes + lead); the per-manager
+# articles are then generated in small batches.
+
+FRAME_TASK = """TASK: Produce ONLY the frame of today's bulletin — do NOT write the per-manager articles.
+
+Return ONLY valid JSON in exactly this shape (no other keys, no articles):
 {
-  "matchday_label": "<e.g. Group Matchday 1>",
+  "matchday_label": "<e.g. Group Matchday 1, exactly as it appears in the data>",
   "status_live": <true if any of today's games were still live or upcoming, else false>,
-  "standings": [ {"team": "...", "manager": "...", "total": <int>}, ...  ordered 1st to last ],
+  "standings": [ {"team": "...", "manager": "...", "total": <int>}, ... ALL managers ordered 1st to last ],
   "still_to_play": "<comma-separated nations not yet kicked off, or 'Everyone's arrived.'>",
   "notes": {
      "top_haul": "<player (manager) — pts>",
      "bargain": "<best points-per-million among players who PLAYED: player (manager) — pts from £x.xm>",
      "flop": "<worst return for price among players who PLAYED: player (manager) — pts from £x.xm>"
   },
-  "lead": "<one-paragraph scene-setter, may include <b>…</b>>",
-  "articles": [ {"manager": "...", "headline": "...", "body": "..."}, ... one per manager, in standings order ]
+  "lead": "<one-paragraph scene-setter, may include <b>...</b>>"
 }
-Use the manager FIRST NAMES exactly as given in the profiles. Include all 13 managers."""
+Include every manager in "standings". Keep it compact."""
+
+
+def article_task(batch):
+    names = ", ".join(batch)
+    return (
+        "TASK: Write the per-manager write-ups for ONLY these managers, in this exact order: "
+        f"{names}.\n\n"
+        "Apply the STRICT PLAYER OWNERSHIP rule and the 'EVERY MANAGER WRITE-UP MUST INCLUDE' "
+        "checklist above. Keep each body to ~90-130 words.\n\n"
+        "Return ONLY a JSON array (no other text, no code fences) of exactly "
+        f"{len(batch)} objects, one per manager named above, in that order:\n"
+        '[ {"manager": "<first name>", "headline": "<short headline>", "body": "<~90-130 words>"} ]'
+    )
 
 
 def fetch(url, tries=4):
@@ -150,18 +172,64 @@ def gather():
     return standings_text, squads
 
 
-def _extract_json(text):
-    """Pull a JSON object out of the model's reply, tolerating ```json fences
-    and any stray prose around it. Returns the best-effort JSON substring."""
+def _extract_json(text, array=False):
+    """Pull a JSON value out of the model's reply, tolerating code fences and any
+    stray prose around it. array=True narrows to the outermost [ ... ]."""
     text = text.strip()
-    # Strip a leading/trailing markdown code fence if present.
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
         text = re.sub(r"\s*```$", "", text).strip()
-    # Narrow to the outermost { ... } so leading/trailing prose can't break the parse.
-    if "{" in text and "}" in text:
-        text = text[text.find("{"):text.rfind("}") + 1]
+    o, c = ("[", "]") if array else ("{", "}")
+    if o in text and c in text:
+        text = text[text.find(o):text.rfind(c) + 1]
     return text
+
+
+def _dump_raw(label, text, stop):
+    """On any failure, print what Claude actually returned so the build log is
+    self-diagnosing instead of a black box."""
+    t = (text or "").replace("\n", " ")
+    print(f"  [debug] {label}: raw_len={len(text or '')} stop_reason={stop}",
+          file=sys.stderr, flush=True)
+    print(f"  [debug] head: {t[:1200]}", file=sys.stderr, flush=True)
+    print(f"  [debug] tail: {t[-400:]}", file=sys.stderr, flush=True)
+
+
+def _ask(client, task, payload, max_tokens, array=False, tries=2):
+    """One bounded Claude call. Streams, then parses the JSON value. Logs the raw
+    reply on failure. Returns the parsed value, or raises after `tries`."""
+    user = f"{task}\n\n<data>\n{json.dumps(payload)}\n</data>"
+    last = None
+    for attempt in range(tries):
+        t0 = time.time()
+        text, stop = "", None
+        try:
+            with client.messages.stream(
+                model=MODEL,
+                max_tokens=max_tokens,
+                temperature=0.6,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user}],
+            ) as stream:
+                msg = stream.get_final_message()
+            stop = getattr(msg, "stop_reason", None)
+            text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
+            print(f"    call done in {time.time()-t0:.1f}s "
+                  f"(stop_reason={stop}, len={len(text)})", flush=True)
+            if stop == "max_tokens":
+                raise RuntimeError("response truncated at max_tokens")
+            if not text:
+                raise RuntimeError(f"empty response (stop_reason={stop})")
+            return json.loads(_extract_json(text, array=array))
+        except Exception as e:
+            last = e
+            _dump_raw(f"attempt {attempt+1} failed: {e}", text, stop)
+            time.sleep(6)
+    raise RuntimeError(f"call failed after {tries} tries: {last}")
+
+
+def _chunks(seq, n):
+    return [seq[i:i + n] for i in range(0, len(seq), n)]
 
 
 def write_copy(standings_text, squads):
@@ -171,58 +239,48 @@ def write_copy(standings_text, squads):
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
-    # Bounded client: a single attempt can't hang the whole build.
     client = anthropic.Anthropic(
         api_key=os.environ["ANTHROPIC_API_KEY"],
         timeout=600.0,
         max_retries=1,
     )
-    last = None
-    for attempt in range(3):
-        t0 = time.time()
+
+    # 1) Frame: standings + notes + lead + matchday. Small, bounded, reliable.
+    print("  generating frame (standings/notes/lead)...", flush=True)
+    frame = _ask(client, FRAME_TASK, payload, max_tokens=3000, array=False)
+    standings = frame.get("standings", [])
+    if len(standings) < 10:
+        raise RuntimeError(f"frame returned too few standings ({len(standings)})")
+
+    # 2) Articles in small batches so no single call can run away past the cap.
+    #    Each batch is generously bounded; a strained batch falls back to one
+    #    manager at a time, which always fits comfortably.
+    order = [r["manager"] for r in standings]
+    articles = []
+    for batch in _chunks(order, 3):
+        print(f"  generating articles for {', '.join(batch)}...", flush=True)
         try:
-            # Stream the response. A long single completion (13 write-ups) can
-            # exceed the non-streaming request window and get cut off mid-flight,
-            # so we stream the tokens and assemble the final message.
-            #
-            # max_tokens must comfortably exceed the full JSON: lead + 13 articles
-            # + a 13-row standings array + notes. At 8000 the reply was hitting the
-            # cap and getting truncated before the closing brace, which then failed
-            # JSON parsing ("Expecting value: line 1 column 1"). 16000 gives ample
-            # headroom for the ~90-130-words-per-manager column.
-            with client.messages.stream(
-                model=MODEL,
-                max_tokens=16000,
-                temperature=0.7,
-                system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": json.dumps(payload)}],
-            ) as stream:
-                msg = stream.get_final_message()
-            stop = getattr(msg, "stop_reason", None)
-            print(f"  Claude responded in {time.time()-t0:.1f}s "
-                  f"(stop_reason={stop})", flush=True)
-            text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
-            # A max_tokens stop means the JSON was cut off mid-stream and cannot be
-            # parsed. Retrying with the same cap will only truncate again, so fail
-            # with a clear, actionable message instead of a cryptic JSON error.
-            if stop == "max_tokens":
-                raise RuntimeError(
-                    "response truncated at max_tokens before the JSON closed — "
-                    "raise max_tokens or shorten the per-manager word count")
-            if not text:
-                raise RuntimeError(f"empty response (stop_reason={stop})")
-            # Extract the JSON object even if wrapped in prose or ```json fences.
-            text = _extract_json(text)
-            data = json.loads(text)
-            if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
-                raise ValueError("AI returned too few managers")
-            return data
+            arts = _ask(client, article_task(batch), payload,
+                        max_tokens=2000 * len(batch), array=True)
+            if not isinstance(arts, list) or len(arts) < len(batch):
+                got = len(arts) if isinstance(arts, list) else "?"
+                raise RuntimeError(f"batch returned {got} of {len(batch)}")
+            articles.extend(arts)
         except Exception as e:
-            last = e
-            print(f"  attempt {attempt + 1} failed after {time.time()-t0:.1f}s: {e}",
+            print(f"  batch failed ({e}); falling back to one manager at a time",
                   file=sys.stderr, flush=True)
-            time.sleep(10)
-    raise RuntimeError(f"Claude failed after retries: {last}")
+            for mgr in batch:
+                arts = _ask(client, article_task([mgr]), payload,
+                            max_tokens=2500, array=True)
+                articles.extend(arts)
+
+    data = dict(frame)
+    data["articles"] = articles
+    if len(data.get("articles", [])) < 10:
+        raise RuntimeError(f"assembled too few articles ({len(data.get('articles', []))})")
+    print(f"  copy complete: {len(articles)} articles, {len(standings)} standings rows",
+          flush=True)
+    return data
 
 
 def esc(s):
@@ -230,7 +288,8 @@ def esc(s):
 
 
 def ordinal(n):
-    return f"{n}{'th' if 11 <= n % 100 <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+    suffix = "th" if 11 <= n % 100 <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
 
 
 def render(data):
@@ -250,7 +309,6 @@ def render(data):
                     f'<span class="{rcls}">{ordinal(i+1)}</span>'
                     f'<span class="team">{esc(r["team"])} &middot; {esc(r["manager"])}</span>'
                     f'<span class="pts">{esc(r["total"])} pts</span></div>'
-                    f'<h2 class="head">{esc(a["headline"])}</h2>'
                     f'<p>{a["body"]}</p>'
                     f'<div class="byline">The Morning After</div></article>')
     notes = data.get("notes", {})
@@ -262,7 +320,7 @@ def render(data):
         f'<tr><td><span class="tname" style="color:var(--magenta)">Priciest flop</span>'
         f'<span class="mgr">{esc(notes.get("flop",""))}</span></td></tr>')
     is_live = bool(data.get("status_live"))
-    caveat = ('<p class="note">Figures are a live snapshot — some games were still in play when this '
+    caveat = ('<p class="note">Figures are a live snapshot - some games were still in play when this '
               'edition refreshed, so zeros for those nations mean "still to come", not a no-show. '
               'The page refreshes again after the next round of games.</p>') if is_live else ""
     md = data.get("matchday_label", "World Cup 2026")
