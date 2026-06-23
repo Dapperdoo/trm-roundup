@@ -2,7 +2,11 @@ name: Build Roundup
 
 on:
   schedule:
-    - cron: "0 7 * * *"
+    # GitHub delays/skips jobs at the top of the hour, so we avoid :00 and add
+    # backups — if one is dropped, a later one still runs. (Times are UTC.)
+    - cron: "41 6 * * *"
+    - cron: "41 7 * * *"
+    - cron: "41 8 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -17,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history so a rebase before push is reliable
 
       - uses: actions/setup-python@v5
         with:
@@ -37,7 +43,20 @@ jobs:
           git add docs
           if git diff --staged --quiet; then
             echo "No changes."
-          else
-            git commit -m "Roundup update: $(date -u '+%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "Roundup update: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # The remote may have advanced while we were working (manual edits or
+          # another run). Rebase onto the latest main and retry, so a push race
+          # can't fail the build.
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "push rejected; rebasing onto latest main (attempt $i)"
+            git pull --rebase --autostash origin main || true
+            sleep $((RANDOM % 5 + 3))
+          done
+          echo "push still failing after retries" >&2
+          exit 1
