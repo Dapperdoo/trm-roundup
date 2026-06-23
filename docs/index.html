@@ -170,6 +170,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div class="tc"><h3>Best value <span class="u">pts / £m</span></h3><div id="tv-value"></div></div>
   <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
   <div class="tc"><h3>Avg points per squad player <span class="u">total / 18</span></h3><div id="tv-avg"></div></div>
+  <div class="tc"><h3>Round swing <span class="u">place · pts</span></h3><div id="tv-round"></div></div>
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
   <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
   <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
@@ -183,7 +184,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   var WORKER = "https://trm-live.dapperdon.workers.dev";
   var POLL_MS = 60000;
   var prevTotals = {}, lastUpdated = null;
-  var standings = [], fixtures = [];
+  var standings = [], fixtures = [], feedMatchday = null;
   var baselineRanks = null, ownedPlayers = null;
 
   function $(id){ return document.getElementById(id); }
@@ -299,6 +300,44 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       $("tv-avg").innerHTML = av.map(function(it,i){return row(i+1,it.team,it.manager,it.v.toFixed(1));}).join("");
     } else empty("tv-avg","Awaiting the table.");
 
+    // Round-over-round swing — unlocks once 2+ group rounds are fully complete.
+    (function(){
+      var box=$("tv-round"); if(!box) return;
+      var mm=(feedMatchday||"").match(/(\d+)/); var rn=mm?parseInt(mm[1],10):0;
+      var complete = fixtures.length>0 && fixtures.every(function(f){return f.status==="finished";});
+      var doneRounds = complete ? rn : rn-1;   // fully-completed group rounds
+      if(!standings.length || doneRounds<2){
+        box.innerHTML='<div class="tneed">Unlocks once Round 2 is complete — every nation has played twice.</div>';
+        return;
+      }
+      var phase2 = doneRounds>=3;
+      function cumR2(r){ return (rn===2)? r.total : (r.total - r.round); }   // R1+R2 points
+      function posBy(fn){ var mp={}; standings.forEach(function(r){ var p=1; standings.forEach(function(o){ if(fn(o)>fn(r)) p++; }); mp[r.manager]=p; }); return mp; }
+      var prevPos, nowPos, ptsOf;
+      if(!phase2){                                  // R1 -> R2
+        prevPos=posBy(function(r){return r.r1;});
+        nowPos=posBy(cumR2);
+        ptsOf=function(r){ return cumR2(r) - r.r1; };
+      } else {                                      // R3 vs avg(R1,R2)
+        prevPos=posBy(cumR2);
+        nowPos=posBy(function(r){return r.total;});
+        ptsOf=function(r){ return r.round - cumR2(r)/2; };
+      }
+      function fmt(n){ var a=Math.abs(n); return (a%1===0)?a:a.toFixed(1); }
+      function arr(n){
+        if(n>0) return '<span style="color:var(--green);font-weight:800">▲'+fmt(n)+'</span>';
+        if(n<0) return '<span style="color:var(--red);font-weight:800">▼'+fmt(n)+'</span>';
+        return '<span style="color:var(--mut)">—</span>';
+      }
+      var head='<div class="trow"><span class="tn" style="flex:1 1 auto;color:var(--mut);font-size:10px;letter-spacing:.1em;text-transform:uppercase">Team</span><span style="width:42px;text-align:right;color:var(--mut);font-size:10px">Pos</span><span style="width:52px;text-align:right;color:var(--mut);font-size:10px">Pts</span></div>';
+      box.innerHTML = head + standings.map(function(r){
+        var ps=prevPos[r.manager]-nowPos[r.manager];   // + = climbed
+        return '<div class="trow"><span class="tn" style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.team)+'</span>'
+          +'<span style="width:42px;text-align:right;font-variant-numeric:tabular-nums">'+arr(ps)+'</span>'
+          +'<span style="width:52px;text-align:right;font-variant-numeric:tabular-nums">'+arr(ptsOf(r))+'</span></div>';
+      }).join("");
+    })();
+
     // Manager of the round — from standings round column
     var byR=standings.slice().sort(function(a,b){return b.round-a.round;});
     if(byR.length){
@@ -364,7 +403,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       if(d.error) throw new Error(d.error);
       lastUpdated=d.updated;
       $("dot").className="dot "+(d.anyLive?"live":"");
-      standings=d.standings||[]; fixtures=d.fixtures||[];
+      standings=d.standings||[]; fixtures=d.fixtures||[]; feedMatchday=d.matchday||null;
       renderMatches(); renderTable(); renderTrivia(); renderKane(); tick();
     }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
