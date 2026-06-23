@@ -1,14 +1,8 @@
 name: Build Roundup
 
-# Runs at three off-peak times each morning (UTC). GitHub's free scheduler is
-# best-effort and most likely to drop jobs set for the exact top of the hour,
-# so we avoid :00 and add backups. generate.py skips a scheduled run if that
-# day's edition is already published, so the backups won't double-post.
 on:
   schedule:
-    - cron: "41 6 * * *"
-    - cron: "41 7 * * *"
-    - cron: "41 8 * * *"
+    - cron: "0 7 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -22,9 +16,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -38,9 +32,9 @@ jobs:
 
       - name: Commit the new page
         run: |
-          git config user.name "roundup-bot"
+          git config user.name  "roundup-bot"
           git config user.email "roundup-bot@users.noreply.github.com"
-          git add docs schedule.json
+          git add docs
           if git diff --staged --quiet; then
             echo "No changes."
           else
