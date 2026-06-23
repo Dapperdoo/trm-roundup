@@ -7,595 +7,323 @@
 <style>
 :root{
 --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
---ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
---gold:#f5c451; --red:#f0556b; --green:#34d399;
---magenta:#f472b6; --purple:#a855f7;
+--ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --gold:#f5c451; --red:#f0556b;
+--green:#34d399; --magenta:#f472b6; --today:#ff8a3d;
 }
 *{box-sizing:border-box;}
-body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
-.wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:Arial,Helvetica,sans-serif; line-height:1.5;}
+.wrap{max-width:1080px; margin:0 auto; padding:0 18px 60px;}
+a{color:inherit;}
 
-/* ===== Tabs ===== */
-.tabs{display:flex; gap:6px; justify-content:center; padding:22px 0 0;}
-.tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2); transition:color .15s, background .15s;}
+/* tabs */
+.tabs{display:flex; gap:6px; justify-content:center; padding:20px 0 0;}
+.tab{font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
 .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
-.tab.active{color:var(--bg); background:var(--cyan); border-color:var(--cyan); box-shadow:0 0 22px rgba(34,211,238,.28);}
-.tabwrap{border-bottom:2px solid var(--cyan); margin-bottom:8px;}
+.tab.active{color:var(--bg); background:var(--cyan); border-color:var(--cyan);}
+.tabwrap{border-bottom:2px solid var(--cyan); margin-bottom:14px;}
 
-/* ===== Masthead (compact, live) ===== */
-header.mast{text-align:center; padding:26px 0 14px;}
-.kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
-h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(30px,5vw,50px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(34,211,238,.30);}
+header.mast{text-align:center; padding:18px 0 6px;}
+.kicker{letter-spacing:.4em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:8px;}
+h1.title{font-weight:900; letter-spacing:-.5px; font-size:clamp(28px,5vw,46px); margin:0;}
 h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-.subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+.subtitle{font-size:12px; color:var(--cyan); letter-spacing:.22em; text-transform:uppercase; margin-top:10px;}
 
-/* ===== Live scoreboard (table + fixtures) ===== */
-#trmlive{--lg:#34d399; --la:#f5c451; --lr:#f0556b; --lc:#22d3ee; --ll:#1b2636; --lp:#0e1622; --lm:#7e8ca0; --li:#e8eef6; margin:14px 0 8px;}
-#trmlive .lv-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--ll); padding-bottom:12px; margin-bottom:14px;}
-#trmlive .lv-brand{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:22px; letter-spacing:.04em; color:var(--li);}
-#trmlive .lv-brand span{color:var(--lg);}
-#trmlive .lv-dot{width:9px; height:9px; border-radius:50%; background:var(--lg); display:inline-block;}
-#trmlive .lv-dot.live{animation:lvpulse 1.8s infinite;}
-#trmlive .lv-dot.off{background:var(--lm);}
-@keyframes lvpulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
-#trmlive .lv-meta{margin-left:auto; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--lm);}
-#trmlive .lv-meta b{color:var(--li);}
-#trmlive .lv-btn{background:var(--lp); color:var(--li); border:1px solid var(--ll); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
-#trmlive .lv-btn:hover{border-color:var(--lc);}
-#trmlive .lv-fixtures-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--lm); margin:18px 0 8px;}
-#trmlive .lv-fixtures{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; padding-bottom:12px; margin-bottom:10px;}
-#trmlive .lv-fx{align-self:start; background:var(--lp); border:1px solid var(--ll); border-radius:8px; padding:8px 11px; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-fx .t{font-weight:700; font-size:13px; color:var(--li);}
-#trmlive .lv-fx .s{font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:3px; color:var(--lm);}
-#trmlive .lv-fx.live{border-color:var(--lg);} #trmlive .lv-fx.live .s{color:var(--lg);}
-#trmlive .lv-fx.upcoming .s{color:var(--la);}
-#trmlive details.lv-fx{padding:0; overflow:hidden;}
-#trmlive .lv-fx-sum{list-style:none; cursor:pointer; padding:8px 26px 8px 11px; position:relative;}
-#trmlive .lv-fx-sum::-webkit-details-marker{display:none;}
-#trmlive .lv-fx-sum:hover{background:rgba(255,255,255,.04);}
-#trmlive .lv-fx-caret{position:absolute; right:10px; top:9px; color:var(--lm); font-size:10px;}
-#trmlive .lv-fx-count{display:inline-block; margin-top:4px; font-size:11px; font-weight:700; color:var(--lc);}
-#trmlive details[open] .lv-fx-caret{color:var(--lc);}
-#trmlive .lv-fx-pls{margin:0 11px 9px; border-top:1px solid var(--ll); padding-top:7px;}
-#trmlive .lv-pl{display:flex; align-items:baseline; gap:6px; font-size:11.5px; padding:2px 0;}
-#trmlive .lv-pl-n{color:var(--li); flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-#trmlive .lv-pl-m{color:var(--lm); font-size:10px; white-space:nowrap;}
-#trmlive .lv-pl-p{color:var(--lc); font-weight:800; min-width:20px; text-align:right; font-variant-numeric:tabular-nums;}
-#trmlive .lv-table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-table th{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--lm); text-align:left; padding:6px 8px; border-bottom:1px solid var(--ll);}
-#trmlive .lv-table th.r{text-align:right;}
-#trmlive .lv-table td{padding:10px 8px; font-size:15px; border-bottom:1px solid var(--ll); transition:background .8s ease;}
-#trmlive .lv-table td.r{text-align:right;}
-#trmlive .lv-table tr.flash td{background:rgba(34,211,238,.16); transition:background 0s;}
-#trmlive .lv-pos{width:28px; color:var(--lm); font-weight:800;}
-#trmlive .lv-table tr.lead .lv-pos{color:var(--la);}
-#trmlive .up{color:var(--lg);} #trmlive .down{color:var(--lr);} #trmlive .same{color:var(--lm); opacity:.5;}
-#trmlive .lv-tm{font-weight:700; color:var(--li);}
-#trmlive .lv-move{font-weight:800; font-size:12px; margin-left:7px; font-variant-numeric:tabular-nums; white-space:nowrap;}
-#trmlive .lv-move.up{color:var(--lg);}
-#trmlive .lv-move.down{color:var(--lr);}
-#trmlive .lv-round{color:var(--lc); font-weight:700; font-variant-numeric:tabular-nums;}
-#trmlive .lv-rem{color:var(--la); font-weight:700; font-variant-numeric:tabular-nums;}
-#trmlive .lv-total{font-weight:900; font-size:16px; font-variant-numeric:tabular-nums; color:var(--li);}
-#trmlive .lv-table tr.lead .lv-total{color:var(--la);}
-#trmlive .lv-note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin:12px 0 0; border-top:1px solid var(--ll); padding-top:10px;}
-#trmlive .lv-err{display:none; background:rgba(240,85,107,.12); border:1px solid var(--lr); color:#ffd7dd; border-radius:8px; padding:9px 12px; font-size:13px; margin-bottom:12px; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-link{color:var(--li); text-decoration:none; border-bottom:1px dotted var(--lm);}
-#trmlive .lv-link:hover{color:var(--lc); border-bottom-color:var(--lc);}
+.head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding:14px 0 10px; margin:14px 0;}
+.brand{font-weight:900; font-size:20px;}
+.brand span{color:var(--green);}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mut);display:inline-block;}
+.dot.live{background:var(--green); animation:pulse 1.8s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
+.meta{margin-left:auto; font-size:12px; color:var(--mut);} .meta b{color:var(--ink);}
+.btn{background:var(--panel2); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:3px 9px; cursor:pointer; font-size:12px; margin-left:8px;}
+.err{display:none; background:rgba(240,85,107,.12); border:1px solid var(--red); color:#ffd7dd; border-radius:8px; padding:9px 12px; font-size:13px; margin-bottom:12px;}
 
-/* ===== In-play matches (live boxes from FIFA: score, clock, scorers) ===== */
-#trmlive .lv-inplay-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--lg); margin:8px 0 9px; display:flex; align-items:center; gap:8px;}
-#trmlive .lv-inplay-label .lv-dot{width:8px; height:8px;}
-#trmlive .lv-inplay{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:10px; margin-bottom:18px;}
-#trmlive .lv-mx{background:var(--lp); border:1px solid var(--lg); border-radius:10px; overflow:hidden; box-shadow:0 0 0 1px rgba(52,211,153,.12);}
-#trmlive details.lv-mx{padding:0;}
-#trmlive .lv-mx-sum{list-style:none; cursor:pointer; padding:11px 28px 11px 13px; position:relative;}
-#trmlive .lv-mx-sum::-webkit-details-marker{display:none;}
-#trmlive .lv-mx-sum:hover{background:rgba(255,255,255,.04);}
-#trmlive .lv-mx-top{display:flex; align-items:center; gap:10px; font-family:Arial,Helvetica,sans-serif;}
-#trmlive .lv-mx-teams{font-weight:800; font-size:16px; color:var(--li); font-variant-numeric:tabular-nums;}
-#trmlive .lv-mx-teams .sc{color:var(--lg); padding:0 4px;}
-#trmlive .lv-mx-min{margin-left:auto; font-size:11px; color:var(--lg); font-weight:800; text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; display:flex; align-items:center; gap:5px;}
-#trmlive .lv-mx-min .pdot{width:7px; height:7px; border-radius:50%; background:var(--lg); display:inline-block; animation:lvpulse 1.8s infinite;}
-#trmlive .lv-mx-gsa{font-family:Arial,Helvetica,sans-serif; font-size:11.5px; color:var(--lm); line-height:1.6; margin-top:8px;}
-#trmlive .lv-mx-gsa .gi{display:inline-block; margin:0 10px 2px 0; white-space:nowrap;}
-#trmlive .lv-mx-gsa .gi::before{content:"\26BD"; margin-right:4px; opacity:.7;}
-#trmlive .lv-mx-gsa .own{color:var(--lc); font-weight:700;}
-#trmlive .lv-mx-gsa .own .mgr{color:var(--la); font-weight:700; font-size:10px; margin-left:3px;}
-#trmlive .lv-mx-none{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--lm); margin-top:7px; font-style:italic;}
-#trmlive .lv-mx-caret{position:absolute; right:11px; top:13px; color:var(--lm); font-size:11px;}
-#trmlive details[open] .lv-mx-caret{color:var(--lc);}
-#trmlive .lv-mx-pls{margin:0 13px 11px; border-top:1px solid var(--ll); padding-top:8px;}
-#trmlive .lv-mx-pls-h{font-family:Arial,Helvetica,sans-serif; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--lm); margin-bottom:5px;}
+.seclabel{font-size:11px; text-transform:uppercase; letter-spacing:.16em; color:var(--mut); margin:18px 0 9px; display:flex; align-items:center; gap:8px;}
+.seclabel.live{color:var(--green);}
 
-/* ===== Trivia panels ===== */
-.triv-label{font-family:Arial,Helvetica,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.18em; color:var(--mut); margin:30px 0 12px; border-top:1px solid var(--line); padding-top:20px;}
-.triv{display:grid; grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:16px;}
-.tcard{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; display:flex; flex-direction:column;}
-.tcard h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); padding:13px 16px 12px; border-bottom:1px solid var(--line); background:var(--panel2); display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
-.tcard h3 .unit{color:var(--mut); font-size:10px; letter-spacing:.08em; font-weight:400;}
-.tcard .tbody{font-family:Arial,Helvetica,sans-serif;}
-.trow{display:flex; align-items:baseline; gap:9px; padding:9px 16px; font-size:13px; border-bottom:1px solid var(--line);}
+/* match boxes */
+.matches{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; margin-bottom:8px;}
+.mx{background:var(--panel2); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+.mx.live{border-color:var(--green); box-shadow:0 0 0 1px rgba(52,211,153,.15);}
+details.mx{padding:0;}
+.mx-sum{list-style:none; cursor:pointer; padding:11px 28px 11px 13px; position:relative;}
+.mx-sum::-webkit-details-marker{display:none;}
+.mx-sum:hover{background:rgba(255,255,255,.03);}
+.mx-top{display:flex; align-items:center; gap:10px;}
+.mx-teams{font-weight:800; font-size:16px; font-variant-numeric:tabular-nums;}
+.mx-teams .sc{color:var(--green); padding:0 5px;}
+.mx-teams .sc.up{color:var(--mut);}
+.mx-chip{margin-left:auto; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; display:flex; align-items:center; gap:5px;}
+.mx-chip.live{color:var(--green);} .mx-chip.done{color:var(--mut);} .mx-chip.up{color:var(--gold);}
+.mx-chip .pdot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.8s infinite;}
+.mx-gsa{font-size:11.5px; color:var(--mut); line-height:1.7; margin-top:8px;}
+.mx-gsa .gi{display:inline-block; margin:0 9px 2px 0; white-space:nowrap;}
+.mx-gsa .gi::before{content:"\26BD"; margin-right:4px; opacity:.7;}
+.mx-gsa .own{color:var(--cyan); font-weight:700;}
+.mx-gsa .own .m{color:var(--gold); font-weight:700; font-size:10px; margin-left:3px;}
+.mx-none{font-size:11px; color:var(--mut); font-style:italic; margin-top:7px;}
+.mx-caret{position:absolute; right:11px; top:13px; color:var(--mut); font-size:11px;}
+details[open] .mx-caret{color:var(--cyan);}
+.mx-pls{margin:0 13px 11px; border-top:1px solid var(--line); padding-top:8px;}
+.mx-pls-h{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--mut); margin-bottom:5px;}
+.pl{display:flex; align-items:baseline; gap:7px; font-size:12.5px; padding:2px 0;}
+.pl-n{color:var(--ink); flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pl-b{color:var(--magenta); font-size:10px; letter-spacing:1px; white-space:nowrap;}
+.pl-m{color:var(--mut); font-size:10px; white-space:nowrap;}
+.pl-p{color:var(--cyan); font-weight:800; min-width:24px; text-align:right; font-variant-numeric:tabular-nums;}
+.pl-p.today{color:var(--today); font-weight:900; text-shadow:0 0 10px rgba(255,138,61,.45);}
+
+/* league table */
+.lt{width:100%; border-collapse:collapse;}
+.lt th{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--mut); text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
+.lt th.r{text-align:right;}
+.lt td{padding:10px 8px; font-size:15px; border-bottom:1px solid var(--line); transition:background .8s ease;}
+.lt td.r{text-align:right; font-variant-numeric:tabular-nums;}
+.lt tr.flash td{background:rgba(34,211,238,.16); transition:background 0s;}
+.lt .pos{width:26px; color:var(--mut); font-weight:800;}
+.lt tr.lead .pos{color:var(--gold);}
+.lt .tm{font-weight:700; color:var(--ink); text-decoration:none; border-bottom:1px dotted var(--mut);}
+.lt .tm:hover{color:var(--cyan);}
+.lt .mv{font-weight:800; font-size:12px; margin-left:7px; font-variant-numeric:tabular-nums;}
+.lt .mv.up{color:var(--green);} .lt .mv.down{color:var(--red);}
+.lt .rd{color:var(--cyan); font-weight:700;}
+.lt .rem{color:var(--gold); font-weight:700;}
+.lt .tot{font-weight:900; font-size:16px;}
+.lt tr.lead .tot{color:var(--gold);}
+.note{font-size:11px; color:var(--mut); margin:10px 0 0; border-top:1px solid var(--line); padding-top:10px;}
+
+/* trivia */
+.triv{display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:14px; margin-top:6px;}
+.tc{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+.tc h3{margin:0; font-size:12px; letter-spacing:.13em; text-transform:uppercase; color:var(--cyan); padding:12px 14px; border-bottom:1px solid var(--line); background:var(--panel2); display:flex; justify-content:space-between; gap:8px;}
+.tc h3 .u{color:var(--mut); font-size:10px; font-weight:400;}
+.trow{display:flex; align-items:baseline; gap:8px; padding:8px 14px; font-size:13px; border-bottom:1px solid var(--line);}
 .trow:last-child{border-bottom:none;}
-.trank{color:var(--mut); font-weight:800; width:14px; flex:0 0 auto; font-variant-numeric:tabular-nums;}
+.tk{color:var(--mut); font-weight:800; width:14px; flex:0 0 auto;}
 .tn{color:var(--ink); font-weight:600; flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.tm{color:var(--mut); font-size:11px; white-space:nowrap; flex:0 0 auto;}
-.tv{color:var(--cyan); font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; flex:0 0 auto; min-width:30px; text-align:right;}
-.tv.gold{color:var(--gold);} .tv.red{color:var(--red);} .tv.green{color:var(--green);}
-.tnat{display:inline-block; font-weight:800; color:var(--ink); font-size:11px; letter-spacing:.06em; background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:1px 7px; flex:0 0 auto;}
-.tbig{padding:18px 16px; text-align:center;}
-.tbig .big{font-size:20px; font-weight:900; color:var(--ink); line-height:1.2;}
-.tbig .big .mv{font-size:22px;}
-.tbig .sub{color:var(--mut); font-size:12px; margin-top:6px; line-height:1.4;}
-.tbig .sub b{color:var(--ink);}
-.tneed{padding:16px; font-size:12px; color:var(--mut); line-height:1.5; font-family:Arial,Helvetica,sans-serif;}
-.tempty{padding:16px; font-size:12px; color:var(--mut); font-family:Arial,Helvetica,sans-serif;}
+.tm{color:var(--mut); font-size:11px; white-space:nowrap;}
+.tv{color:var(--cyan); font-weight:800; min-width:28px; text-align:right; font-variant-numeric:tabular-nums;}
+.tv.green{color:var(--green);} .tv.red{color:var(--red);}
+.tnat{font-weight:800; font-size:11px; background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:1px 7px;}
+.tbig{padding:16px 14px; text-align:center;}
+.tbig .b{font-size:19px; font-weight:900;}
+.tbig .s{color:var(--mut); font-size:12px; margin-top:5px;}
+.tneed,.tempty{padding:14px; font-size:12px; color:var(--mut); line-height:1.5;}
 
-footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; text-align:center; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<!-- ===== Tabs ===== -->
-<nav class="tabwrap">
-  <div class="tabs">
-    <a class="tab active" href="./" aria-current="page">Live</a>
-    <a class="tab" href="roundup.html">Roundup</a>
-  </div>
-</nav>
+<nav class="tabwrap"><div class="tabs">
+  <a class="tab active" href="./" aria-current="page">Live</a>
+  <a class="tab" href="roundup.html">Roundup</a>
+</div></nav>
 
 <header class="mast">
   <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
   <h1 class="title">LIVE <span>HUB</span></h1>
-  <div class="subtitle">League table · Fixtures · The numbers behind the noise</div>
+  <div class="subtitle">League table · Live matches · The numbers</div>
 </header>
 
-<!-- ===== Live scoreboard ===== -->
-<section id="trmlive">
-  <div class="lv-head">
-    <span class="lv-brand">LEAGUE <span>TABLE</span></span>
-    <span id="lv-dot" class="lv-dot off" title="live status"></span>
-    <span class="lv-meta"><span id="lv-status">Connecting…</span><button id="lv-refresh" class="lv-btn" title="Refresh">↻</button></span>
-  </div>
-  <div id="lv-err" class="lv-err"></div>
-  <table class="lv-table">
-    <thead><tr><th class="lv-pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Squad players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
-    <tbody id="lv-tbody"></tbody>
-  </table>
-  <div class="lv-note">Tap any team to see its full squad — players, points, prices and nations. Standings refresh about every minute while games are live; arrows show how teams have moved this round.</div>
-  <div id="lv-inplay-wrap" style="display:none">
-    <div class="lv-inplay-label"><span class="lv-dot live"></span> Live now · tap a match for owned players</div>
-    <div id="lv-inplay" class="lv-inplay"></div>
-  </div>
-  <div class="lv-fixtures-label">Fixtures · tap a match to see owned players</div>
-  <div id="lv-fixtures" class="lv-fixtures"></div>
-</section>
+<div class="head">
+  <span class="brand">LEAGUE <span>TABLE</span></span>
+  <span id="dot" class="dot" title="live status"></span>
+  <span class="meta"><span id="status">Connecting…</span><button id="refresh" class="btn" title="Refresh">↻</button></span>
+</div>
+<div id="err" class="err"></div>
 
-<!-- ===== Trivia panels ===== -->
-<div class="triv-label">The numbers · refreshes live</div>
-<div class="triv">
-  <div class="tcard"><h3>Best value <span class="unit">pts / £m</span></h3><div id="tv-value" class="tbody"></div></div>
-  <div class="tcard"><h3>Top round scorers <span class="unit">round pts</span></h3><div id="tv-mdscore" class="tbody"></div></div>
-  <div class="tcard"><h3>Top overall scorers <span class="unit">season pts</span></h3><div id="tv-overall" class="tbody"></div></div>
-  <div class="tcard"><h3>Manager of the round</h3><div id="tv-manager" class="tbody"></div></div>
-  <div class="tcard"><h3>Biggest table mover</h3><div id="tv-mover" class="tbody"></div></div>
-  <div class="tcard"><h3>Priciest flops <span class="unit">season pts</span></h3><div id="tv-flop" class="tbody"></div></div>
-  <div class="tcard"><h3>Top-scoring nations <span class="unit">season pts</span></h3><div id="tv-nation" class="tbody"></div></div>
+<!-- live matches sit above the table -->
+<div id="live-wrap" style="display:none">
+  <div class="seclabel live"><span class="dot live"></span> Live now · tap a match for scorers &amp; owned players</div>
+  <div id="live" class="matches"></div>
 </div>
 
-<footer>TRM Fantasy · World Cup 2026 · table &amp; fixtures live from the league · player points live from FIFA official</footer>
+<table class="lt">
+  <thead><tr><th class="pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Owned players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+<div class="note">Tap a team to open its squad. Arrows show movement since the last matchday. Live points show in <span style="color:var(--today);font-weight:800">orange</span> while a game is in play.</div>
 
+<!-- results + upcoming below -->
+<div class="seclabel" id="res-label">Upcoming fixtures · tap a match to see owned players</div>
+<div id="results" class="matches"></div>
+
+<div class="seclabel">The numbers · refreshes live</div>
+<div class="triv">
+  <div class="tc"><h3>Top round scorers <span class="u">round pts</span></h3><div id="tv-scorers"></div></div>
+  <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
+  <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
+  <div class="tc"><h3>Best value <span class="u">pts / £m</span></h3><div id="tv-value"></div></div>
+  <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
+  <div class="tc"><h3>Priciest flops <span class="u">season pts</span></h3><div id="tv-flop"></div></div>
+  <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
+</div>
+
+<footer>TRM Fantasy · World Cup 2026 · table, scores &amp; player points live from the league</footer>
 </div>
 
 <script>
 (function(){
-  var WORKER_URL = "https://trm-live.dapperdon.workers.dev";
-  var PLAYERS_URL = WORKER_URL + "/players";
-  var MATCHES_URL = WORKER_URL + "/matches";
+  var WORKER = "https://trm-live.dapperdon.workers.dev";
   var POLL_MS = 60000;
+  var prevTotals = {}, lastUpdated = null;
+  var standings = [], fixtures = [];
+  var baselineRanks = null, ownedPlayers = null;
 
-  // ---- state ----
-  var prevTotals = {}, lastUpdated = null, lastFixtures = [], lastStandings = [];
-  var lastMatches = [], liveKeys = {};   // FIFA current-round matches + live-match keys
-  var baselineRanks = null;     // ranks before the last matchday (baseline.json)
-  var ownedByNation = null;     // nation code -> [{name, manager}]  (fallback / to-play)
-  var ownedPlayers = null;      // rich list: [{name, manager, nation, price, round, total}]
-  var livePoints = {};          // nrm(name) -> this-round points (from /players)
-
-  // ---- helpers ----
   function $(id){ return document.getElementById(id); }
-  function ago(iso){ if(!iso) return ""; var s = Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60 ? s+"s ago" : Math.floor(s/60)+"m "+(s%60)+"s ago"; }
-  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
-  // MUST match the worker's norm() and the squad page's nrm() so names line up.
+  function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
   function nrm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
-  function fxKey(h,a){ return (h||"")+"|"+(a||""); }
+  function ago(iso){ if(!iso) return ""; var s=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60?s+"s ago":Math.floor(s/60)+"m "+(s%60)+"s ago"; }
 
-  // ---- static data files (loaded once) ----
-  fetch("baseline.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j && j.ranks){ baselineRanks = j.ranks; redraw(); } }).catch(function(){});
-  fetch("owned-by-nation.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j){ ownedByNation = j; redraw(); } }).catch(function(){});
-  // Rich per-player data (prices + base round/season points) powers the value,
-  // overall-scorer and flop panels. Produced by generate.py (owned-players.json).
-  // If it's absent those three panels show a short "awaiting data" note; the rest
-  // run off owned-by-nation.json + the live /players feed.
-  fetch("owned-players.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if(j && j.length){ ownedPlayers = j; redraw(); } }).catch(function(){});
+  fetch("baseline.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.ranks){baselineRanks=j.ranks; renderTable(); renderTrivia();} }).catch(function(){});
+  fetch("owned-players.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.length){ownedPlayers=j; renderTrivia();} }).catch(function(){});
 
-  function redraw(){ renderInplay(); renderFixtures(lastFixtures); if(lastStandings.length){ renderStandings(lastStandings); } renderTrivia(); }
+  function teamSlug(s){ return s; }
+  function badges(p){ var b=""; for(var g=0;g<(p.goals||0);g++)b+="⚽"; for(var a=0;a<(p.assists||0);a++)b+="Ⓐ"; return b; }
 
-  // ---- the working player list (rich if available, else nation fallback) ----
-  function basePlayers(){
-    if (ownedPlayers) return ownedPlayers.map(function(p){
-      return {name:p.name, manager:p.manager, nation:(p.nation||"").toUpperCase(),
-              price:(typeof p.price==="number"?p.price:parseFloat(p.price)||0),
-              round:(p.round||0), total:(p.total==null?null:p.total)};
-    });
-    if (ownedByNation){
-      var out = [];
-      Object.keys(ownedByNation).forEach(function(nat){
-        (ownedByNation[nat]||[]).forEach(function(p){
-          out.push({name:p.name, manager:p.manager, nation:nat, price:0, round:0, total:null});
-        });
-      });
-      return out;
+  // live round points by normalised name, from all fixtures (for value/overall/flops)
+  function liveRoundMap(){ var m={}; fixtures.forEach(function(f){ (f.players||[]).forEach(function(p){ if(p.pts!=null) m[nrm(p.name)]=p.pts; }); }); return m; }
+
+  function matchBox(f){
+    var live=f.status==="live", done=f.status==="finished", up=f.status==="upcoming";
+    var chip = live ? '<span class="mx-chip live"><span class="pdot"></span>Live</span>'
+             : done ? '<span class="mx-chip done">Full time</span>'
+             : '<span class="mx-chip up">'+(f.kickoff?("KO "+esc(f.kickoff)):"Upcoming")+'</span>';
+    var mid = up ? '<span class="sc up">v</span>' : '<span class="sc">'+esc(f.score||"").replace("-","–")+'</span>';
+    var head='<div class="mx-top"><span class="mx-teams">'+esc(f.home)+' '+mid+' '+esc(f.away)+'</span>'+chip+'</div>';
+    var gsa="";
+    if(!up){
+      var sc=(f.scorers||[]);
+      gsa = sc.length
+        ? '<div class="mx-gsa">'+sc.map(function(s){ return s.manager
+            ? '<span class="gi own">'+esc(s.name)+'<span class="m">'+esc(s.manager)+'</span></span>'
+            : '<span class="gi">'+esc(s.name)+'</span>'; }).join("")+'</div>'
+        : '<div class="mx-none">'+(done?"No goals.":"No goals yet.")+'</div>';
     }
-    return [];
-  }
-  // Apply the live /players feed: live this-round points overrides the base; the
-  // live season total is base_total - base_round + live_round (same as squads).
-  function enriched(){
-    return basePlayers().map(function(p){
-      var lv = livePoints[nrm(p.name)];
-      var round = (lv!=null) ? lv : (p.round||0);
-      var total = (p.total==null) ? null : (p.total - (p.round||0) + round);
-      return {name:p.name, manager:p.manager, nation:p.nation, price:p.price, round:round, total:total};
-    });
-  }
-  function hasRich(){ return !!ownedPlayers; }
-  function mgrToTeam(){ var m={}; lastStandings.forEach(function(r){ m[r.manager]=r.team; }); return m; }
-
-  // ===== fixtures =====
-  function fxPlayers(f){
-    if (f.players && f.players.length) return f.players;
-    if (ownedByNation){
-      return ((ownedByNation[f.home]||[]).concat(ownedByNation[f.away]||[]))
-        .map(function(p){ return {name:p.name, manager:p.manager, pts:null}; });
-    }
-    return [];
-  }
-  function toPlayMap(){
-    if (!ownedByNation) return null;
-    var rem = {};
-    lastFixtures.forEach(function(f){ if(f.status!=="finished"){ rem[f.home]=1; rem[f.away]=1; } });
-    var m = {};
-    Object.keys(ownedByNation).forEach(function(nat){
-      if (rem[nat]) ownedByNation[nat].forEach(function(p){ m[p.manager] = (m[p.manager]||0)+1; });
-    });
-    return m;
-  }
-  function renderFixtures(fx){
-    if(!fx || !fx.length){ $("lv-fixtures").innerHTML = ""; return; }
-    var order = {live:0, upcoming:1, finished:2};
-    var upc = 0;
-    var list = fx.slice().sort(function(a,b){return order[a.status]-order[b.status];}).filter(function(f){
-      if (liveKeys[fxKey(f.home,f.away)]) return false;  // shown in the richer "Live now" box above
-      if (f.status==="upcoming"){ upc++; return upc<=8; }
-      return true;
-    });
-    $("lv-fixtures").innerHTML = list.map(function(f){
-      var mid = f.status==="upcoming" ? (f.kickoff||"") : (f.score||"");
-      var lab = f.status==="finished" ? "Full time" : f.status==="live" ? "● Live" : (f.kickoff ? "KO "+f.kickoff : "Upcoming");
-      var head = '<div class="t">'+esc(f.home)+' '+esc(mid)+' '+esc(f.away)+'</div><div class="s">'+lab+'</div>';
-      var pl = fxPlayers(f);
-      if (pl.length){
-        var pls = '<div class="lv-fx-pls">' + pl.map(function(p){
-          return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
-               + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
-               + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
-        }).join('') + '</div>';
-        var n = pl.length;
-        return '<details class="lv-fx '+f.status+'"'+(f.status==="live"?" open":"")+'>'
-             + '<summary class="lv-fx-sum">'+head
-             + '<span class="lv-fx-count">'+n+' player'+(n===1?'':'s')+'</span>'
-             + '<span class="lv-fx-caret">▾</span></summary>'
-             + pls + '</details>';
-      }
-      return '<div class="lv-fx '+f.status+'">'+head+'</div>';
-    }).join("");
+    var pls=(f.players||[]).slice().sort(function(a,b){return (b.pts==null?-1:b.pts)-(a.pts==null?-1:a.pts);});
+    var body = pls.length ? pls.map(function(p){
+        var bd=badges(p);
+        return '<div class="pl"><span class="pl-n">'+esc(p.name)+(bd?' <span class="pl-b">'+bd+'</span>':'')+'</span>'
+             + '<span class="pl-m">'+esc(p.manager)+'</span>'
+             + '<span class="pl-p'+(live?' today':'')+'">'+(p.pts==null?'–':p.pts)+'</span></div>';
+      }).join("") : '<div class="mx-none" style="margin:0 0 4px">No squad players in this match.</div>';
+    var n=pls.length;
+    return '<details class="mx'+(live?' live':'')+'"'+(live?' open':'')+'><summary class="mx-sum">'+head+gsa
+      +'<span class="mx-caret">▾</span></summary>'
+      +'<div class="mx-pls"><div class="mx-pls-h">'+n+' owned player'+(n===1?'':'s')+(up?'':' · points')+'</div>'+body+'</div></details>';
   }
 
-  // ===== in-play matches (rich live boxes from FIFA /matches) =====
-  // Defensive helpers: FIFA's status/period strings and the goal-scorers field
-  // format are not fully known until a match is live, so we read them loosely.
-  function matchState(m){
-    var s = (m.status||"").toLowerCase(), p = (m.period||"").toLowerCase();
-    if (/complete|played|finish|full|ended|abandon|post/.test(s) || /full|complete|finish|ended/.test(p)) return "finished";
-    if (m.homeScore==null && m.awayScore==null) return "scheduled";
-    if (/sched|pre|upcoming|not.?start/.test(s) && !/half|play|live|progress/.test(p)) return "scheduled";
-    return "live";
-  }
-  function minuteLabel(m){
-    var p = (m.period||"").toLowerCase();
-    if (/half.?time|interval|^ht$|break/.test(p)) return "HT";
-    var mn = m.minute||0, ex = m.extraMinute||0;
-    if (mn>0) return mn + (ex>0?("+"+ex):"") + "'";
-    if (p) return p.replace(/_/g," ");
-    return "Live";
-  }
-  function cleanName(s){
-    return String(s||"").replace(/\([^)]*\)/g," ").replace(/\d+\s*['’+]+\s*\d*/g," ")
-      .replace(/\b\d+\b/g," ").replace(/[•·,;]+/g," ").replace(/\s+/g," ").trim();
-  }
-  // Turn the goal-scorers/assists field into display items, whatever its shape
-  // (array of strings, array of objects, or a single delimited string).
-  function gsaItems(gsa){
-    if (gsa==null || gsa==="") return [];
-    var arr;
-    if (Array.isArray(gsa)) arr = gsa;
-    else if (typeof gsa === "object") arr = [gsa];
-    else arr = String(gsa).split(/\s*[,;]\s*|\s{2,}/);
-    return arr.map(function(x){
-      if (x==null) return null;
-      if (typeof x === "string"){ var t=x.trim(); return t ? {label:t, name:cleanName(t)} : null; }
-      if (typeof x === "object"){
-        var nm = x.name||x.player||x.playerName||x.scorer||x.fullName||x.shortName||x.displayName||"";
-        var mn = x.minute||x.time||x.min||x.minutes||"";
-        var lab = (nm + (mn?(" "+mn+"'"):"")).trim() || JSON.stringify(x);
-        return {label:lab, name:cleanName(nm||lab)};
-      }
-      return null;
-    }).filter(Boolean);
-  }
-  function ownedIndexFor(home, away){
-    var idx = {};
-    if (ownedByNation){
-      [home,away].forEach(function(nat){ (ownedByNation[nat]||[]).forEach(function(p){ idx[nrm(p.name)] = p.manager; }); });
-    }
-    return idx;
-  }
-  function renderInplay(){
-    var live = (lastMatches||[]).filter(function(m){ return matchState(m)==="live"; });
-    liveKeys = {};
-    live.forEach(function(m){ liveKeys[fxKey(m.home,m.away)] = 1; });
-    var wrap = $("lv-inplay-wrap");
-    if (!wrap) return;
-    if (!live.length){ wrap.style.display="none"; $("lv-inplay").innerHTML=""; return; }
-    wrap.style.display="";
-    $("lv-inplay").innerHTML = live.map(function(m){
-      var idx = ownedIndexFor(m.home, m.away);
-      // Goal scorers / assists — ALL of them; owned players get the cyan style + manager.
-      var items = gsaItems(m.homeGSA).concat(gsaItems(m.awayGSA));
-      var gsaHTML = items.map(function(it){
-        var mgr = it.name && idx[nrm(it.name)];
-        return mgr
-          ? '<span class="gi own">'+esc(it.label)+'<span class="mgr">'+esc(mgr)+'</span></span>'
-          : '<span class="gi">'+esc(it.label)+'</span>';
-      }).join("");
-      var gsaBlock = gsaHTML ? '<div class="lv-mx-gsa">'+gsaHTML+'</div>' : '<div class="lv-mx-none">No goals yet.</div>';
-      var hs = (m.homeScore==null?0:m.homeScore), as = (m.awayScore==null?0:m.awayScore);
-      var head = '<div class="lv-mx-top">'
-        + '<span class="lv-mx-teams">'+esc(m.home)+' <span class="sc">'+esc(hs)+'–'+esc(as)+'</span> '+esc(m.away)+'</span>'
-        + '<span class="lv-mx-min"><span class="pdot"></span>'+esc(minuteLabel(m))+'</span>'
-        + '</div>' + gsaBlock;
-      // Owned players in the match + live points (independent of the scorers field).
-      var owned = [];
-      if (ownedByNation){
-        [m.home, m.away].forEach(function(nat){
-          (ownedByNation[nat]||[]).forEach(function(p){
-            var lp = livePoints[nrm(p.name)];
-            owned.push({name:p.name, manager:p.manager, pts:(lp==null?null:lp)});
-          });
-        });
-      }
-      owned.sort(function(a,b){ return (b.pts==null?-1:b.pts)-(a.pts==null?-1:a.pts); });
-      var plsBody = owned.length
-        ? owned.map(function(p){
-            return '<div class="lv-pl"><span class="lv-pl-n">'+esc(p.name)+'</span>'
-                 + '<span class="lv-pl-m">'+esc(p.manager)+'</span>'
-                 + '<span class="lv-pl-p">'+(p.pts==null?'–':p.pts)+'</span></div>';
-          }).join("")
-        : '<div class="lv-mx-none" style="margin:0">No squad players in this match.</div>';
-      var n = owned.length;
-      return '<details class="lv-mx" open><summary class="lv-mx-sum">'+head
-        + '<span class="lv-mx-caret">▾</span></summary>'
-        + '<div class="lv-mx-pls"><div class="lv-mx-pls-h">'+n+' owned player'+(n===1?'':'s')+' · live points</div>'+plsBody+'</div>'
-        + '</details>';
-    }).join("");
+  function renderMatches(){
+    var live=fixtures.filter(function(f){return f.status==="live";});
+    var up=fixtures.filter(function(f){return f.status==="upcoming";}).slice(0,8);
+    var lw=$("live-wrap");
+    if(live.length){ lw.style.display=""; $("live").innerHTML=live.map(matchBox).join(""); }
+    else { lw.style.display="none"; $("live").innerHTML=""; }
+    // Only upcoming fixtures here (next 8) — no past results.
+    $("results").innerHTML = up.map(matchBox).join("");
+    $("res-label").style.display = up.length?"":"none";
   }
 
-  // ===== standings =====
-  function renderStandings(rows){
-    var tb = $("lv-tbody");
-    var tp = toPlayMap();
-    tb.innerHTML = rows.map(function(r){
-      var d = (baselineRanks && baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager] - r.rank) : 0;
-      var move = d>0 ? '<span class="lv-move up">▲ '+d+'</span>'
-               : d<0 ? '<span class="lv-move down">▼ '+(-d)+'</span>'
-               : '';
-      var ch = prevTotals[r.slug]!==undefined && prevTotals[r.slug]!==r.total;
+  function renderTable(){
+    var tb=$("tbody");
+    tb.innerHTML = standings.map(function(r){
+      var d=(baselineRanks&&baselineRanks[r.manager]!=null)?(baselineRanks[r.manager]-r.rank):0;
+      var mv= d>0?'<span class="mv up">▲'+d+'</span>': d<0?'<span class="mv down">▼'+(-d)+'</span>':'';
+      var ch=prevTotals[r.slug]!==undefined&&prevTotals[r.slug]!==r.total;
       return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
-        +'<td class="lv-pos">'+r.rank+'</td>'
-        +'<td><a class="lv-link lv-tm" href="team-'+encodeURIComponent(r.slug)+'.html">'+esc(r.team)+'</a> '+move+'</td>'
-        +'<td class="r lv-round">'+(r.round>=0?'+':'')+r.round+'</td>'
-        +'<td class="r lv-rem">'+(tp?(tp[r.manager]||0):(r.remaining==null?'–':r.remaining))+'</td>'
-        +'<td class="r lv-total">'+r.total+'</td></tr>';
+        +'<td class="pos">'+r.rank+'</td>'
+        +'<td><a class="tm" href="team-'+encodeURIComponent(teamSlug(r.slug))+'.html">'+esc(r.team)+'</a>'+mv+'</td>'
+        +'<td class="r rd">'+(r.round>=0?'+':'')+r.round+'</td>'
+        +'<td class="r rem">'+(r.remaining==null?'–':r.remaining)+'</td>'
+        +'<td class="r tot">'+r.total+'</td></tr>';
     }).join("");
-    Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ch="1"]'), function(tr){
-      tr.classList.add("flash");
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ tr.classList.remove("flash"); }); });
-    });
-    rows.forEach(function(r){ prevTotals[r.slug]=r.total; });
+    Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ch="1"]'),function(tr){ tr.classList.add("flash"); requestAnimationFrame(function(){requestAnimationFrame(function(){tr.classList.remove("flash");});}); });
+    standings.forEach(function(r){ prevTotals[r.slug]=r.total; });
   }
 
-  // ===== trivia =====
-  function rowHTML(rank, name, meta, val, vClass){
-    return '<div class="trow"><span class="trank">'+rank+'</span>'
-         + '<span class="tn">'+esc(name)+'</span>'
-         + (meta?'<span class="tm">'+esc(meta)+'</span>':'')
-         + '<span class="tv'+(vClass?' '+vClass:'')+'">'+val+'</span></div>';
+  function row(k,n,m,v,cls){ return '<div class="trow"><span class="tk">'+k+'</span><span class="tn">'+esc(n)+'</span>'+(m?'<span class="tm">'+esc(m)+'</span>':'')+'<span class="tv'+(cls?' '+cls:'')+'">'+v+'</span></div>'; }
+  function need(id){ $(id).innerHTML='<div class="tneed">Builds with the daily roundup (needs <b>owned-players.json</b>).</div>'; }
+  function empty(id,m){ $(id).innerHTML='<div class="tempty">'+esc(m)+'</div>'; }
+
+  function enriched(){
+    if(!ownedPlayers) return null;
+    var lp=liveRoundMap();
+    return ownedPlayers.map(function(p){
+      var lv=lp[nrm(p.name)];
+      var round=(lv!=null)?lv:(p.round||0);
+      var total=(p.total==null)?null:(p.total-(p.round||0)+round);
+      return {name:p.name, manager:p.manager, nation:(p.nation||"").toUpperCase(), price:(typeof p.price==="number"?p.price:parseFloat(p.price)||0), round:round, total:total};
+    });
   }
-  function natRow(rank, code, val, vClass){
-    return '<div class="trow"><span class="trank">'+rank+'</span>'
-         + '<span class="tnat">'+esc(code)+'</span>'
-         + '<span class="tn"></span>'
-         + '<span class="tv'+(vClass?' '+vClass:'')+'">'+val+'</span></div>';
-  }
-  function need(id){ $(id).innerHTML = '<div class="tneed">Awaiting squad price data — add <b>owned-players.json</b> (see build notes). The other panels run on the live feed.</div>'; }
-  function empty(id, msg){ $(id).innerHTML = '<div class="tempty">'+esc(msg)+'</div>'; }
 
   function renderTrivia(){
-    var ps = enriched();
-    var m2t = mgrToTeam();
+    // Top round scorers — straight from the live feed
+    var allp=[]; fixtures.forEach(function(f){ (f.players||[]).forEach(function(p){ if(p.pts!=null) allp.push({name:p.name,manager:p.manager,pts:p.pts}); }); });
+    allp.sort(function(a,b){return b.pts-a.pts;});
+    $("tv-scorers").innerHTML = (allp[0]&&allp[0].pts>0)
+      ? allp.slice(0,6).map(function(it,i){return row(i+1,it.name,it.manager,it.pts);}).join("")
+      : '<div class="tempty">No points on the board yet this round.</div>';
 
-    // --- Best value: season pts per £m (needs prices + totals) ---
-    if (!hasRich()){ need("tv-value"); }
+    // Manager of the round — from standings round column
+    var byR=standings.slice().sort(function(a,b){return b.round-a.round;});
+    if(byR.length){
+      var top=byR[0], rest=byR.slice(1,3);
+      $("tv-manager").innerHTML='<div class="tbig"><div class="b">'+esc(top.team)+'</div><div class="s"><b style="color:var(--ink)">'+esc(top.manager)+'</b> · +'+top.round+' this round<br>'+rest.map(function(x){return esc(x.manager)+' +'+x.round;}).join(' · ')+'</div></div>';
+    } else empty("tv-manager","Awaiting the round.");
+
+    // Biggest mover — baseline vs current
+    if(!baselineRanks||!standings.length){ empty("tv-mover","Awaiting movement."); }
     else {
-      var val = ps.filter(function(p){ return p.price>0 && p.total!=null; })
-        .map(function(p){ return {n:p.name, m:p.manager, v:p.total/p.price}; })
-        .sort(function(a,b){ return b.v-a.v; }).slice(0,5);
-      $("tv-value").innerHTML = val.length
-        ? val.map(function(it,i){ return rowHTML(i+1, it.n, it.m, it.v.toFixed(1), "green"); }).join("")
-        : '<div class="tempty">No priced players yet.</div>';
+      var mv=standings.map(function(r){return {team:r.team,d:(baselineRanks[r.manager]!=null)?(baselineRanks[r.manager]-r.rank):0};});
+      var upm=mv.slice().sort(function(a,b){return b.d-a.d;})[0], dn=mv.slice().sort(function(a,b){return a.d-b.d;})[0];
+      if(upm&&(upm.d>0||(dn&&dn.d<0))){
+        $("tv-mover").innerHTML='<div class="tbig"><div class="b">'+(upm.d>0?'<span style="color:var(--green)">▲'+upm.d+'</span> '+esc(upm.team):'No risers')+'</div><div class="s">'+((dn&&dn.d<0)?'<span style="color:var(--red)">▼'+(-dn.d)+'</span> '+esc(dn.team):'No fallers')+'</div></div>';
+      } else empty("tv-mover","Nobody's moved yet.");
     }
 
-    // --- Top round scorers (this-round points) ---
-    if (!ps.length){ empty("tv-mdscore", "No squad data yet."); }
-    else {
-      var md = ps.slice().sort(function(a,b){ return b.round-a.round; }).slice(0,5);
-      $("tv-mdscore").innerHTML = (md[0] && md[0].round>0)
-        ? md.map(function(it,i){ return rowHTML(i+1, it.name, it.manager, it.round); }).join("")
-        : '<div class="tempty">No points on the board yet this round.</div>';
+    var ps=enriched();
+    // Best value
+    if(!ps){ need("tv-value"); } else {
+      var v=ps.filter(function(p){return p.price>0&&p.total!=null;}).map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,5);
+      $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">No priced players yet.</div>';
     }
-
-    // --- Top overall (season) scorers (needs totals) ---
-    if (!hasRich()){ need("tv-overall"); }
-    else {
-      var ov = ps.filter(function(p){ return p.total!=null; })
-        .sort(function(a,b){ return b.total-a.total; }).slice(0,5);
-      $("tv-overall").innerHTML = ov.length
-        ? ov.map(function(it,i){ return rowHTML(i+1, it.name, it.manager, it.total); }).join("")
-        : '<div class="tempty">No season points yet.</div>';
+    // Top overall
+    if(!ps){ need("tv-overall"); } else {
+      var o=ps.filter(function(p){return p.total!=null;}).sort(function(a,b){return b.total-a.total;}).slice(0,5);
+      $("tv-overall").innerHTML = o.length? o.map(function(it,i){return row(i+1,it.name,it.manager,it.total);}).join(""):'<div class="tempty">No season points yet.</div>';
     }
-
-    // --- Manager of the matchday: best combined this-round haul ---
-    if (!ps.length){ empty("tv-manager", "No squad data yet."); }
-    else {
-      var byMgr = {};
-      ps.forEach(function(p){ byMgr[p.manager] = (byMgr[p.manager]||0) + p.round; });
-      var ranked = Object.keys(byMgr).map(function(m){ return {m:m, v:byMgr[m]}; })
-        .sort(function(a,b){ return b.v-a.v; });
-      if (ranked.length && ranked[0].v>0){
-        var top = ranked[0];
-        var rest = ranked.slice(1,3).filter(function(x){ return x.v>0; });
-        var sub = rest.length
-          ? rest.map(function(x){ return esc(x.m)+' '+x.v; }).join(' · ')
-          : 'Out in front on their own.';
-        $("tv-manager").innerHTML =
-          '<div class="tbig"><div class="big">'+esc(m2t[top.m]||top.m)+'</div>'
-          + '<div class="sub"><b>'+esc(top.m)+'</b> · '+top.v+' pts this round<br>'+sub+'</div></div>';
-      } else {
-        empty("tv-manager", "No round points scored yet.");
+    // Priciest flops (expensive, lowest season total, must have returned >0)
+    if(!ps){ need("tv-flop"); } else {
+      var priced=ps.filter(function(p){return p.price>0&&p.total!=null&&p.total>0;});
+      if(!priced.length){ empty("tv-flop","No returns to judge yet."); }
+      else { var pr=priced.map(function(p){return p.price;}).sort(function(a,b){return a-b;}); var thr=pr[Math.floor(pr.length*0.65)]||pr[pr.length-1];
+        var fl=priced.filter(function(p){return p.price>=thr;}).sort(function(a,b){return (a.total-b.total)||(b.price-a.price);}).slice(0,4);
+        $("tv-flop").innerHTML=fl.map(function(it,i){return row(i+1,it.name,"£"+it.price.toFixed(1)+"m",it.total);}).join("");
       }
     }
-
-    // --- Biggest table mover (this round, vs baseline ranks) ---
-    if (!baselineRanks || !lastStandings.length){ empty("tv-mover", "Awaiting this round's movement."); }
-    else {
-      var mv = lastStandings.map(function(r){
-        var d = (baselineRanks[r.manager]!=null) ? (baselineRanks[r.manager]-r.rank) : 0;
-        return {team:r.team, manager:r.manager, d:d};
-      });
-      var up = mv.slice().sort(function(a,b){ return b.d-a.d; })[0];
-      var down = mv.slice().sort(function(a,b){ return a.d-b.d; })[0];
-      if (up && (up.d>0 || (down && down.d<0))){
-        var upLine = up.d>0
-          ? '<span class="up">▲'+up.d+'</span> <b>'+esc(up.team)+'</b>'
-          : 'No risers this round';
-        var downLine = (down && down.d<0)
-          ? '<span class="down">▼'+(-down.d)+'</span> '+esc(down.team)
-          : 'No fallers this round';
-        $("tv-mover").innerHTML =
-          '<div class="tbig"><div class="big"><span class="mv">'+upLine+'</span></div>'
-          + '<div class="sub">'+downLine+'</div></div>';
-      } else {
-        empty("tv-mover", "Nobody's moved yet this round.");
-      }
-    }
-
-    // --- Priciest flops: expensive players returning least OVERALL (season pts) ---
-    if (!hasRich()){ need("tv-flop"); }
-    else {
-      // A flop is an expensive player who HAS returned, but returned poorly.
-      // Players on 0 are excluded: a 0 usually means they did not feature or were
-      // only just transferred in (points scored before a transfer do not follow
-      // them, e.g. Barcola's pre-purchase goal), which is "no return yet", not a flop.
-      var priced = ps.filter(function(p){ return p.price>0 && p.total!=null && p.total>0; });
-      if (!priced.length){ empty("tv-flop", "No returns to judge yet."); }
-      else {
-        var prices = priced.map(function(p){ return p.price; }).sort(function(a,b){ return a-b; });
-        var thr = prices[Math.floor(prices.length*0.65)] || prices[prices.length-1];
-        var flops = priced.filter(function(p){ return p.price>=thr; })
-          .sort(function(a,b){ return (a.total-b.total) || (b.price-a.price); }).slice(0,4);
-        $("tv-flop").innerHTML = flops.map(function(it,i){
-          return rowHTML(i+1, it.name, "£"+it.price.toFixed(1)+"m", it.total);
-        }).join("");
-      }
-    }
-
-    // --- Top-scoring nations (total tournament points, owned players) ---
-    if (!hasRich()){ need("tv-nation"); }
-    else {
-      var byNat = {};
-      ps.forEach(function(p){ if(p.nation && p.total!=null){ byNat[p.nation] = (byNat[p.nation]||0) + p.total; } });
-      var nats = Object.keys(byNat).map(function(c){ return {c:c, v:byNat[c]}; })
-        .sort(function(a,b){ return (b.v-a.v) || (a.c<b.c?-1:1); }).slice(0,5);
-      $("tv-nation").innerHTML = nats.length
-        ? nats.map(function(it,i){ return natRow(i+1, it.c, it.v); }).join("")
-        : '<div class="tempty">No nation points yet.</div>';
+    // Top-scoring nations (season total)
+    if(!ps){ need("tv-nation"); } else {
+      var bn={}; ps.forEach(function(p){ if(p.nation&&p.total!=null) bn[p.nation]=(bn[p.nation]||0)+p.total; });
+      var nats=Object.keys(bn).map(function(c){return {c:c,v:bn[c]};}).sort(function(a,b){return (b.v-a.v)||(a.c<b.c?-1:1);}).slice(0,5);
+      $("tv-nation").innerHTML = nats.length? nats.map(function(it,i){return '<div class="trow"><span class="tk">'+(i+1)+'</span><span class="tnat">'+esc(it.c)+'</span><span class="tn"></span><span class="tv">'+it.v+'</span></div>';}).join(""):'<div class="tempty">No nation points yet.</div>';
     }
   }
 
-  // ===== polling =====
-  function tick(){ var el=$("lv-status"); if(el) el.innerHTML = "Updated <b>"+ago(lastUpdated)+"</b>"; }
-  function pollTable(){
-    return fetch(WORKER_URL, {cache:"no-store"}).then(function(res){
-      if(!res.ok) throw new Error("feed "+res.status);
-      return res.json();
-    }).then(function(d){
+  function tick(){ var el=$("status"); if(el) el.innerHTML="Updated <b>"+ago(lastUpdated)+"</b>"; }
+  function poll(){
+    fetch(WORKER,{cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error("feed "+r.status); return r.json(); }).then(function(d){
       if(d.error) throw new Error(d.error);
-      $("lv-err").style.display="none";
-      lastUpdated = d.updated;
-      $("lv-dot").className = "lv-dot " + (d.anyLive ? "live" : "off");
-      lastFixtures = d.fixtures||[];
-      lastStandings = d.standings||[];
-      renderFixtures(lastFixtures);
-      renderStandings(lastStandings);
-      tick();
-    }).catch(function(e){
-      var el=$("lv-err"); el.textContent = "Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block";
-      $("lv-status").textContent = "offline";
-    });
+      $("err").style.display="none";
+      lastUpdated=d.updated;
+      $("dot").className="dot "+(d.anyLive?"live":"");
+      standings=d.standings||[]; fixtures=d.fixtures||[];
+      renderMatches(); renderTable(); renderTrivia(); tick();
+    }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
-  function pollPlayers(){
-    return fetch(PLAYERS_URL, {cache:"no-store"}).then(function(res){
-      return res.ok ? res.json() : null;
-    }).then(function(d){
-      if(d && d.players){ livePoints = d.players; }
-    }).catch(function(){ /* per-player feed is best-effort; trivia falls back to base points */ });
-  }
-  function pollMatches(){
-    return fetch(MATCHES_URL, {cache:"no-store"}).then(function(res){ return res.ok ? res.json() : null; })
-      .then(function(d){ if(d && d.matches){ lastMatches = d.matches; renderInplay(); renderFixtures(lastFixtures); } })
-      .catch(function(){ /* in-play box is best-effort; the fixtures strip still covers live games */ });
-  }
-  function poll(){ pollTable(); pollPlayers().then(renderTrivia); pollMatches(); }
-
-  $("lv-refresh").addEventListener("click", poll);
-  poll();
-  setInterval(poll, POLL_MS);
-  setInterval(tick, 1000);
+  $("refresh").addEventListener("click", poll);
+  poll(); setInterval(poll, POLL_MS); setInterval(tick, 1000);
 })();
 </script>
 </body>
