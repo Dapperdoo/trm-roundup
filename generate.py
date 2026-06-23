@@ -150,6 +150,20 @@ def gather():
     return standings_text, squads
 
 
+def _extract_json(text):
+    """Pull a JSON object out of the model's reply, tolerating ```json fences
+    and any stray prose around it. Returns the best-effort JSON substring."""
+    text = text.strip()
+    # Strip a leading/trailing markdown code fence if present.
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text).strip()
+    # Narrow to the outermost { ... } so leading/trailing prose can't break the parse.
+    if "{" in text and "}" in text:
+        text = text[text.find("{"):text.rfind("}") + 1]
+    return text
+
+
 def write_copy(standings_text, squads):
     payload = {
         "manager_profiles": MANAGERS,
@@ -157,9 +171,7 @@ def write_copy(standings_text, squads):
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
-    # Bounded client: a single attempt can't hang the whole build. With
-    # timeout=120 and max_retries=1 the worst case per attempt is ~4 min,
-    # and the outer loop tries 3 times.
+    # Bounded client: a single attempt can't hang the whole build.
     client = anthropic.Anthropic(
         api_key=os.environ["ANTHROPIC_API_KEY"],
         timeout=600.0,
@@ -172,22 +184,35 @@ def write_copy(standings_text, squads):
             # Stream the response. A long single completion (13 write-ups) can
             # exceed the non-streaming request window and get cut off mid-flight,
             # so we stream the tokens and assemble the final message.
+            #
+            # max_tokens must comfortably exceed the full JSON: lead + 13 articles
+            # + a 13-row standings array + notes. At 8000 the reply was hitting the
+            # cap and getting truncated before the closing brace, which then failed
+            # JSON parsing ("Expecting value: line 1 column 1"). 16000 gives ample
+            # headroom for the ~90-130-words-per-manager column.
             with client.messages.stream(
                 model=MODEL,
-                max_tokens=8000,
+                max_tokens=16000,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": json.dumps(payload)}],
             ) as stream:
                 msg = stream.get_final_message()
+            stop = getattr(msg, "stop_reason", None)
             print(f"  Claude responded in {time.time()-t0:.1f}s "
-                  f"(stop_reason={getattr(msg, 'stop_reason', None)})", flush=True)
+                  f"(stop_reason={stop})", flush=True)
             text = "".join(getattr(b, "text", "") for b in (msg.content or [])).strip()
+            # A max_tokens stop means the JSON was cut off mid-stream and cannot be
+            # parsed. Retrying with the same cap will only truncate again, so fail
+            # with a clear, actionable message instead of a cryptic JSON error.
+            if stop == "max_tokens":
+                raise RuntimeError(
+                    "response truncated at max_tokens before the JSON closed — "
+                    "raise max_tokens or shorten the per-manager word count")
             if not text:
-                raise RuntimeError(f"empty response (stop_reason={getattr(msg, 'stop_reason', None)})")
-            # extract the JSON object even if wrapped in prose or code fences
-            if "{" in text and "}" in text:
-                text = text[text.find("{"):text.rfind("}") + 1]
+                raise RuntimeError(f"empty response (stop_reason={stop})")
+            # Extract the JSON object even if wrapped in prose or ```json fences.
+            text = _extract_json(text)
             data = json.loads(text)
             if len(data.get("articles", [])) < 10 or len(data.get("standings", [])) < 10:
                 raise ValueError("AI returned too few managers")
