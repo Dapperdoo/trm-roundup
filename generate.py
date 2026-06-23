@@ -5,6 +5,10 @@ The Morning After — self-hosted daily generator (Claude version).
 Runs daily on GitHub Actions: fetches the league pages, has Claude write the
 playful roundup, renders it into template.html, and writes docs/roundup.html
 which GitHub Pages serves. Only secret needed: ANTHROPIC_API_KEY.
+
+Each edition reports ONLY the fixtures completed since the previous edition. A
+tiny state file (docs/roundup-state.json), committed alongside the page, records
+which fixtures have already been written up; the next run diffs against it.
 """
 
 import os
@@ -22,6 +26,7 @@ BASE = "https://trm-fantasy.onrender.com"
 INDEX_URL = f"{BASE}/wc"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/roundup.html"
+STATE_PATH = "docs/roundup-state.json"
 MODEL = "claude-sonnet-4-6"
 
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
@@ -44,58 +49,73 @@ MANAGERS = {
 RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake (rivals), "
                  "Malik & Dan (allies), Sam & Wigs (brothers).")
 
-SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. Its job is to INFORM, wittily — to tell each manager's readers, succinctly, how their team did in the latest round, which of their players actually scored the points (and which flopped), how that moved them in the table, and who they still have to come. Football first; this is a results round-up, not a party report.
+SYSTEM_PROMPT = """You write "The Morning After", the DAILY bulletin of a private 13-manager World Cup 2026 fantasy football league.
 
-You are given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. The standings/fixtures text also gives each game's status (FULL TIME, LIVE, or a future kickoff time). READ it and WRITE the column from it.
+WHAT THIS EDITION COVERS — THE MOST IMPORTANT RULE: this is a daily report on ONLY the fixtures that have FINISHED SINCE THE LAST EDITION — never the whole round. You are given:
+- "matchday_fixtures": the games (nation pairs) that went FULL TIME since the previous report. THESE, and only these, are what today's edition is about.
+- "previously_reported_fixtures": games already written up in earlier editions. Do NOT review these again — they are old news. You may reference them only lightly for table context.
+- Games that are still upcoming or live: "yet to come" — do not treat a 0 from them as a blank.
+Every manager write-up must LEAD with that manager's points from THIS edition's matchday_fixtures (the points their players earned in those specific games), naming those players. If a manager had no players in the matchday_fixtures, say so briefly — a quiet night for them — and move on. Do not pad the piece by re-listing their whole round.
 
-STRICT PLAYER OWNERSHIP — THE MOST IMPORTANT RULE: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Before writing a manager's entry, look at THAT manager's player list, and treat it as a closed whitelist: you may name ONLY players from that exact list, with the exact points shown beside them. Do NOT rely on your own knowledge of football to decide who a player belongs to. Never put a player in a manager's write-up unless that player's name physically appears in that manager's own list. Never invent players or points. When in doubt, leave a player out.
+You are also given the raw text of the league standings/fixtures page and, under "each_managers_own_squad", every manager's squad keyed by that manager's name — each entry lists only THAT manager's players with their country, price and this-round points. Use the fixtures text to see each game's status (FULL TIME, LIVE, upcoming).
 
-EVERY MANAGER WRITE-UP MUST INCLUDE (this is the whole point — never omit it):
-- Their points for this round and their current league position.
-- The standout players BY NAME with their points — who hauled and who blanked. Use ONLY the real player names and points from that manager's own squad list. This player-by-player detail is the most important content; a write-up without named players and their points has failed.
-- How the result moved them in the table (climbed, slipped, held), and the gap to a rival where it's worth a dig.
-- Any of their players still to play (see accuracy rule).
+STRICT PLAYER OWNERSHIP: every player belongs to exactly ONE manager — the one under whose name they appear in "each_managers_own_squad". Treat that list as a closed whitelist: name ONLY players from that exact list, with the exact points shown. Do NOT use your own football knowledge to assign players. Never invent players or points. When in doubt, leave a player out.
 
-TONE: dry and deadpan, affectionately ribbing the managers, economical with words (~90-130 per manager). Lean on each manager's character sparingly and let the football do the work.
+EVERY MANAGER WRITE-UP MUST INCLUDE:
+- Their points from THIS matchday (the matchday_fixtures), and their current league position for context.
+- The standout players BY NAME with their points from those games — who hauled and who blanked. A write-up with no named players/points from the matchday_fixtures has failed (unless they genuinely had none, in which case say so).
+- How it moved them in the table, and a dig at a rival where the table invites it.
+- A brief nod to any of their players still to come.
 
-ACCURACY RULE: a player on 0 may simply NOT HAVE PLAYED YET. Check the fixtures — only call a 0 a blank if that player's nation's game is FULL TIME. If it is upcoming or live, say "still to play" / "yet to come". The "flop" note must name a player whose game is finished.
+TONE: dry and deadpan, affectionately ribbing the managers, economical (~90-130 words each). Lean on character sparingly; let the football do the work.
 
-SCHEDULE: do NOT assume this is the opening day. It has been running for a while and earlier rounds may already be complete. Work out what has and hasn't happened ONLY from the fixture statuses in the data. Use the matchday label exactly as it appears in the data.
+ACCURACY: only call a 0 a blank if that player's nation is in matchday_fixtures (i.e. finished). If their game is upcoming/live, it is "yet to come". The "flop" note must name a player whose game finished this matchday.
 
-Use the manager FIRST NAMES exactly as given in the profiles. Keep any thinking extremely brief. Your reply MUST contain the requested JSON value; put it at the very end with nothing after the final bracket, and do not wrap it in code fences."""
-
-
-# The work is split into small, bounded calls so no single completion has to
-# carry the whole bulletin. One call produces the "frame" (standings + notes +
-# lead); the per-manager articles are then generated in small batches. This
-# model reasons in its text output, so each call is given enough room for that
-# reasoning PLUS the JSON, and the JSON is extracted robustly from the tail.
-
-FRAME_TASK = """TASK: Produce ONLY the frame of today's bulletin — do NOT write the per-manager articles.
-
-Return valid JSON in exactly this shape (no other keys, no articles), as the LAST thing in your reply:
-{
-  "matchday_label": "<e.g. Group Matchday 1, exactly as it appears in the data>",
-  "status_live": <true if any of today's games were still live or upcoming, else false>,
-  "standings": [ {"team": "...", "manager": "...", "total": <int>}, ... ALL managers ordered 1st to last ],
-  "still_to_play": "<comma-separated nations not yet kicked off, or 'Everyone has arrived.'>",
-  "notes": {
-     "top_haul": "<player (manager) — pts>",
-     "bargain": "<best points-per-million among players who PLAYED: player (manager) — pts from price>",
-     "flop": "<worst return for price among players who PLAYED: player (manager) — pts from price>"
-  },
-  "lead": "<one-paragraph scene-setter, may include bold tags>"
-}
-Include every manager in "standings"."""
+Use the manager FIRST NAMES exactly as given. Keep any thinking extremely brief. Your reply MUST contain the requested JSON value at the very end, with nothing after the final bracket, and no code fences."""
 
 
-def article_task(batch):
+# Work is split into small bounded calls. The frame call also reports the
+# fixtures so we can persist them and scope the next edition.
+
+def frame_task(prev_fixtures):
+    prev = ", ".join(prev_fixtures) if prev_fixtures else "(none — this is the first edition; treat all currently-finished games as this matchday)"
+    return (
+        "TASK: Produce ONLY the frame of today's bulletin — do NOT write the per-manager articles.\n\n"
+        f"previously_reported_fixtures (already covered, do NOT report again): {prev}\n\n"
+        "Identify, from the fixtures text, every game in this round currently at FULL TIME (as \"HOME-AWAY\" "
+        "using the three-letter codes shown, e.g. \"CZE-RSA\"). matchday_fixtures = those FULL TIME games "
+        "that are NOT in previously_reported_fixtures — i.e. the games finished since the last edition. "
+        "Scope the notes (top_haul / bargain / flop) to players who played in matchday_fixtures only.\n\n"
+        "Return valid JSON in exactly this shape, as the LAST thing in your reply (no code fences):\n"
+        "{\n"
+        '  "matchday_label": "<the round label exactly as shown, e.g. Group Matchday 2>",\n'
+        '  "status_live": <true if any games are still live or upcoming, else false>,\n'
+        '  "fulltime_fixtures": ["HOME-AWAY", ... every game currently FULL TIME this round],\n'
+        '  "matchday_fixtures": ["HOME-AWAY", ... the NEW finished games this edition reports on],\n'
+        '  "standings": [ {"team": "...", "manager": "...", "total": <int>}, ... ALL managers, 1st to last ],\n'
+        '  "still_to_play": "<comma-separated nations not yet kicked off, or \'Everyone has arrived.\'>",\n'
+        '  "notes": {\n'
+        '     "top_haul": "<player (manager) — pts>",\n'
+        '     "bargain": "<best points-per-million among players who played this matchday: player (manager) — pts from price>",\n'
+        '     "flop": "<worst return for price among players who played this matchday: player (manager) — pts from price>"\n'
+        '  },\n'
+        '  "lead": "<one-paragraph scene-setter for THIS matchday\'s action only, may include bold tags>"\n'
+        "}\n"
+        "Include every manager in standings."
+    )
+
+
+def article_task(batch, matchday_fixtures):
     names = ", ".join(batch)
+    md = ", ".join(matchday_fixtures) if matchday_fixtures else "(none finished since last edition)"
     return (
         "TASK: Write the per-manager write-ups for ONLY these managers, in this exact order: "
         f"{names}.\n\n"
-        "Apply the STRICT PLAYER OWNERSHIP rule and the 'EVERY MANAGER WRITE-UP MUST INCLUDE' "
-        "checklist above. Keep each body to ~90-130 words.\n\n"
+        f"matchday_fixtures (the ONLY games this edition covers): {md}\n\n"
+        "Each write-up LEADS with that manager's points from these matchday_fixtures and names the players "
+        "who scored them (and any who blanked in those games). Ignore players whose games were in earlier "
+        "editions; note upcoming players only as 'yet to come'. If a manager had no players in the "
+        "matchday_fixtures, say so in a line. Apply the STRICT PLAYER OWNERSHIP rule. ~90-130 words each.\n\n"
         "Return, as the LAST thing in your reply, a JSON array (no code fences) of exactly "
         f"{len(batch)} objects, one per manager named above, in that order:\n"
         '[ {"manager": "<first name>", "headline": "<short headline>", "body": "<~90-130 words>"} ]'
@@ -153,6 +173,30 @@ TEAM_BY_SLUG = {
 }
 
 
+def load_state():
+    """Previously-reported fixtures. Tolerant of a missing/corrupt file (returns
+    empty, which makes the next edition a first-edition bootstrap)."""
+    try:
+        with open(STATE_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        fx = data.get("reported_fixtures", [])
+        return [str(x) for x in fx] if isinstance(fx, list) else []
+    except Exception as e:
+        print(f"  no usable state ({e}); treating as first edition", flush=True)
+        return []
+
+
+def save_state(fixtures):
+    os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
+    payload = {
+        "reported_fixtures": sorted(set(fixtures)),
+        "updated": datetime.datetime.utcnow().isoformat() + "Z",
+    }
+    with open(STATE_PATH, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+    print(f"  state saved: {len(payload['reported_fixtures'])} reported fixtures", flush=True)
+
+
 def gather():
     t0 = time.time()
     index_html = fetch(INDEX_URL)
@@ -173,9 +217,8 @@ def gather():
 
 def _loads(text, array=False):
     """Parse the JSON value out of a reply that may be preceded by reasoning
-    prose. Strips code fences, then tries each opening-bracket position (widest
-    first) until one parses cleanly to the final closing bracket — so a stray
-    bracket in the prose can't break extraction."""
+    prose. Tries each opening-bracket position (widest first) until one parses
+    to the final closing bracket — so a stray bracket in prose can't break it."""
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -204,8 +247,8 @@ def _dump_raw(label, text, stop):
 
 
 def _ask(client, task, payload, max_tokens, array=False, tries=2):
-    """One bounded Claude call. Gives room for the model's reasoning plus the
-    JSON, then extracts the JSON from the tail. Logs the raw reply on failure."""
+    """One bounded Claude call. Room for reasoning + JSON; JSON extracted from
+    the tail. Logs the raw reply on failure."""
     user = f"{task}\n\n<data>\n{json.dumps(payload)}\n</data>"
     last = None
     for attempt in range(tries):
@@ -239,9 +282,12 @@ def _chunks(seq, n):
 
 
 def write_copy(standings_text, squads):
+    prev_fixtures = load_state()
+    print(f"  previously reported fixtures: {len(prev_fixtures)}", flush=True)
     payload = {
         "manager_profiles": MANAGERS,
         "relationships": RELATIONSHIPS,
+        "previously_reported_fixtures": prev_fixtures,
         "standings_and_fixtures_page_text": standings_text,
         "each_managers_own_squad": squads,
     }
@@ -251,20 +297,23 @@ def write_copy(standings_text, squads):
         max_retries=1,
     )
 
-    # Frame: standings + notes + lead. Roomy cap so reasoning + JSON both fit.
-    print("  generating frame (standings/notes/lead)...", flush=True)
-    frame = _ask(client, FRAME_TASK, payload, max_tokens=10000, array=False)
+    print("  generating frame (fixtures/standings/notes/lead)...", flush=True)
+    frame = _ask(client, frame_task(prev_fixtures), payload, max_tokens=10000, array=False)
     standings = frame.get("standings", [])
     if len(standings) < 10:
         raise RuntimeError(f"frame returned too few standings ({len(standings)})")
+    matchday_fixtures = frame.get("matchday_fixtures", []) or []
+    fulltime_fixtures = frame.get("fulltime_fixtures", []) or []
+    print(f"  matchday fixtures this edition: {len(matchday_fixtures)} "
+          f"(of {len(fulltime_fixtures)} finished)", flush=True)
+    payload["matchday_fixtures"] = matchday_fixtures
 
-    # Articles in small batches; each batch falls back to one-at-a-time if needed.
     order = [r["manager"] for r in standings]
     articles = []
     for batch in _chunks(order, 3):
         print(f"  generating articles for {', '.join(batch)}...", flush=True)
         try:
-            arts = _ask(client, article_task(batch), payload,
+            arts = _ask(client, article_task(batch, matchday_fixtures), payload,
                         max_tokens=4000 * len(batch), array=True)
             if not isinstance(arts, list) or len(arts) < len(batch):
                 got = len(arts) if isinstance(arts, list) else "?"
@@ -274,7 +323,7 @@ def write_copy(standings_text, squads):
             print(f"  batch failed ({e}); falling back to one manager at a time",
                   file=sys.stderr, flush=True)
             for mgr in batch:
-                arts = _ask(client, article_task([mgr]), payload,
+                arts = _ask(client, article_task([mgr], matchday_fixtures), payload,
                             max_tokens=6000, array=True)
                 articles.extend(arts)
 
@@ -284,6 +333,9 @@ def write_copy(standings_text, squads):
         raise RuntimeError(f"assembled too few articles ({len(data.get('articles', []))})")
     print(f"  copy complete: {len(articles)} articles, {len(standings)} standings rows",
           flush=True)
+    # Persist what we have now reported so the next edition only covers new games.
+    if fulltime_fixtures:
+        save_state(sorted(set(prev_fixtures) | set(fulltime_fixtures)))
     return data
 
 
