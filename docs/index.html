@@ -40,6 +40,12 @@ h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -web
 
 .seclabel{font-size:11px; text-transform:uppercase; letter-spacing:.16em; color:var(--mut); margin:18px 0 9px; display:flex; align-items:center; gap:8px;}
 .seclabel.live{color:var(--green);}
+.kanebox{background:var(--panel); border:1px solid var(--gold); border-radius:10px; padding:14px 16px; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; box-shadow:0 0 0 1px rgba(245,196,81,.15); margin-bottom:8px;}
+.kanebox .kane-pts{font-size:30px; font-weight:900; color:var(--today); line-height:1; font-variant-numeric:tabular-nums;}
+.kanebox .kane-lbl{font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--mut);}
+.kanebox .kane-calc{font-size:16px; color:var(--ink); font-variant-numeric:tabular-nums;}
+.kanebox .kane-calc b{color:var(--gold); font-size:21px;}
+.kanebox .kane-sub{font-size:11px; color:var(--mut); width:100%; font-style:italic;}
 
 /* match boxes */
 .matches{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; margin-bottom:8px;}
@@ -140,6 +146,11 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div id="live" class="matches"></div>
 </div>
 
+<div id="kane-wrap" style="display:none">
+  <div class="seclabel live"><span class="dot live"></span> Live Kane Calculator</div>
+  <div id="kane" class="kanebox"></div>
+</div>
+
 <table class="lt">
   <thead><tr><th class="pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Owned players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
   <tbody id="tbody"></tbody>
@@ -158,8 +169,8 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
   <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
   <div class="tc"><h3>Best value <span class="u">pts / £m</span></h3><div id="tv-value"></div></div>
+  <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
   <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
-  <div class="tc"><h3>Priciest flops <span class="u">season pts</span></h3><div id="tv-flop"></div></div>
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
 </div>
 
@@ -308,14 +319,12 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       var o=ps.filter(function(p){return p.total!=null;}).sort(function(a,b){return b.total-a.total;}).slice(0,5);
       $("tv-overall").innerHTML = o.length? o.map(function(it,i){return row(i+1,it.name,it.manager,it.total);}).join(""):'<div class="tempty">No season points yet.</div>';
     }
-    // Priciest flops (expensive, lowest season total, must have returned >0)
-    if(!ps){ need("tv-flop"); } else {
-      var priced=ps.filter(function(p){return p.price>0&&p.total!=null&&p.total>0;});
-      if(!priced.length){ empty("tv-flop","No returns to judge yet."); }
-      else { var pr=priced.map(function(p){return p.price;}).sort(function(a,b){return a-b;}); var thr=pr[Math.floor(pr.length*0.65)]||pr[pr.length-1];
-        var fl=priced.filter(function(p){return p.price>=thr;}).sort(function(a,b){return (a.total-b.total)||(b.price-a.price);}).slice(0,4);
-        $("tv-flop").innerHTML=fl.map(function(it,i){return row(i+1,it.name,"£"+it.price.toFixed(1)+"m",it.total);}).join("");
-      }
+    // Worst value: lowest average points per £m; only players with >=1 total point.
+    if(!ps){ need("tv-worst"); } else {
+      var wv=ps.filter(function(p){return p.price>0&&p.total!=null&&p.total>=1;})
+        .map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};})
+        .sort(function(a,b){return a.v-b.v;}).slice(0,5);
+      $("tv-worst").innerHTML = wv.length? wv.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"red");}).join(""):'<div class="tempty">No priced players yet.</div>';
     }
     // Top-scoring nations (season total)
     if(!ps){ need("tv-nation"); } else {
@@ -325,6 +334,22 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     }
   }
 
+  function kanePrice(){
+    if(ownedPlayers){ for(var i=0;i<ownedPlayers.length;i++){ if(nrm(ownedPlayers[i].name)==="harry kane"){ var pr=ownedPlayers[i].price; return (typeof pr==="number"?pr:parseFloat(pr))||33.4; } } }
+    return 33.4;
+  }
+  // Live Kane Calculator — shows only while England are in a live game.
+  function renderKane(){
+    var wrap=$("kane-wrap"); if(!wrap) return;
+    var engLive=fixtures.some(function(f){ return f.status==="live" && (f.home==="ENG"||f.away==="ENG"); });
+    var kane=null; fixtures.forEach(function(f){ (f.players||[]).forEach(function(p){ if(nrm(p.name)==="harry kane") kane=p; }); });
+    if(!engLive || !kane){ wrap.style.display="none"; $("kane").innerHTML=""; return; }
+    var price=kanePrice(), pts=(kane.pts==null?0:kane.pts), ppm=price>0?(pts/price):0;
+    wrap.style.display="";
+    $("kane").innerHTML = '<span class="kane-pts">'+pts+'</span><span class="kane-lbl">pts</span>'
+      + '<span class="kane-calc">÷ £'+price.toFixed(1)+'m = <b>'+ppm.toFixed(2)+'</b> pts/£m</span>'
+      + '<span class="kane-sub">Jake\'s £'+price.toFixed(1)+'m man — every point counts when you splash out like that.</span>';
+  }
   function tick(){ var el=$("status"); if(el) el.innerHTML="Updated <b>"+ago(lastUpdated)+"</b>"; }
   function poll(){
     fetch(WORKER,{cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error("feed "+r.status); return r.json(); }).then(function(d){
@@ -333,7 +358,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       lastUpdated=d.updated;
       $("dot").className="dot "+(d.anyLive?"live":"");
       standings=d.standings||[]; fixtures=d.fixtures||[];
-      renderMatches(); renderTable(); renderTrivia(); tick();
+      renderMatches(); renderTable(); renderTrivia(); renderKane(); tick();
     }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
   $("refresh").addEventListener("click", poll);
