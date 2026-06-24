@@ -101,7 +101,10 @@ def build_brief(feed):
     fixtures = feed.get("fixtures", [])
     finished = [f for f in fixtures if f.get("status") == "finished" and f.get("matchday")]
     if not finished:
-        raise RuntimeError("no finished fixtures in feed")
+        # No completed, matchday-tagged fixtures in the feed yet (e.g. mid-round with
+        # games still live, or the brief gap between rounds). Nothing to recap — signal
+        # the caller to exit cleanly rather than crashing the workflow.
+        return None
     # Prefer the latest FULLY-complete matchday so we never publish a half-done
     # slate (e.g. an evening's late kickoffs still to play). The worker already
     # groups post-midnight kickoffs into the correct evening via a 12h shift.
@@ -359,6 +362,9 @@ def main():
     print("Fetching league feed...", flush=True)
     feed = get_feed()
     brief = build_brief(feed)
+    if brief is None:
+        print("No completed matchday in the feed yet — nothing to recap. Exiting cleanly.", flush=True)
+        return
     print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
           f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)
     print("Writing the column with Claude...", flush=True)
