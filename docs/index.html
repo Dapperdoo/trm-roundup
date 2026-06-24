@@ -146,11 +146,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div id="live" class="matches"></div>
 </div>
 
-<div id="kane-wrap" style="display:none">
-  <div class="seclabel live"><span class="dot live"></span> Live Kane Calculator</div>
-  <div id="kane" class="kanebox"></div>
-</div>
-
 <table class="lt">
   <thead><tr><th class="pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Owned players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
   <tbody id="tbody"></tbody>
@@ -174,6 +169,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
   <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
   <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
+  <div class="tc"><h3>Kane points per million <span class="u">total pts / £m</span></h3><div id="tv-kane"></div></div>
 </div>
 
 <footer>TRM Fantasy · World Cup 2026 · table, scores &amp; player points live from the league</footer>
@@ -379,23 +375,27 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       var nats=Object.keys(bn).map(function(c){return {c:c,v:bn[c]};}).sort(function(a,b){return (b.v-a.v)||(a.c<b.c?-1:1);}).slice(0,5);
       $("tv-nation").innerHTML = nats.length? nats.map(function(it,i){return '<div class="trow"><span class="tk">'+(i+1)+'</span><span class="tnat">'+esc(it.c)+'</span><span class="tn"></span><span class="tv">'+it.v+'</span></div>';}).join(""):'<div class="tempty">No nation points yet.</div>';
     }
+
+    // Kane points per million — his TOTAL points accrued ÷ price. Always shown.
+    (function(){
+      var box=$("tv-kane"); if(!box) return;
+      var price=kanePrice();
+      var total=null;
+      if(ownedPlayers){
+        var e=enriched()||[];
+        for(var i=0;i<e.length;i++){ if(nrm(e[i].name)==="harry kane"){ total=e[i].total; break; } }
+      }
+      if(total==null){ box.innerHTML='<div class="tempty">Awaiting Kane\'s points.</div>'; return; }
+      var ppm = price>0 ? (total/price) : 0;
+      box.innerHTML='<div style="padding:16px 14px;text-align:center">'
+        +'<div style="font-size:32px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1">'+ppm.toFixed(2)+'</div>'
+        +'<div style="color:var(--mut);font-size:11px;margin-top:6px">'+total+' pts ÷ £'+price.toFixed(1)+'m</div></div>';
+    })();
   }
 
   function kanePrice(){
     if(ownedPlayers){ for(var i=0;i<ownedPlayers.length;i++){ if(nrm(ownedPlayers[i].name)==="harry kane"){ var pr=ownedPlayers[i].price; return (typeof pr==="number"?pr:parseFloat(pr))||33.4; } } }
     return 33.4;
-  }
-  // Live Kane Calculator — shows only while England are in a live game.
-  function renderKane(){
-    var wrap=$("kane-wrap"); if(!wrap) return;
-    var engLive=fixtures.some(function(f){ return f.status==="live" && (f.home==="ENG"||f.away==="ENG"); });
-    var kane=null; fixtures.forEach(function(f){ (f.players||[]).forEach(function(p){ if(nrm(p.name)==="harry kane") kane=p; }); });
-    if(!engLive || !kane){ wrap.style.display="none"; $("kane").innerHTML=""; return; }
-    var price=kanePrice(), pts=(kane.pts==null?0:kane.pts), ppm=price>0?(pts/price):0;
-    wrap.style.display="";
-    $("kane").innerHTML = '<span class="kane-pts">'+pts+'</span><span class="kane-lbl">pts</span>'
-      + '<span class="kane-calc">÷ £'+price.toFixed(1)+'m = <b>'+ppm.toFixed(2)+'</b> pts/£m</span>'
-      + '<span class="kane-sub">Jake\'s £'+price.toFixed(1)+'m man — every point counts when you splash out like that.</span>';
   }
   function tick(){ var el=$("status"); if(el) el.innerHTML="Updated <b>"+ago(lastUpdated)+"</b>"; }
   function poll(){
@@ -404,7 +404,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       lastUpdated=d.updated;
       $("dot").className="dot "+(d.anyLive?"live":"");
       standings=d.standings||[]; fixtures=d.fixtures||[]; feedMatchday=d.matchday||null;
-      renderMatches(); renderTable(); renderTrivia(); renderKane(); tick();
+      renderMatches(); renderTable(); renderTrivia(); tick();
     }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
   $("refresh").addEventListener("click", poll);
