@@ -200,6 +200,13 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
   function nrm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
   function ago(iso){ if(!iso) return ""; var s=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/1000)); return s<60?s+"s ago":Math.floor(s/60)+"m "+(s%60)+"s ago"; }
+  // YYYY-MM-DD -> "Wed 24 Jun". Returns "" if not a valid date.
+  function fmtDate(iso){
+    if(!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+    var d=new Date(iso+"T12:00:00"); if(isNaN(d)) return "";
+    var dys=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], mns=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return dys[d.getDay()]+" "+d.getDate()+" "+mns[d.getMonth()];
+  }
 
   fetch("baseline.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.ranks){baselineRanks=j.ranks; renderTable(); renderTrivia();} }).catch(function(){});
   fetch("owned-players.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.length){ownedPlayers=j; renderTrivia();} }).catch(function(){});
@@ -212,9 +219,10 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
   function matchBox(f){
     var live=f.status==="live", done=f.status==="finished", up=f.status==="upcoming";
+    var when = [fmtDate(f.date||f.matchday), (f.kickoff?("KO "+f.kickoff):"")].filter(Boolean).join(" · ");
     var chip = live ? '<span class="mx-chip live"><span class="pdot"></span>Live</span>'
              : done ? '<span class="mx-chip done">Full time</span>'
-             : '<span class="mx-chip up">'+(f.kickoff?("KO "+esc(f.kickoff)):"Upcoming")+'</span>';
+             : '<span class="mx-chip up">'+(when?esc(when):"Upcoming")+'</span>';
     var mid = up ? '<span class="sc up">v</span>' : '<span class="sc">'+esc(f.score||"").replace("-","–")+'</span>';
     var head='<div class="mx-top"><span class="mx-teams">'+esc(f.home)+' '+mid+' '+esc(f.away)+'</span>'+chip+'</div>';
     var gsa="";
@@ -232,7 +240,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
         return '<div class="pl"><span class="pl-n">'+esc(p.name)+(bd?' <span class="pl-b">'+bd+'</span>':'')+'</span>'
              + '<span class="pl-m">'+esc(p.manager)+'</span>'
              + '<span class="pl-p'+(live?' today':'')+'">'+(p.pts==null?'–':p.pts)+'</span></div>';
-      }).join("") : '<div class="mx-none" style="margin:0 0 4px">No squad players in this match.</div>';
+      }).join("") : '<div class="mx-none" style="margin:0 0 4px">'+(up?"Owned players appear here once squads are confirmed.":"No squad players in this match.")+'</div>';
     var n=pls.length;
     return '<details class="mx'+(live?' live':'')+'"'+(live?' open':'')+'><summary class="mx-sum">'+head+gsa
       +'<span class="mx-caret">▾</span></summary>'
@@ -245,12 +253,14 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var started=fixtures.filter(function(f){return f.matchday && (f.status==="live"||f.status==="finished");});
     var days=started.map(function(f){return f.matchday;}).sort();
     var cur=days.length? days[days.length-1] : null;
-    // Today's matchday, minus the live ones (those go above the table): finished
-    // games show as results, not-yet-played show as upcoming. Same day only.
-    var today = cur ? fixtures.filter(function(f){ return f.matchday===cur && f.status!=="live"; }) : [];
-    today.sort(function(a,b){ var o={finished:0,upcoming:1}; return (o[a.status]==null?9:o[a.status])-(o[b.status]==null?9:o[b.status]); });
-    // Future upcoming fixtures (other matchdays), soonest first, max 8.
-    var future = fixtures.filter(function(f){ return f.status==="upcoming" && (!cur || f.matchday!==cur); }).slice(0,8);
+    // Current matchday RESULTS (finished only). Live games sit above the table;
+    // upcoming games (even same-day) move to the "Next fixtures" section below.
+    var today = cur ? fixtures.filter(function(f){ return f.matchday===cur && f.status==="finished"; }) : [];
+    // Next fixtures = ALL upcoming, soonest first, max 4 — always shown when any exist.
+    function ko(f){ return (f.matchday||"9999-99-99")+" "+(f.kickoff||"99:99"); }
+    var future = fixtures.filter(function(f){ return f.status==="upcoming"; })
+      .sort(function(a,b){ var ka=ko(a), kb=ko(b); return ka<kb?-1:ka>kb?1:0; })
+      .slice(0,4);
 
     var lw=$("live-wrap");
     if(live.length){ lw.style.display=""; $("live").innerHTML=live.map(matchBox).join(""); }
@@ -258,8 +268,17 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
     $("today").innerHTML = today.map(matchBox).join("");
     $("today-label").style.display = today.length? "":"none";
-    $("results").innerHTML = future.map(matchBox).join("");
-    $("res-label").style.display = future.length? "":"none";
+
+    // Always render the Next-fixtures section so an empty feed reads as "none scheduled"
+    // rather than silently vanishing.
+    if(future.length){
+      $("results").innerHTML = future.map(matchBox).join("");
+      $("res-label").textContent = "Next fixtures · tap a match to see owned players";
+    } else {
+      $("results").innerHTML = '<div class="mx-none" style="padding:12px 2px">No upcoming fixtures scheduled yet — they appear here as soon as the next round is published.</div>';
+      $("res-label").textContent = "Next fixtures";
+    }
+    $("res-label").style.display = "";
   }
 
   function renderTable(){
