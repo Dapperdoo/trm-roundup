@@ -117,6 +117,18 @@ details[open] .mx-caret{color:var(--cyan);}
 .tneed,.tempty{padding:14px; font-size:12px; color:var(--mut); line-height:1.5;}
 
 footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; text-align:center; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+
+/* mobile: keep the whole league table on-screen in portrait */
+@media(max-width:560px){
+  .wrap{padding:0 12px 50px;}
+  .lt th{font-size:9px; padding:5px 4px; letter-spacing:.05em;}
+  .lt td{font-size:13px; padding:8px 5px;}
+  .lt .tm{font-size:13px;}
+  .lt .pos{width:18px;}
+  .lt .mv{font-size:11px; margin-left:4px;}
+  .lt .tot{font-size:14px;}
+  .lt td.r{padding-left:3px;}
+}
 </style>
 </head>
 <body>
@@ -178,6 +190,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 <script>
 (function(){
   var WORKER = "https://trm-live.dapperdon.workers.dev";
+  var TEAM_RENAME = {"Look at his face. Just Look at his FACE!": "Look At His Face!"};
   var POLL_MS = 60000;
   var prevTotals = {}, lastUpdated = null;
   var standings = [], fixtures = [], feedMatchday = null;
@@ -403,7 +416,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       if(d.error) throw new Error(d.error);
       lastUpdated=d.updated;
       $("dot").className="dot "+(d.anyLive?"live":"");
-      standings=d.standings||[]; fixtures=d.fixtures||[]; feedMatchday=d.matchday||null;
+      standings=(d.standings||[]).map(function(t){ if(TEAM_RENAME[t.team]) t.team=TEAM_RENAME[t.team]; return t; }); fixtures=d.fixtures||[]; feedMatchday=d.matchday||null;
       renderMatches(); renderTable(); renderTrivia(); tick();
     }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
