@@ -176,7 +176,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
   <div class="tc"><h3>Best value <span class="u">pts / £m</span></h3><div id="tv-value"></div></div>
   <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
-  <div class="tc"><h3>Avg points per squad player <span class="u">total / 18</span></h3><div id="tv-avg"></div></div>
   <div class="tc"><h3>Round swing <span class="u">place · pts</span></h3><div id="tv-round"></div></div>
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
   <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
@@ -301,13 +300,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     $("tv-scorers").innerHTML = (allp[0]&&allp[0].pts>0)
       ? allp.slice(0,6).map(function(it,i){return row(i+1,it.name,it.manager,it.pts);}).join("")
       : '<div class="tempty">No points on the board yet this round.</div>';
-
-    // Average points per squad player — season total / 18
-    if(standings.length){
-      var av=standings.map(function(r){return {team:r.team,manager:r.manager,v:r.total/18};})
-        .sort(function(a,b){return b.v-a.v;}).slice(0,5);
-      $("tv-avg").innerHTML = av.map(function(it,i){return row(i+1,it.team,it.manager,it.v.toFixed(1));}).join("");
-    } else empty("tv-avg","Awaiting the table.");
 
     // Round-over-round swing — unlocks once 2+ group rounds are fully complete.
     (function(){
