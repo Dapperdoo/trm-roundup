@@ -39,12 +39,12 @@ MANAGERS = {
     "Dave":    "Trossy's Giants — aka 'Trossy Ginge'; lecturer and poet; loves wordplay and puns; city-break traveller; food, beer and cigarettes.",
     "Wigs":    "50 Shades of O'Shea — counsellor; gregarious, gentle and witty; loves cricket as well as football; brother of Sam.",
     "Jeremy":  "Von Neumann Trombone — 'the professor'; programmer, super-smart and witty; historically a top fantasy manager; a niggling 5-a-side tackler; measured 'Swiss' type.",
-    "Nick":    "Dyer's Rusty 9 Iron — 'rusty iron' because he hammers his shots high over the crossbar like a wild golf swing; very tall, loud deep voice; a reckless, all-action menace who flies into rash, mistimed challenges; loves his beer and food; rib him for the wayward shooting and the crunching tackles, NOT for tactics; main rival is Tom.",
+    "Nick":    "Dyer's Rusty 9 Iron — 'rusty iron' because he hammers his shots high over the crossbar like a wild golf swing; very tall, loud deep voice; on the football pitch a reckless menace who flies into clumsy, dangerous, badly mistimed tackles — frequently on purpose, leaving opponents in his wake; loves his beer and food; rib him for the wayward shooting and the reckless, dangerous tackling, NOT for tactics; main rival is Tom.",
     "Dan":     "Denton Burn — musician who lives off-grid; smart, alternative, very witty; historically a top fantasy player; main ally is Malik.",
     "Chris":   "Lloyd's Food and Wine — aka 'Lloydy'; tall, eclectic, never sits still (biking, travelling, dancing); builds his own electrical kit; the 'mad scientist' to Jeremy's professor; main rival is Jake.",
     "Tristan": "Trippier & Trippier — big Russian guy raised in London; loves football and sweeties; witty but doesn't suffer fools; throws his hands up in disgust; main rival is Joe A.",
     "Malik":   "Propaganda Parade — quirky, smart Icelandic man managing from afar; signs anyone who has worn a Manchester United or Portugal shirt; main ally is Dan.",
-    "Jake":    "Snacob's Ladder — renewable-energy project manager; loves wind turbines and mushrooms; never stops; overspent badly on Harry Kane and filled the rest with cheap unknowns; plays psy-trance like Tom; main rival is Chris.",
+    "Jake":    "Snacob's Ladder — renewable-energy project manager; loves wind turbines and mushrooms; never stops; overspent badly on Harry Kane and filled the rest with cheap unknowns; plays psy-trance like Tom; main rival is Chris (Lloydy). Carries two grudges worth airing when apt: (1) he bitterly resents Jeremy for swapping out an injured player Jake had bought and replacing him with an uninjured alternative, when every other manager had been happy to let the honest mistake be rectified; (2) he despises Lloydy's use of AI and indulges paranoid fantasies about what Lloydy is secretly cooking up with AI in his private life and across his business property — his personal office complex.",
 }
 RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake (rivals), "
                  "Malik & Dan (allies), Sam & Wigs (brothers).")
@@ -62,6 +62,7 @@ You are handed already-computed, already-correct figures: the day's finished fix
 HARD RULES:
 - Use ONLY the players and points supplied for that manager. Never add a player who is not in their supplied list. Never change a points value. Never invent.
 - "haul" is that manager's total for THIS matchday (already summed for you). Lead with it.
+- NO CAPTAINCY: this league has no captain feature whatsoever. Managers only pick a squad and score from the best 11; nobody selects a captain. NEVER mention captains, a captain pick, the armband, vice-captains, or doubling/multiplying a player's points. That feature does not exist here.
 - A player marked played=false did NOT feature (bench/unused). You may state this plainly and neutrally where relevant — e.g. to help explain a thin matchday haul — by simply noting they did not play ("X was an unused sub", "X didn't feature"). Attach NO qualitative judgement to a non-appearance: never frame it as "no harm done", harmless or fine, and never call it harmful, embarrassing, poor or costly either. It is a cold, neutral fact, nothing more. A player who DID play and returned 0 or negative IS a blank, and that is fair game for ribbing.
 - Mention current league position/total only as context.
 
