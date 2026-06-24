@@ -49,6 +49,12 @@ MANAGERS = {
 RELATIONSHIPS = ("Joe A vs Tristan (rivals), Tom vs Nick (rivals), Chris vs Jake (rivals), "
                  "Malik & Dan (allies), Sam & Wigs (brothers).")
 
+# Display rename(s): the league source uses a very long team name; shorten it
+# everywhere the roundup shows it (kept in sync with the Live page).
+TEAM_RENAME = {"Look at his face. Just Look at his FACE!": "Look At His Face!"}
+def disp_team(t):
+    return TEAM_RENAME.get(t, t)
+
 SYSTEM_PROMPT = """You write "The Morning After", the daily bulletin of a private 13-manager World Cup 2026 fantasy football league. It recaps ONE matchday — the most recent day of completed fixtures.
 
 You are handed already-computed, already-correct figures: the day's finished fixtures with scores, and for each manager the exact players of theirs who featured in those fixtures with their exact points (and which blanked). You do NOT calculate anything and you do NOT decide who owns whom — just turn the supplied numbers into lively prose.
@@ -101,7 +107,7 @@ def build_brief(feed):
     mgr = {}
     for s in standings:
         mgr[s["manager"]] = {
-            "manager": s["manager"], "team": s["team"], "rank": s["rank"],
+            "manager": s["manager"], "team": disp_team(s["team"]), "rank": s["rank"],
             "total": s["total"], "round": s.get("round"), "remaining": s.get("remaining", 0),
             "haul": 0, "players": [],
         }
@@ -136,7 +142,7 @@ def build_brief(feed):
         "matchday_day_label": pretty_day(target),
         "fixtures": fixture_lines,
         "managers_in_order": [s["manager"] for s in standings],
-        "standings": [{"team": s["team"], "manager": s["manager"], "total": s["total"]} for s in standings],
+        "standings": [{"team": disp_team(s["team"]), "manager": s["manager"], "total": s["total"]} for s in standings],
         "by_manager": mgr,
         "top_haul_player": top,
         "day_player_pool": played_pool,
