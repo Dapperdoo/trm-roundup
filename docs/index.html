@@ -299,7 +299,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var allp=[]; fixtures.forEach(function(f){ (f.players||[]).forEach(function(p){ if(p.pts!=null) allp.push({name:p.name,manager:p.manager,pts:p.pts}); }); });
     allp.sort(function(a,b){return b.pts-a.pts;});
     $("tv-scorers").innerHTML = (allp[0]&&allp[0].pts>0)
-      ? allp.slice(0,6).map(function(it,i){return row(i+1,it.name,it.manager,it.pts);}).join("")
+      ? allp.slice(0,7).map(function(it,i){return row(i+1,it.name,it.manager,it.pts);}).join("")
       : '<div class="tempty">No points on the board yet this round.</div>';
 
     // Round swing — points in the most recently COMPLETED round vs the average of
@@ -366,25 +366,25 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var ps=enriched();
     // Best value
     if(!ps){ need("tv-value"); } else {
-      var v=ps.filter(function(p){return p.price>0&&p.total!=null;}).map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,5);
+      var v=ps.filter(function(p){return p.price>0&&p.total!=null;}).map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,7);
       $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">No priced players yet.</div>';
     }
     // Top overall
     if(!ps){ need("tv-overall"); } else {
-      var o=ps.filter(function(p){return p.total!=null;}).sort(function(a,b){return b.total-a.total;}).slice(0,5);
+      var o=ps.filter(function(p){return p.total!=null;}).sort(function(a,b){return b.total-a.total;}).slice(0,7);
       $("tv-overall").innerHTML = o.length? o.map(function(it,i){return row(i+1,it.name,it.manager,it.total);}).join(""):'<div class="tempty">No season points yet.</div>';
     }
     // Worst value: lowest average points per £m; only players with >=1 total point.
     if(!ps){ need("tv-worst"); } else {
       var wv=ps.filter(function(p){return p.price>0&&p.total!=null&&p.total>=1;})
         .map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};})
-        .sort(function(a,b){return a.v-b.v;}).slice(0,5);
+        .sort(function(a,b){return a.v-b.v;}).slice(0,7);
       $("tv-worst").innerHTML = wv.length? wv.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"red");}).join(""):'<div class="tempty">No priced players yet.</div>';
     }
     // Top-scoring nations (season total)
     if(!ps){ need("tv-nation"); } else {
       var bn={}; ps.forEach(function(p){ if(p.nation&&p.total!=null) bn[p.nation]=(bn[p.nation]||0)+p.total; });
-      var nats=Object.keys(bn).map(function(c){return {c:c,v:bn[c]};}).sort(function(a,b){return (b.v-a.v)||(a.c<b.c?-1:1);}).slice(0,5);
+      var nats=Object.keys(bn).map(function(c){return {c:c,v:bn[c]};}).sort(function(a,b){return (b.v-a.v)||(a.c<b.c?-1:1);}).slice(0,7);
       $("tv-nation").innerHTML = nats.length? nats.map(function(it,i){return '<div class="trow"><span class="tk">'+(i+1)+'</span><span class="tnat">'+esc(it.c)+'</span><span class="tn"></span><span class="tv">'+it.v+'</span></div>';}).join(""):'<div class="tempty">No nation points yet.</div>';
     }
 
