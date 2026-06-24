@@ -2,7 +2,18 @@ name: Build Roundup
 
 on:
   schedule:
-    - cron: "0 7 * * *"
+    # GitHub cron is ALWAYS UTC with no timezone option, and it doesn't follow BST.
+    # The World Cup runs in summer, when the UK is on BST (UTC+1), so 7am UK = 06:00 UTC.
+    # We fire several OFF-PEAK attempts (never :00) across the early UK morning. The
+    # matchday guard means a run only publishes once the previous day's (Americas-time)
+    # games are ALL finished; any run before that just re-confirms yesterday and commits
+    # nothing — so the first attempt after the games complete is the one that publishes,
+    # leaving it live well before 7am UK.
+    - cron: "13 5 * * *"   # 06:13 UK (BST)
+    - cron: "43 5 * * *"   # 06:43 UK
+    - cron: "13 6 * * *"   # 07:13 UK
+    - cron: "43 6 * * *"   # 07:43 UK
+    - cron: "13 7 * * *"   # 08:13 UK
   workflow_dispatch: {}
 
 permissions:
@@ -17,6 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history so a rebase before push is reliable
 
       - uses: actions/setup-python@v5
         with:
@@ -37,7 +50,20 @@ jobs:
           git add docs
           if git diff --staged --quiet; then
             echo "No changes."
-          else
-            git commit -m "Roundup update: $(date -u '+%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "Roundup update: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # The remote may have advanced while we were working (manual edits or
+          # another run). Rebase onto the latest main and retry, so a push race
+          # can't fail the build.
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "push rejected; rebasing onto latest main (attempt $i)"
+            git pull --rebase --autostash origin main || true
+            sleep $((RANDOM % 5 + 3))
+          done
+          echo "push still failing after retries" >&2
+          exit 1
