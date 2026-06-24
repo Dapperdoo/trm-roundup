@@ -34,7 +34,7 @@ UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 MANAGERS = {
     "Joe S":   "Back of the Van United — real name Sheerin; a universally popular, supremely gifted ex-pro footballer whose flair career was repeatedly wrecked by injuries — he spent at least half of it stuck in the physio room on the treatment table rather than on the pitch, which is endlessly worth taking the piss out of; loved the party-boy lifestyle as much as the game; utterly baffled by modern tech.",
     "Sam":     "Look at his face. Just Look at his FACE! — expressive stage & TV performer; loves beer, dancing, music; witty, scatty; loves Shakespeare even more than football; brother of Wigs; a cricket man.",
-    "Joe A":   "Shatner's Bassoon — an actor; faintly unbothered, relaxed air (hint at it lightly); main rival is Tristan.",
+    "Joe A":   "Shatner's Bassoon — a laid-back actor who loves the easy life and can be lazy, but make NO mistake he is genuinely keen to do well and win the league like everyone else; rib the laziness/easygoing streak, but never portray him as disinterested or unbothered about his results; main rival is Tristan.",
     "Tom":     "Anamaduwa Athletic — party animal and dance-music DJ; always travelling, never sure which country he's in; lives in Asia eating curries with his bare hands; main rival is Nick.",
     "Dave":    "Trossy's Giants — aka 'Trossy Ginge'; lecturer and poet; loves wordplay and puns; city-break traveller; food, beer and cigarettes.",
     "Wigs":    "50 Shades of O'Shea — counsellor; gregarious, gentle and witty; loves cricket as well as football; brother of Sam.",
@@ -101,7 +101,16 @@ def build_brief(feed):
     finished = [f for f in fixtures if f.get("status") == "finished" and f.get("matchday")]
     if not finished:
         raise RuntimeError("no finished fixtures in feed")
-    target = max(f["matchday"] for f in finished)
+    # Prefer the latest FULLY-complete matchday so we never publish a half-done
+    # slate (e.g. an evening's late kickoffs still to play). The worker already
+    # groups post-midnight kickoffs into the correct evening via a 12h shift.
+    days = {}
+    for f in fixtures:
+        d = f.get("matchday")
+        if d:
+            days.setdefault(d, []).append(f)
+    complete = [d for d, fs in days.items() if all(x.get("status") == "finished" for x in fs)]
+    target = max(complete) if complete else max(f["matchday"] for f in finished)
     md = [f for f in finished if f["matchday"] == target]
 
     mgr = {}
