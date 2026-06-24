@@ -194,7 +194,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   var POLL_MS = 60000;
   var prevTotals = {}, lastUpdated = null;
   var standings = [], fixtures = [], feedMatchday = null;
-  var baselineRanks = null, ownedPlayers = null;
+  var baselineRanks = null, ownedPlayers = null, seasonTotals = null;
 
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
@@ -210,6 +210,14 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
   fetch("baseline.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.ranks){baselineRanks=j.ranks; renderTable(); renderTrivia();} }).catch(function(){});
   fetch("owned-players.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.length){ownedPlayers=j; renderTrivia();} }).catch(function(){});
+
+  // Each player's FULL tournament total (ownership-independent) from the worker's
+  // FIFA-backed /players feed. Used so value/overall boxes reflect a player's real
+  // points, not just what he's earned since joining his current squad.
+  function fetchPlayers(){
+    fetch(WORKER+"/players",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.totals){ seasonTotals=j.totals; renderTrivia(); } }).catch(function(){});
+  }
+  fetchPlayers();
 
   function teamSlug(s){ return s; }
   function badges(p){ var b=""; for(var g=0;g<(p.goals||0);g++)b+="⚽"; for(var a=0;a<(p.assists||0);a++)b+="Ⓐ"; return b; }
@@ -311,7 +319,11 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     return ownedPlayers.map(function(p){
       var lv=lp[nrm(p.name)];
       var round=(lv!=null)?lv:(p.round||0);
-      var total=(p.total==null)?null:(p.total-(p.round||0)+round);
+      // Prefer the player's FULL tournament total from FIFA (independent of when he
+      // joined a squad), so e.g. a goal scored before being bought still counts for
+      // value. Fall back to the squad-accrued total only when FIFA has no figure.
+      var ft = seasonTotals ? seasonTotals[nrm(p.name)] : undefined;
+      var total = (ft!=null) ? ft : ((p.total==null)?null:(p.total-(p.round||0)+round));
       return {name:p.name, manager:p.manager, nation:(p.nation||"").toUpperCase(), price:(typeof p.price==="number"?p.price:parseFloat(p.price)||0), round:round, total:total};
     });
   }
@@ -442,7 +454,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
   $("refresh").addEventListener("click", poll);
-  poll(); setInterval(poll, POLL_MS); setInterval(tick, 1000);
+  poll(); setInterval(poll, POLL_MS); setInterval(tick, 1000); setInterval(fetchPlayers, POLL_MS);
 })();
 </script>
 </body>
