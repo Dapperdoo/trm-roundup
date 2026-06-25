@@ -114,7 +114,12 @@ def build_brief(feed):
         if d:
             days.setdefault(d, []).append(f)
     complete = [d for d, fs in days.items() if all(x.get("status") == "finished" for x in fs)]
-    target = max(complete) if complete else max(f["matchday"] for f in finished)
+    if not complete:
+        # No fully-finished day in the feed yet — e.g. the start of a round/stage when
+        # only some of the current day's games are done. NEVER publish a half-finished
+        # slate: bail out cleanly and let a later run publish once the day completes.
+        return None
+    target = max(complete)
     md = [f for f in finished if f["matchday"] == target]
 
     mgr = {}
