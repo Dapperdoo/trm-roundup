@@ -1,20 +1,26 @@
 {
   "reported_fixtures": [
     "BEL-IRN",
+    "BIH-QAT",
     "BRA-HAI",
     "CAN-QAT",
+    "CZE-MEX",
     "CZE-RSA",
     "ECU-CUW",
     "ESP-KSA",
     "GER-CIV",
+    "MAR-HAI",
     "MEX-KOR",
     "NED-SWE",
+    "RSA-KOR",
+    "SCO-BRA",
     "SCO-MAR",
     "SUI-BIH",
+    "SUI-CAN",
     "TUN-JPN",
     "TUR-PAR",
     "URU-CPV",
     "USA-AUS"
   ],
-  "updated": "2026-06-23T00:00:00Z"
+  "updated": "2026-06-25T08:30:00Z"
 }

@@ -28,6 +28,7 @@ import anthropic
 FEED_URL = "https://trm-live.dapperdon.workers.dev"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/roundup.html"
+STATE_PATH = "docs/roundup-state.json"
 MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -159,6 +160,7 @@ def build_brief(feed):
         "matchday_date": target,
         "matchday_day_label": pretty_day(target),
         "fixtures": fixture_lines,
+        "fixture_keys": sorted({f'{f["home"]}-{f["away"]}' for f in md}),
         "managers_in_order": [s["manager"] for s in standings],
         "standings": [{"team": disp_team(s["team"]), "manager": s["manager"], "total": s["total"]} for s in standings],
         "by_manager": mgr,
@@ -370,6 +372,21 @@ def main():
     if brief is None:
         print("No completed matchday in the feed yet — nothing to recap. Exiting cleanly.", flush=True)
         return
+
+    # Idempotency guard: only (re)build when THIS matchday hasn't already been
+    # published. Every run for an already-published day exits here — no AI call,
+    # no commit — which is what makes very frequent scheduling safe and cheap.
+    target_keys = set(brief.get("fixture_keys", []))
+    reported = set()
+    try:
+        with open(STATE_PATH, encoding="utf-8") as f:
+            reported = set(json.load(f).get("reported_fixtures", []))
+    except Exception:
+        pass
+    if target_keys and target_keys <= reported:
+        print(f"Matchday {brief['matchday_date']} already published — nothing new. Exiting cleanly.", flush=True)
+        return
+
     print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
           f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)
     print("Writing the column with Claude...", flush=True)
@@ -379,6 +396,14 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Wrote {OUTPUT_PATH}  ({len(data['articles'])} managers)", flush=True)
+
+    # Record this matchday's fixtures as published so later runs skip it.
+    reported |= target_keys
+    os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
+    with open(STATE_PATH, "w", encoding="utf-8") as f:
+        json.dump({"reported_fixtures": sorted(reported),
+                   "updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}, f, indent=2)
+    print(f"Updated {STATE_PATH} (+{len(target_keys)} fixtures)", flush=True)
 
 
 if __name__ == "__main__":
