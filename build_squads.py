@@ -43,8 +43,11 @@ TEAMS = [
 
 DISPLAY = {"Look at his face. Just Look at his FACE!": "Look At His Face!"}
 
+# Position and 3-letter nation may be separated by a space OR a bullet
+# (some squad pages render "GK GER", others "GK • GER"), so allow 1-4
+# non-alphanumeric chars between them.
 PLAYER = re.compile(
-    r"(GK|DEF|MID|FWD)\s+([A-Z]{3})\b.*?£\s*([\d.]+)\s*m.*?GW\s*(\d+)\b.*?(-?\d+)\s*w\s+(-?\d+)"
+    r"(GK|DEF|MID|FWD)[^A-Za-z0-9]{1,4}([A-Z]{3})\b.*?£\s*([\d.]+)\s*m.*?GW\s*(\d+)\b.*?(-?\d+)\s*w\s+(-?\d+)"
 )
 
 SCRIPT = r'''<script>(function(){var W="https://trm-live.dapperdon.workers.dev";function nrm(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var used={},rp={};(d.fixtures||[]).forEach(function(f){if(f.status==='finished'||f.status==='live'){(f.players||[]).forEach(function(p){var k=nrm(p.name);used[k]=true;if(p.pts!=null)rp[k]=p.pts;});}});var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){var bt=+tr.getAttribute('data-t');var key=nrm(tr.getAttribute('data-p'));var u=used[key]===true;var r=u?(rp[key]!=null?rp[key]:0):0;var t=bt+r;var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc){rc.textContent=r;rc.style.color=u?'var(--cyan)':'';}if(tc)tc.textContent=t;rnd+=r;tot+=t;});var se=document.getElementById('sq-se'),sr=document.getElementById('sq-rd');if(se)se.textContent=tot;if(sr)sr.textContent=rnd;}).catch(function(){});}poll();setInterval(poll,30000);})();</script>'''
