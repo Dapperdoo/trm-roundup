@@ -1,4 +1,5 @@
 python 3.12.13
+FIFA nation map: 1740 names
 back-of-the-van-united: parsed 18 players
 look-at-his-face: parsed 18 players
 anamaduwa-athletic: parsed 18 players
@@ -12,4 +13,5 @@ denton-burn: parsed 18 players
 trippier-and-trippier: parsed 18 players
 propaganda-parade: parsed 18 players
 snacobs-ladder: parsed 18 players
+backfilled nations: 18
 STATUS OK: wrote owned-players.json (234 players) + 13 squad pages
