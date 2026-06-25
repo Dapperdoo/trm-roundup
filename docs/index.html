@@ -264,14 +264,14 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     // Current matchday RESULTS (finished only). Live games sit above the table;
     // upcoming games (even same-day) move to the "Next fixtures" section below.
     var today = cur ? fixtures.filter(function(f){ return f.matchday===cur && f.status==="finished"; }) : [];
-    // Next fixtures = ALL upcoming, soonest first, max 4 — always shown when any exist.
+    // Next fixtures = ALL upcoming, soonest first, show at least 6 — always shown when any exist.
     // Sort by the TRUE kickoff moment (actual calendar date + time), NOT the worker's
     // matchday, which shifts after-midnight games back a day and would put a 02:00
     // game ahead of the prior 23:00 one.
     function ko(f){ return (f.date||f.matchday||"9999-99-99")+" "+(f.kickoff||"99:99"); }
     var future = fixtures.filter(function(f){ return f.status==="upcoming"; })
       .sort(function(a,b){ var ka=ko(a), kb=ko(b); return ka<kb?-1:ka>kb?1:0; })
-      .slice(0,4);
+      .slice(0,6);
 
     var lw=$("live-wrap");
     if(live.length){ lw.style.display=""; $("live").innerHTML=live.map(matchBox).join(""); }

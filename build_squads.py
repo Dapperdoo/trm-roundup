@@ -43,6 +43,28 @@ TEAMS = [
 
 DISPLAY = {"Look at his face. Just Look at his FACE!": "Look At His Face!"}
 
+# Some squad pages (e.g. Lloyd's "Algorithm" gimmick page) omit nation codes entirely.
+# This fallback fills the Nat column for players whose page has none. Keyed by an
+# accent-stripped lowercase name. Cross-checked against the players' national fixtures.
+NATION_FALLBACK_RAW = {
+    "Bart Verbruggen": "NED", "Evan Ndicka": "CIV", "Lisandro Martínez": "ARG",
+    "Marquinhos": "BRA", "Odilon Kossounou": "CIV", "Theo Hernández": "FRA",
+    "Ángelo Preciado": "ECU", "Alexis Mac Allister": "ARG", "Bukayo Saka": "ENG",
+    "Kevin De Bruyne": "BEL", "Lucas Paquetá": "BRA", "Tijjani Reijnders": "NED",
+    "Anthony Elanga": "SWE", "Cody Gakpo": "NED", "Darwin Núñez": "URU",
+    "Ollie Watkins": "ENG", "Son Heung-Min": "KOR", "Yoane Wissa": "COD",
+}
+
+
+def _norm_name(s):
+    import unicodedata
+    s = unicodedata.normalize("NFD", s)
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9 ]", " ", s.lower()).strip()
+
+
+NATION_FALLBACK = {_norm_name(k): v for k, v in NATION_FALLBACK_RAW.items()}
+
 # Every team's squad page is a DIFFERENT bespoke template. Across the 13 teams the
 # observed variations include: name before the position, name after it; nation present
 # or entirely absent; price as "£5.0m" or a bare "5.0"; points as "0w 14" or as bare
@@ -214,7 +236,8 @@ def parse_team(slug):
         prev = field_start + consumed
         if not name or len(name) > 40:
             continue
-        players.append({"name": name, "pos": pos, "nation": nat.group(1) if nat else "",
+        nation = nat.group(1) if nat else NATION_FALLBACK.get(_norm_name(name), "")
+        players.append({"name": name, "pos": pos, "nation": nation,
                         "price": price, "round": rnd, "total": tot})
     return players, blob
 
