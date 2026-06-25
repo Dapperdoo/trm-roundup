@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 """
 build_squads.py — regenerate docs/owned-players.json and the 13 docs/team-*.html
-squad pages by scraping the league's own squad pages.
+squad pages by scraping the league's own squad pages, so transfers are picked up
+automatically each build.
 
-Each source squad page lists, per player: position, nation, PRICE, the gameweek
-they joined, this-round points and season total. Running this before the roundup
-each day means SQUAD TRANSFERS ARE PICKED UP AUTOMATICALLY.
+No third-party dependencies (strips HTML with a regex, like the worker), so it
+can't fail on a missing package. The whole run is wrapped so it NEVER crashes the
+workflow and ALWAYS leaves docs/_squads_debug.txt describing what happened.
 
-Parsing is split-agnostic: the page text is collapsed to one blob and matched with
-a tolerant regex, so it doesn't matter how the host's HTML lays the fields out.
-
-Safety: it parses ALL 13 squads first and only writes anything if every squad came
-back sane (~18 players, ~234 total). A failed/partial scrape leaves the existing
-snapshot files untouched, and writes docs/_squads_debug.txt so the problem can be
-diagnosed; on success that debug file is removed.
+Safety: only writes the snapshot files if all 13 squads parse sane (~18 each,
+~234 total); otherwise the existing files are left untouched.
 """
 
 import os
@@ -21,16 +17,14 @@ import re
 import sys
 import json
 import time
+import traceback
 import urllib.request
-
-from bs4 import BeautifulSoup
 
 BASE = "https://trm-fantasy.onrender.com"
 OWNED_PATH = "docs/owned-players.json"
 DEBUG_PATH = "docs/_squads_debug.txt"
 UA = "Mozilla/5.0 (compatible; TRM-Squads/1.0; +https://github.com)"
 
-# slug -> (team name as the source shows it, manager)
 TEAMS = [
     ("back-of-the-van-united", "Back of the Van United", "Joe S"),
     ("look-at-his-face", "Look at his face. Just Look at his FACE!", "Sam"),
@@ -49,8 +43,6 @@ TEAMS = [
 
 DISPLAY = {"Look at his face. Just Look at his FACE!": "Look At His Face!"}
 
-# Tolerant, split-agnostic player matcher run over the whitespace-collapsed page text:
-#   "<POS> <NAT> ... £<price>m ... GW<n> ... <thisround>w <season>"
 PLAYER = re.compile(
     r"(GK|DEF|MID|FWD)\s+([A-Z]{3})\b.*?£\s*([\d.]+)\s*m.*?GW\s*(\d+)\b.*?(-?\d+)\s*w\s+(-?\d+)"
 )
@@ -102,12 +94,22 @@ def fetch(url, tries=5):
     raise RuntimeError(f"fetch failed {url}: {last}")
 
 
+def strip_html(html):
+    """Plain-regex HTML -> text (no external deps). Mirrors the worker's approach."""
+    html = re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)
+    html = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
+    html = re.sub(r"<[^>]+>", " ", html)
+    html = re.sub(r"&#x([0-9a-fA-F]+);", lambda m: chr(int(m.group(1), 16)), html)
+    html = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), html)
+    html = (html.replace("&amp;", "&").replace("&pound;", "£").replace("&nbsp;", " ")
+                .replace("&apos;", "'").replace("&quot;", '"').replace("&bull;", "•")
+                .replace("&lt;", "<").replace("&gt;", ">"))
+    return html
+
+
 def parse_team(slug):
-    """Return (players, blob). players: list of dicts. blob: collapsed page text (for debug)."""
-    soup = BeautifulSoup(fetch(f"{BASE}/wc/team/{slug}"), "html.parser")
-    for t in soup(["script", "style", "noscript"]):
-        t.decompose()
-    text = soup.get_text("\n")
+    """Return (players, blob). blob = whitespace-collapsed page text (for debug)."""
+    text = strip_html(fetch(f"{BASE}/wc/team/{slug}"))
     idx = text.lower().find("our squad")
     if idx != -1:
         text = text[idx:]
@@ -115,7 +117,7 @@ def parse_team(slug):
     players, prev = [], 0
     for m in PLAYER.finditer(blob):
         name = blob[prev:m.start()].strip(" •·|-")
-        name = re.sub(r"^.*\(\s*\d+\s*/\s*\d+\s*\)\s*", "", name)  # drop "Our Squad (18/18)" before first
+        name = re.sub(r"^.*\(\s*\d+\s*/\s*\d+\s*\)\s*", "", name)
         prev = m.end()
         if not name or len(name) > 40:
             continue
@@ -129,7 +131,7 @@ def team_html(team, manager, players):
     ordered = sorted(players, key=lambda p: POS_ORDER.get(p["pos"], 9))
     rows = []
     for p in ordered:
-        base = p["total"] - p["round"]   # season minus current round = baked baseline (JS adds live round)
+        base = p["total"] - p["round"]
         rows.append(
             f'<tr data-p="{esc(p["name"])}" data-r="{p["round"]}" data-t="{base}">'
             f'<td class="pos {p["pos"]}">{p["pos"]}</td>'
@@ -149,33 +151,27 @@ def team_html(team, manager, players):
     return html + SCRIPT + "</div></body></html>"
 
 
-def write_debug(lines):
+def write_debug(text):
     try:
         os.makedirs(os.path.dirname(DEBUG_PATH), exist_ok=True)
         with open(DEBUG_PATH, "w", encoding="utf-8") as f:
-            f.write("\n".join(lines))
+            f.write(text)
     except Exception:
         pass
 
 
-def main():
+def run():
+    log = [f"python {sys.version.split()[0]}"]
     per_team = {}
     all_owned = []
-    debug = []
     for slug, team, mgr in TEAMS:
-        try:
-            ps, blob = parse_team(slug)
-        except Exception as e:
-            debug.append(f"{slug}: FETCH ERROR: {e}")
-            write_debug(debug)
-            print(f"WARN: {slug} fetch failed — snapshot files left untouched", file=sys.stderr)
-            return
-        debug.append(f"{slug}: parsed {len(ps)} players")
+        ps, blob = parse_team(slug)
+        log.append(f"{slug}: parsed {len(ps)} players")
         if not (15 <= len(ps) <= 20):
-            debug.append(f"  --- first 1500 chars of squad text for {slug} ---")
-            debug.append(blob[:1500])
-            write_debug(debug)
-            print(f"WARN: {slug} parsed {len(ps)} players (expected ~18) — aborting, files untouched", file=sys.stderr)
+            log.append(f"--- ABORT: {slug} parsed {len(ps)} (expected ~18). First 1800 chars of its squad text: ---")
+            log.append(blob[:1800])
+            write_debug("\n".join(log))
+            print(f"WARN: {slug} parsed {len(ps)} — files untouched", file=sys.stderr)
             return
         per_team[slug] = (team, mgr, ps)
         for p in ps:
@@ -183,9 +179,8 @@ def main():
                               "price": p["price"], "round": p["round"], "total": p["total"]})
 
     if not (200 <= len(all_owned) <= 260):
-        debug.append(f"TOTAL {len(all_owned)} out of range — aborting")
-        write_debug(debug)
-        print(f"WARN: total {len(all_owned)} players looks wrong — aborting, files untouched", file=sys.stderr)
+        log.append(f"ABORT: total {len(all_owned)} players out of range — files untouched")
+        write_debug("\n".join(log))
         return
 
     os.makedirs(os.path.dirname(OWNED_PATH), exist_ok=True)
@@ -194,12 +189,18 @@ def main():
     for slug, (team, mgr, ps) in per_team.items():
         with open(f"docs/team-{slug}.html", "w", encoding="utf-8") as f:
             f.write(team_html(team, mgr, ps))
-    # success: remove any stale debug file so it doesn't linger
+    log.append(f"STATUS OK: wrote owned-players.json ({len(all_owned)} players) + {len(per_team)} squad pages")
+    write_debug("\n".join(log))
+    print("build_squads: success", flush=True)
+
+
+def main():
     try:
-        os.remove(DEBUG_PATH)
-    except OSError:
-        pass
-    print(f"Wrote {OWNED_PATH} ({len(all_owned)} players) and {len(per_team)} squad pages", flush=True)
+        run()
+    except Exception:
+        # Never crash the workflow; always leave a diagnostic.
+        write_debug("FATAL ERROR in build_squads.py:\n" + traceback.format_exc())
+        print("build_squads: error (see docs/_squads_debug.txt)", file=sys.stderr)
 
 
 if __name__ == "__main__":
