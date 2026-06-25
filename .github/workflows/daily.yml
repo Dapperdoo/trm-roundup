@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Rebuild squads + prices from source (auto-picks-up transfers)
+        run: python build_squads.py
+
       - name: Generate the page
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
