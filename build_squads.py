@@ -21,6 +21,8 @@ import traceback
 import urllib.request
 
 BASE = "https://trm-fantasy.onrender.com"
+FIFA_SQUADS = "https://play.fifa.com/json/fantasy/squads.json"
+FIFA_PLAYERS = "https://play.fifa.com/json/fantasy/players.json"
 OWNED_PATH = "docs/owned-players.json"
 DEBUG_PATH = "docs/_squads_debug.txt"
 UA = "Mozilla/5.0 (compatible; TRM-Squads/1.0; +https://github.com)"
@@ -44,8 +46,10 @@ TEAMS = [
 DISPLAY = {"Look at his face. Just Look at his FACE!": "Look At His Face!"}
 
 # Some squad pages (e.g. Lloyd's "Algorithm" gimmick page) omit nation codes entirely.
-# This fallback fills the Nat column for players whose page has none. Keyed by an
-# accent-stripped lowercase name. Cross-checked against the players' national fixtures.
+# Nations for those players are filled automatically from FIFA's own data at build
+# time (build_fifa_nation_map below). This small static table is only a last-resort
+# backup in case FIFA's feed is unreachable during a build. Keyed by accent-stripped
+# lowercase name.
 NATION_FALLBACK_RAW = {
     "Bart Verbruggen": "NED", "Evan Ndicka": "CIV", "Lisandro Martínez": "ARG",
     "Marquinhos": "BRA", "Odilon Kossounou": "CIV", "Theo Hernández": "FRA",
@@ -53,6 +57,8 @@ NATION_FALLBACK_RAW = {
     "Kevin De Bruyne": "BEL", "Lucas Paquetá": "BRA", "Tijjani Reijnders": "NED",
     "Anthony Elanga": "SWE", "Cody Gakpo": "NED", "Darwin Núñez": "URU",
     "Ollie Watkins": "ENG", "Son Heung-Min": "KOR", "Yoane Wissa": "COD",
+    "Giovanni Reyna": "USA", "Junya Ito": "JPN", "Luis Romo": "MEX",
+    "Folarin Balogun": "USA",
 }
 
 
@@ -64,6 +70,36 @@ def _norm_name(s):
 
 
 NATION_FALLBACK = {_norm_name(k): v for k, v in NATION_FALLBACK_RAW.items()}
+
+
+def build_fifa_nation_map():
+    """Build {normalised name -> 3-letter nation code} from FIFA's own squad + player
+    data, so any squad page missing nation codes self-heals on every build (no manual
+    list to maintain). Players appear with a numeric squadId; squads.json maps that id
+    to a 3-letter abbr. Names that resolve to more than one nation are dropped rather
+    than guessed. Returns {} on any failure (caller then uses the static backup)."""
+    try:
+        abbr = {s["id"]: s["abbr"] for s in json.loads(fetch(FIFA_SQUADS))
+                if s.get("id") and s.get("abbr")}
+        players = json.loads(fetch(FIFA_PLAYERS))
+        out, ambiguous = {}, set()
+        for p in players:
+            code = abbr.get(p.get("squadId"))
+            if not code:
+                continue
+            names = [(p.get("firstName", "") + " " + p.get("lastName", "")), p.get("knownName") or ""]
+            for nm in names:
+                k = _norm_name(nm)
+                if not k:
+                    continue
+                if k in out and out[k] != code:
+                    ambiguous.add(k)
+                out[k] = code
+        for k in ambiguous:
+            out.pop(k, None)
+        return out
+    except Exception:
+        return {}
 
 # Every team's squad page is a DIFFERENT bespoke template. Across the 13 teams the
 # observed variations include: name before the position, name after it; nation present
@@ -236,8 +272,7 @@ def parse_team(slug):
         prev = field_start + consumed
         if not name or len(name) > 40:
             continue
-        nation = nat.group(1) if nat else NATION_FALLBACK.get(_norm_name(name), "")
-        players.append({"name": name, "pos": pos, "nation": nation,
+        players.append({"name": name, "pos": pos, "nation": nat.group(1) if nat else "",
                         "price": price, "round": rnd, "total": tot})
     return players, blob
 
@@ -277,8 +312,11 @@ def write_debug(text):
 
 def run():
     log = [f"python {sys.version.split()[0]}"]
+    fifa_nat = build_fifa_nation_map()
+    log.append(f"FIFA nation map: {len(fifa_nat)} names")
     per_team = {}
     all_owned = []
+    filled = 0
     for slug, team, mgr in TEAMS:
         ps, blob = parse_team(slug)
         log.append(f"{slug}: parsed {len(ps)} players")
@@ -288,10 +326,18 @@ def run():
             write_debug("\n".join(log))
             print(f"WARN: {slug} parsed {len(ps)} — files untouched", file=sys.stderr)
             return
+        # Fill any missing nation from FIFA's data, then the static backup.
+        for p in ps:
+            if not p["nation"]:
+                key = _norm_name(p["name"])
+                p["nation"] = fifa_nat.get(key) or NATION_FALLBACK.get(key, "")
+                if p["nation"]:
+                    filled += 1
         per_team[slug] = (team, mgr, ps)
         for p in ps:
             all_owned.append({"name": p["name"], "manager": mgr, "nation": p["nation"],
                               "price": p["price"], "round": p["round"], "total": p["total"]})
+    log.append(f"backfilled nations: {filled}")
 
     if not (200 <= len(all_owned) <= 260):
         log.append(f"ABORT: total {len(all_owned)} players out of range — files untouched")
