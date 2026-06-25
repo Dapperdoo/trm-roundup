@@ -43,36 +43,48 @@ TEAMS = [
 
 DISPLAY = {"Look at his face. Just Look at his FACE!": "Look At His Face!"}
 
-# The squad pages are themed per team and their field ORDER varies:
-#   Format A: "Manuel Neuer GK • GER • £5.7m • Since GW1 0w 4"   (price, then 'Nw total')
-#   Format B: "Thibaut Courtois GK BEL 0w 10 Week / Total Points £5.0m" (points, then price)
-# So we don't rely on order. We anchor on POSITION + 3-letter NATION, then pull the
-# price and the "<round>w <total>" figure from that player's slice, whichever order.
-ANCHOR = re.compile(r"(GK|DEF|MID|FWD)[^A-Za-z0-9]{1,4}([A-Z]{3})\b")
-PRICE = re.compile(r"£\s*([\d.]+)\s*m")
-POINTS = re.compile(r"(-?\d+)\s*w\s+(-?\d+)")
+# Every team's squad page is a DIFFERENT bespoke template. Across the 13 teams the
+# observed variations include: name before the position, name after it; nation present
+# or entirely absent; price as "£5.0m" or a bare "5.0"; points as "0w 14" or as bare
+# Wk/Total columns; and rows sometimes prefixed with a sequential index (01, 02, ...).
+# So we don't pattern-match a fixed layout. We anchor on each POSITION token and then
+# extract each field by WHAT IT IS:
+#   nation  = a 3-letter all-caps code near the position (optional)
+#   price   = a "£x.xm" value, else the only decimal number in the slice
+#   points  = "<round>w <total>", else the last two integers (… wk, total)
+#   name    = the words between position and nation/price, else the words before position
+POS_RE = re.compile(r"\b(GK|DEF|MID|FWD)\b")
+NAT_RE = re.compile(r"\b([A-Z]{3})\b")
+POS_SET = {"GK", "DEF", "MID", "FWD"}
+PRICE_GBP = re.compile(r"£\s*([\d.]+)\s*m")
+PRICE_BARE = re.compile(r"\b(\d+\.\d+)\b")
+POINTS_W = re.compile(r"(-?\d+)\s*w\s+(-?\d+)")
+INT = re.compile(r"-?\d+")
 NAME_STOP = {
     "squad", "points", "total", "week", "since", "value", "balance", "season", "dossier",
     "current", "our", "report", "dispatches", "network", "standings", "numbers", "reserves",
     "cash", "war", "chest", "base", "strength", "wire", "transfer", "transfers", "the",
     "world", "cup", "archive", "history", "league", "breaking", "news", "this", "pts",
+    "cast", "presents", "intelligence", "fin", "board", "programme", "component", "inventory",
+    "active", "components", "people", "funds", "valuation", "output", "schematic", "assembly",
+    "wk", "personnel",
 }
 
 
 def clean_name(pre):
     """Take the trailing run of name-like tokens before an anchor (drops page chrome)."""
-    toks = re.split(r"\s+", pre.replace("•", " ").replace("·", " ").replace("|", " "))
+    toks = re.split(r"\s+", pre.replace("•", " ").replace("·", " ").replace("|", " ").replace("/", " "))
     out = []
     for w in reversed(toks):
         lw = re.sub(r"[^0-9a-zA-Z]", "", w).lower()
         if not lw:
             continue
-        if lw in NAME_STOP or re.match(r"^\d", w.strip()) or "£" in w or "/" in w or re.match(r"^gw\d", lw):
+        if lw in NAME_STOP or re.match(r"^\d", w.strip()) or "£" in w or re.match(r"^gw\d", lw):
             break
         out.insert(0, w)
         if len(out) >= 4:
             break
-    return " ".join(out).strip(" •·|-")
+    return " ".join(out).strip(" •·|-/")
 
 SCRIPT = r'''<script>(function(){var W="https://trm-live.dapperdon.workers.dev";function nrm(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var used={},rp={};(d.fixtures||[]).forEach(function(f){if(f.status==='finished'||f.status==='live'){(f.players||[]).forEach(function(p){var k=nrm(p.name);used[k]=true;if(p.pts!=null)rp[k]=p.pts;});}});var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){var bt=+tr.getAttribute('data-t');var key=nrm(tr.getAttribute('data-p'));var u=used[key]===true;var r=u?(rp[key]!=null?rp[key]:0):0;var t=bt+r;var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc){rc.textContent=r;rc.style.color=u?'var(--cyan)':'';}if(tc)tc.textContent=t;rnd+=r;tot+=t;});var se=document.getElementById('sq-se'),sr=document.getElementById('sq-rd');if(se)se.textContent=tot;if(sr)sr.textContent=rnd;}).catch(function(){});}poll();setInterval(poll,30000);})();</script>'''
 
@@ -137,27 +149,73 @@ def strip_html(html):
 def parse_team(slug):
     """Return (players, blob). blob = whitespace-collapsed page text (for debug).
 
-    Order-independent: for each POSITION+NATION anchor, read the price and the
-    '<round>w <total>' figure from that player's slice in whatever order they appear.
+    Layout-independent — see the field notes above POS_RE. For each POSITION token we
+    identify this player's optional NATION, then read PRICE (£ or bare decimal) and the
+    points ('Nw T' or the trailing Wk/Total integers), and finally the NAME (between
+    position and nation/price, or the words just before the position token).
     """
     blob = re.sub(r"\s+", " ", strip_html(fetch(f"{BASE}/wc/team/{slug}")))
-    anchors = list(ANCHOR.finditer(blob))
+
+    # Drop the page footer (the closing "Standings" link and any flavour text after it)
+    # so trailing numbers can't be mistaken for the last player's score.
+    first = POS_RE.search(blob)
+    if first:
+        foot = re.search(r"standings", blob[first.end():], re.I)
+        if foot:
+            blob = blob[:first.end() + foot.start()]
+
+    # Some templates prefix each row with a sequential index (01, 02, …). If we detect a
+    # full increasing run of them before the position tokens, strip the indices so they
+    # aren't read as scores.
+    idx = [int(x) for x in re.findall(r"\b(\d{1,2})\s+(?=(?:GK|DEF|MID|FWD)\b)", blob)]
+    if len(idx) >= 10 and idx[0] in (0, 1) and idx == list(range(idx[0], idx[0] + len(idx))):
+        blob = re.sub(r"\b\d{1,2}\s+(?=(?:GK|DEF|MID|FWD)\b)", "", blob)
+
+    anchors = list(POS_RE.finditer(blob))
     players, prev = [], 0
     for i, a in enumerate(anchors):
-        seg_end = anchors[i + 1].start() if i + 1 < len(anchors) else len(blob)
-        seg = blob[a.end():seg_end]
-        pm = PRICE.search(seg)
-        ptm = POINTS.search(seg)
-        name = clean_name(blob[prev:a.start()])
-        if not pm or not ptm:
-            prev = a.end()
-            continue
-        prev = a.end() + max(pm.end(), ptm.end())
+        pos = a.group(1)
+        nxt = anchors[i + 1].start() if i + 1 < len(anchors) else len(blob)
+
+        nat = None
+        nm = NAT_RE.search(blob, a.end())
+        if nm and nm.start() < nxt and nm.start() - a.end() <= 40 and nm.group(1) not in POS_SET:
+            nat = nm
+        field_start = nat.end() if nat else a.end()
+        region = blob[field_start:nxt]
+
+        gm = PRICE_GBP.search(region)
+        if gm:
+            price, pend, price_at = float(gm.group(1)), gm.end(), gm.start()
+        else:
+            bm = PRICE_BARE.search(region)
+            if not bm:
+                prev = nxt
+                continue
+            price, pend, price_at = float(bm.group(1)), bm.end(), bm.start()
+
+        wm = POINTS_W.search(region)
+        if wm:
+            rnd, tot, consumed = int(wm.group(1)), int(wm.group(2)), wm.end()
+        else:
+            its = list(INT.finditer(region[pend:]))
+            if not its:
+                prev = nxt
+                continue
+            tot = int(its[-1].group())
+            rnd = int(its[-2].group()) if len(its) >= 2 else 0
+            consumed = pend + its[-1].end()
+
+        between = blob[a.end():nat.start()] if nat else region[:price_at]
+        if re.search(r"[A-Za-z]{2,}", between):
+            name = re.sub(r"\s+", " ", between).strip(" •·|-/")
+        else:
+            name = clean_name(blob[prev:a.start()])
+        prev = field_start + consumed
         if not name or len(name) > 40:
             continue
-        players.append({"name": name, "pos": a.group(1), "nation": a.group(2),
-                        "price": float(pm.group(1)),
-                        "round": int(ptm.group(1)), "total": int(ptm.group(2))})
+        players.append({"name": name, "pos": pos, "nation": nat.group(1) if nat else "",
+                        "price": price, "round": rnd, "total": tot})
     return players, blob
 
 
