@@ -200,7 +200,11 @@ def strip_html(html):
     html = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), html)
     html = (html.replace("&amp;", "&").replace("&pound;", "£").replace("&nbsp;", " ")
                 .replace("&apos;", "'").replace("&quot;", '"').replace("&bull;", "•")
-                .replace("&lt;", "<").replace("&gt;", ">"))
+                .replace("&middot;", "·").replace("&ndash;", "–").replace("&mdash;", "—")
+                .replace("&deg;", "°").replace("&lt;", "<").replace("&gt;", ">"))
+    # Decode any remaining named entities defensively, so a separator like "&middot;"
+    # can never again survive into the text and be mistaken for a player's name.
+    html = re.sub(r"&[a-zA-Z]+;", " ", html)
     return html
 
 
