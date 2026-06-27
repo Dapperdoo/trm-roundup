@@ -162,7 +162,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <thead><tr><th class="pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Owned players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
   <tbody id="tbody"></tbody>
 </table>
-<div class="note">Tap a team to open its squad. Arrows show movement since the last matchday. Live points show in <span style="color:var(--today);font-weight:800">orange</span> while a game is in play.</div>
+<div class="note">Tap a team to open its squad. Arrows show each side's movement since the end of the previous matchday, updating live as a matchday's games are played. Live points show in <span style="color:var(--today);font-weight:800">orange</span> while a game is in play.</div>
 
 <!-- today's matchday (results + still-to-play), then upcoming, below the table -->
 <div class="seclabel" id="today-label" style="display:none">Today's matchday · tap a match for scorers &amp; owned players</div>
@@ -174,7 +174,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 <div class="triv">
   <div class="tc"><h3>Top round scorers <span class="u">round pts</span></h3><div id="tv-scorers"></div></div>
   <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
-  <div class="tc"><h3>Best value (14+ pts banked) <span class="u">pts/£m</span></h3><div id="tv-value"></div></div>
+  <div class="tc"><h3>Best value (10+ pts banked) <span class="u">pts/£m</span></h3><div id="tv-value"></div></div>
   <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
   <div class="tc"><h3>Round Live · Top 7 <span class="u">pts · used</span></h3><div id="tv-round-top"></div></div>
   <div class="tc"><h3>Round Live · Bottom 6 <span class="u">pts · used</span></h3><div id="tv-round-bottom"></div></div>
@@ -208,7 +208,30 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     return dys[d.getDay()]+" "+d.getDate()+" "+mns[d.getMonth()];
   }
 
-  fetch("baseline.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.ranks){baselineRanks=j.ranks; renderTable(); renderTrivia();} }).catch(function(){});
+  // Table-movement baseline = each side's position at the END OF THE PREVIOUS MATCHDAY,
+  // computed live from the feed (no static file, no dependency on the daily build). We
+  // find the latest matchday that has any finished/live games, subtract each manager's
+  // points from THAT day off their current total, and rank the result — that's the table
+  // as it stood before the current/most-recent day. So arrows show just that day's
+  // movement, update in real time as live points land, and roll over automatically when
+  // the next matchday kicks off.
+  function computeBaseline(){
+    if(!standings.length || !fixtures.length) return null;
+    var seen={};
+    fixtures.forEach(function(f){ if((f.status==="finished"||f.status==="live")&&f.matchday) seen[f.matchday]=true; });
+    var days=Object.keys(seen).sort();
+    if(!days.length) return null;
+    var M=days[days.length-1], dayPts={};
+    fixtures.forEach(function(f){
+      if(f.matchday!==M || !(f.status==="finished"||f.status==="live")) return;
+      (f.players||[]).forEach(function(p){ if(p.pts!=null && p.manager) dayPts[p.manager]=(dayPts[p.manager]||0)+p.pts; });
+    });
+    var prev=standings.map(function(s){ return {m:s.manager, t:(s.total||0)-(dayPts[s.manager]||0)}; });
+    prev.sort(function(a,b){ return (b.t-a.t)||(a.m<b.m?-1:1); });
+    var ranks={}; prev.forEach(function(r,i){ ranks[r.m]=i+1; });
+    return ranks;
+  }
+
   fetch("owned-players.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.length){ownedPlayers=j; renderTrivia();} }).catch(function(){});
 
   // Each player's FULL tournament total (ownership-independent) from the worker's
@@ -389,10 +412,10 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var ps=enriched();
     // Best value
     if(!ps){ need("tv-value"); } else {
-      // Only players who have banked 14+ points FOR THEIR CURRENT MANAGER (accrued), so a
+      // Only players who have banked 10+ points FOR THEIR CURRENT MANAGER (accrued), so a
       // transfer-in can't claim value from points scored before he joined the squad.
-      var v=ps.filter(function(p){return p.price>0&&p.accrued!=null&&p.accrued>=14;}).map(function(p){return {n:p.name,m:p.manager,v:p.accrued/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,7);
-      $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">Nobody has banked 14+ points for their manager yet.</div>';
+      var v=ps.filter(function(p){return p.price>0&&p.accrued!=null&&p.accrued>=10;}).map(function(p){return {n:p.name,m:p.manager,v:p.accrued/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,7);
+      $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">Nobody has banked 10+ points for their manager yet.</div>';
     }
     // Top overall
     if(!ps){ need("tv-overall"); } else {
@@ -441,6 +464,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       lastUpdated=d.updated;
       $("dot").className="dot "+(d.anyLive?"live":"");
       standings=(d.standings||[]).map(function(t){ if(TEAM_RENAME[t.team]) t.team=TEAM_RENAME[t.team]; return t; }); fixtures=d.fixtures||[]; feedMatchday=d.matchday||null;
+      baselineRanks=computeBaseline();
       renderMatches(); renderTable(); renderTrivia(); tick();
     }).catch(function(e){ var el=$("err"); el.textContent="Live feed unavailable ("+e.message+"). Retrying…"; el.style.display="block"; $("status").textContent="offline"; });
   }
