@@ -174,7 +174,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 <div class="triv">
   <div class="tc"><h3>Top round scorers <span class="u">round pts</span></h3><div id="tv-scorers"></div></div>
   <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
-  <div class="tc"><h3>Best value <span class="u">pts / £m</span></h3><div id="tv-value"></div></div>
+  <div class="tc"><h3>Best value · 14+ pts <span class="u">earned for owner · pts/£m</span></h3><div id="tv-value"></div></div>
   <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
   <div class="tc"><h3>Round Live · Top 7 <span class="u">pts · used</span></h3><div id="tv-round-top"></div></div>
   <div class="tc"><h3>Round Live · Bottom 6 <span class="u">pts · used</span></h3><div id="tv-round-bottom"></div></div>
@@ -324,7 +324,10 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       // value. Fall back to the squad-accrued total only when FIFA has no figure.
       var ft = seasonTotals ? seasonTotals[nrm(p.name)] : undefined;
       var total = (ft!=null) ? ft : ((p.total==null)?null:(p.total-(p.round||0)+round));
-      return {name:p.name, manager:p.manager, nation:(p.nation||"").toUpperCase(), price:(typeof p.price==="number"?p.price:parseFloat(p.price)||0), round:round, total:total};
+      // accrued = points earned FOR THIS MANAGER only (squad-accrued total, live-adjusted),
+      // excluding anything a player scored before a transfer brought him into the squad.
+      var accrued = (p.total==null)?null:(p.total-(p.round||0)+round);
+      return {name:p.name, manager:p.manager, nation:(p.nation||"").toUpperCase(), price:(typeof p.price==="number"?p.price:parseFloat(p.price)||0), round:round, total:total, accrued:accrued};
     });
   }
 
@@ -386,8 +389,10 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var ps=enriched();
     // Best value
     if(!ps){ need("tv-value"); } else {
-      var v=ps.filter(function(p){return p.price>0&&p.total!=null;}).map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,7);
-      $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">No priced players yet.</div>';
+      // Only players who have banked 14+ points FOR THEIR CURRENT MANAGER (accrued), so a
+      // transfer-in can't claim value from points scored before he joined the squad.
+      var v=ps.filter(function(p){return p.price>0&&p.accrued!=null&&p.accrued>=14;}).map(function(p){return {n:p.name,m:p.manager,v:p.accrued/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,7);
+      $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">Nobody has banked 14+ points for their manager yet.</div>';
     }
     // Top overall
     if(!ps){ need("tv-overall"); } else {
