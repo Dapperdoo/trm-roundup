@@ -21,6 +21,7 @@ import sys
 import json
 import time
 import datetime
+import traceback
 import urllib.request
 
 import anthropic
@@ -29,6 +30,7 @@ FEED_URL = "https://trm-live.dapperdon.workers.dev"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/roundup.html"
 STATE_PATH = "docs/roundup-state.json"
+LOG_PATH = "docs/_roundup_log.txt"
 MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -389,7 +391,7 @@ def render(data):
     return html
 
 
-def main():
+def _build():
     print("Fetching league feed...", flush=True)
     feed = get_feed()
     brief = build_brief(feed)
@@ -428,6 +430,28 @@ def main():
         json.dump({"reported_fixtures": sorted(reported),
                    "updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}, f, indent=2)
     print(f"Updated {STATE_PATH} (+{len(target_keys)} fixtures)", flush=True)
+
+
+def main():
+    """Run the build but NEVER crash the workflow. On any failure, commit a log file
+    (docs/_roundup_log.txt) with the exact error so it can be diagnosed without GitHub
+    Actions access; on a clean run, remove that log. Always exit 0 so the workflow's
+    commit step still runs and publishes the log."""
+    try:
+        _build()
+        try:
+            os.remove(LOG_PATH)   # clear any stale failure log on a clean run
+        except OSError:
+            pass
+    except Exception:
+        stamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        try:
+            os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+            with open(LOG_PATH, "w", encoding="utf-8") as f:
+                f.write(f"ROUNDUP BUILD FAILED at {stamp}\n\n" + traceback.format_exc())
+        except Exception:
+            pass
+        print("roundup build error (recorded in docs/_roundup_log.txt)", file=sys.stderr)
 
 
 if __name__ == "__main__":
