@@ -10,8 +10,8 @@
  *                    parse all of that out so the LIVE page can render rich
  *                    match boxes. (FIFA's own match feed is not used — it is
  *                    empty for this tournament.)
- *   GET /players   -> a name -> live-points map for the current round from FIFA's
- *                    public players.json, used by the squad pages.
+ *   GET /players   -> name -> live-points map for the current round, plus a
+ *                    name -> full-tournament-total map, from FIFA's players.json.
  *
  * Both are edge-cached ~60s.
  */
@@ -51,10 +51,10 @@ const CODE = {
   "T&T": "Tristan", PROP: "Malik", SNAC: "Jake",
 };
 
-// The league's matchday calendar (group stage): which day each fixture is played.
-// Used to tag fixtures so the LIVE page can group by matchday. Pairs are order-free.
-// Finished games lose their date on the page, so this fills it in; upcoming games
-// still carry a date on the page and use that (handles later rounds too).
+// The league's matchday calendar: which day each fixture is played. Used to tag
+// fixtures so the LIVE page can group by matchday. Pairs are order-free. Finished
+// games lose their date on the page, so this fills it in; upcoming games still
+// carry a date on the page and use that.
 const SCHEDULE = {
   "2026-06-18": [["CZE","RSA"],["SUI","BIH"],["CAN","QAT"],["MEX","KOR"]],
   "2026-06-19": [["USA","AUS"],["SCO","MAR"],["BRA","HAI"],["TUR","PAR"]],
@@ -69,6 +69,14 @@ const SCHEDULE = {
   "2026-06-25": [["ECU","GER"],["CUW","CIV"],["TUN","NED"],["JPN","SWE"],["TUR","USA"],["PAR","AUS"]],
   "2026-06-26": [["NOR","FRA"],["SEN","IRQ"],["URU","ESP"],["CPV","KSA"],["NZL","BEL"],["EGY","IRN"]],
   "2026-06-27": [["CRO","GHA"],["PAN","ENG"],["COD","UZB"],["COL","POR"],["JOR","ARG"],["ALG","AUT"]],
+  // Knockouts — Round of 32. Keys are the UK EVENING SLATE: post-midnight kickoffs
+  // are shifted back 12h (matchdayKey) so a 02:00 game groups with the prior evening.
+  "2026-06-28": [["RSA","CAN"]],
+  "2026-06-29": [["BRA","JPN"],["GER","PAR"],["NED","MAR"]],
+  "2026-06-30": [["CIV","NOR"],["FRA","SWE"],["MEX","ECU"]],
+  "2026-07-01": [["ENG","COD"],["BEL","SEN"],["USA","BIH"]],
+  "2026-07-02": [["ESP","AUT"],["POR","CRO"],["SUI","ALG"]],
+  "2026-07-03": [["AUS","EGY"],["ARG","CPV"],["COL","GHA"]],
 };
 const PAIR_DATE = {};
 for (const day of Object.keys(SCHEDULE)) for (const pr of SCHEDULE[day]) PAIR_DATE[pr.slice().sort().join("|")] = day;
@@ -100,9 +108,10 @@ function htmlToLines(html) {
 // so far (R1, R2, ... R{N}, where N = current round), then the cumulative Total.
 // So a row carries N+1 numbers: [R1, R2, ..., R{N}, Total]. We must take the LAST
 // of those as the Total — NOT the third number — because at round 3+ there are
-// four columns and the old "first three" logic mistook R3 for the Total.
-// `roundNum` (from the matchday label) tells us N; a small window can also pick up
-// the next row's rank as a trailing number, which we ignore by indexing positionally.
+// four+ columns and the old "first three" logic mistook R3 for the Total.
+// `roundNum` (= N, the number of score columns) is derived from the table header
+// and works for the group stage AND the knockouts; we index fixed positions so a
+// trailing number (the next row's rank) is ignored.
 function parseStandings(flat, roundNum) {
   const out = [];
   const N = (roundNum && roundNum >= 1) ? roundNum : null;
@@ -119,8 +128,7 @@ function parseStandings(flat, roundNum) {
       round = nums[N - 1];
       total = nums[N];
     } else if (nums.length >= 2) {
-      // Round unknown (e.g. knockouts): best-effort — Total is the last column,
-      // current round the one before it.
+      // N unknown: best-effort — Total is the last column, current round the one before.
       r1 = nums[0];
       total = nums[nums.length - 1];
       round = nums.length >= 2 ? nums[nums.length - 2] : nums[0];
@@ -140,11 +148,14 @@ const BULLET = /^[●■]$/;
 const SYMS = /^[⚽Ⓐ︎️\s]+$/;                       // a symbols-only token (goals/assists)
 const codeTok = (s) => { const m = (s || "").match(/^\(([A-Z0-9&]{2,6})\)$/); return m ? m[1] : null; };
 const isPoints = (s) => /^-?\d+$/.test(s) || s === "–" || s === "-";
+// A finished-match status token. Group games show "FULL TIME"; knockout games may
+// instead show "AET", "PENS"/"PENALTIES", or "FT", so accept all of those.
+const FINISHED = /full ?time|\bft\b|\baet\b|\bpens?\b|penalt/i;
 
 // Detect a fixture header at index i. The page renders, as separate tokens:
 //   HOME  "4–1"|"18:00"  AWAY  <status...>
-// status is "FULL TIME", "LIVE" (sometimes a "●" bullet first), or a date for
-// upcoming games. Returns the parsed header + the index where the body starts.
+// status is finished ("FULL TIME"/"AET"/"PENS"), "LIVE" (sometimes a "●" bullet
+// first), or a date for upcoming games. Returns the header + body start index.
 function detectFixture(L, i) {
   if (!isCode(L[i]) || !isScoreOrTime(L[i + 1] || "") || !isCode(L[i + 2] || "")) return null;
   const mid = L[i + 1], isTime = /:/.test(mid);
@@ -153,10 +164,10 @@ function detectFixture(L, i) {
     return { home: L[i], away: L[i + 2], mid, isTime, status: "upcoming", date: hasDate ? L[i + 3] : null, next: i + (hasDate ? 4 : 3) };
   }
   const a = L[i + 3] || "", b = L[i + 4] || "";
-  if (/full ?time/i.test(a)) return { home: L[i], away: L[i + 2], mid, isTime, status: "finished", next: i + 4 };
-  if (/live/i.test(a))       return { home: L[i], away: L[i + 2], mid, isTime, status: "live", next: i + 4 };
+  if (FINISHED.test(a)) return { home: L[i], away: L[i + 2], mid, isTime, status: "finished", next: i + 4 };
+  if (/live/i.test(a))  return { home: L[i], away: L[i + 2], mid, isTime, status: "live", next: i + 4 };
   if (BULLET.test(a) && /live/i.test(b)) return { home: L[i], away: L[i + 2], mid, isTime, status: "live", next: i + 5 };
-  if (/full ?time/i.test(a + " " + b))   return { home: L[i], away: L[i + 2], mid, isTime, status: "finished", next: i + 5 };
+  if (FINISHED.test(a + " " + b))        return { home: L[i], away: L[i + 2], mid, isTime, status: "finished", next: i + 5 };
   return null;
 }
 
@@ -226,10 +237,17 @@ async function buildFeed() {
   if (!res.ok) throw new Error("upstream " + res.status);
   const lines = htmlToLines(await res.text());
   const flat = lines.join(" ");
-  // Determine the current round number from the matchday label FIRST — it controls
-  // how many score columns each standings row has (R1..R{N}, then Total).
-  const md = flat.match(/Group Matchday\s+(\d+)|Matchday\s+(\d+)/i);
-  const roundNum = md ? parseInt(md[1] || md[2], 10) : null;
+  // How many score columns each standings row has (R1..R{N}, then Total) drives
+  // parseStandings. The most robust signal is the standings HEADER itself — count
+  // the R-columns — because it works for the group stage AND the knockouts, where
+  // there is no "Matchday N" label. Fall back to the matchday number if needed.
+  let roundNum = null;
+  { let maxR = 0, m; const re = /\bR(\d+)\b/g; while ((m = re.exec(flat))) { const k = parseInt(m[1], 10); if (k > maxR && k <= 20) maxR = k; } if (maxR >= 1) roundNum = maxR; }
+  const mdNum = flat.match(/Group Matchday\s+(\d+)|Matchday\s+(\d+)/i);
+  if (!roundNum && mdNum) roundNum = parseInt(mdNum[1] || mdNum[2], 10);
+  // Human round label for the page/roundup: the group matchday or a knockout round.
+  const labelMatch = flat.match(/Group Matchday\s+\d+|Round of \d+|Last \d+|Quarter[\- ]?finals?|Semi[\- ]?finals?|Third[\- ]place(?:\s+play[\- ]?off)?|Final\b/i);
+  const roundLabel = labelMatch ? labelMatch[0] : (mdNum ? mdNum[0] : null);
   const standings = parseStandings(flat, roundNum);
   const fixtures = parseFixtures(lines);
   // Tag each fixture with its matchday (calendar day). Upcoming games carry a
@@ -251,7 +269,7 @@ async function buildFeed() {
 
   return {
     updated: new Date().toISOString(),
-    matchday: md ? md[0] : null,
+    matchday: roundLabel,
     anyLive: fixtures.some((f) => f.status === "live"),
     standings,
     fixtures,
@@ -306,4 +324,93 @@ async function buildPlayers() {
   const totals = {};
   for (const p of players) {
     const full = norm((p.firstName || "") + " " + (p.lastName || ""));
-    con
+    const known = p.knownName ? norm(p.knownName) : null;
+    // Current-round points (used by squad pages) — unchanged behaviour.
+    const rp = (p.stats && p.stats.roundPoints) || {};
+    const pts = rp[cr];
+    if (pts != null) {
+      if (full) map[full] = pts;
+      if (known) map[known] = pts;
+    }
+    // Full-tournament total (ownership-independent) for the value/overall boxes.
+    const tot = seasonTotal(p);
+    if (full) totals[full] = tot;
+    if (known) totals[known] = tot;
+  }
+  // Authoritative override: the league's own feed attributes each OWNED player's
+  // current-round points under the exact display name the squad pages use. Overlay
+  // it so short/colliding names (e.g. "Danilo") resolve to the correct player
+  // rather than a same-named FIFA entry.
+  try {
+    const feed = await buildFeed();
+    for (const f of (feed.fixtures || [])) {
+      for (const pl of (f.players || [])) {
+        if (pl.pts != null) map[norm(pl.name)] = pl.pts;
+      }
+    }
+  } catch (e) { /* feed unavailable: keep the FIFA-only map */ }
+  return { updated: new Date().toISOString(), round: cur.id, players: map, totals };
+}
+
+function norm(s) {
+  return (s || "")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// ----- routing -----------------------------------------------------------------
+
+async function serve(cacheKey, builder, ctx) {
+  const cache = caches.default;
+  const key = new Request(cacheKey);
+  const hit = await cache.match(key);
+  if (hit) return hit;
+  let body;
+  try {
+    body = JSON.stringify(await builder());
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String((e && e.message) || e) }), { status: 502, headers: CORS });
+  }
+  const resp = new Response(body, { headers: CORS });
+  ctx.waitUntil(cache.put(key, resp.clone()));
+  return resp;
+}
+
+// TEMP debug: returns the exact line tokens the parser sees, plus what it parsed.
+// Lets us fix the fixture parser against the real HTML. Not cached. Remove later.
+async function buildRaw() {
+  const res = await fetch(UPSTREAM, {
+    headers: { "user-agent": "trm-live/1.0 (+github pages scoreboard)" },
+    cf: { cacheTtl: 5, cacheEverything: false },
+  });
+  const html = await res.text();
+  const lines = htmlToLines(html);
+  const start = lines.findIndex((l) => /THIS ROUND'?S GAMES/i.test(l));
+  return {
+    updated: new Date().toISOString(),
+    totalLines: lines.length,
+    gamesIndex: start,
+    fixturesParsed: parseFixtures(lines).length,
+    lines: start >= 0 ? lines.slice(start, start + 220) : lines.slice(0, 220),
+  };
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS });
+    }
+    const path = new URL(request.url).pathname.replace(/\/+$/, "");
+    if (path.endsWith("/players")) {
+      return serve("https://trm-live.internal/players", buildPlayers, ctx);
+    }
+    if (path.endsWith("/raw")) {
+      try {
+        return new Response(JSON.stringify(await buildRaw()), { headers: CORS });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: String((e && e.message) || e) }), { status: 502, headers: CORS });
+      }
+    }
+    return serve("https://trm-live.internal/data", buildFeed, ctx);
+  },
+};
