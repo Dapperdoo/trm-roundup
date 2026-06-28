@@ -1,10 +1,14 @@
 {
   "reported_fixtures": [
+    "ALG-AUT",
     "BEL-IRN",
     "BIH-QAT",
     "BRA-HAI",
     "CAN-QAT",
+    "COD-UZB",
+    "COL-POR",
     "CPV-KSA",
+    "CRO-GHA",
     "CUW-CIV",
     "CZE-MEX",
     "CZE-RSA",
@@ -13,12 +17,14 @@
     "EGY-IRN",
     "ESP-KSA",
     "GER-CIV",
+    "JOR-ARG",
     "JPN-SWE",
     "MAR-HAI",
     "MEX-KOR",
     "NED-SWE",
     "NOR-FRA",
     "NZL-BEL",
+    "PAN-ENG",
     "PAR-AUS",
     "RSA-KOR",
     "SCO-BRA",
@@ -34,5 +40,5 @@
     "URU-ESP",
     "USA-AUS"
   ],
-  "updated": "2026-06-27T08:30:00Z"
+  "updated": "2026-06-28T09:30:00Z"
 }
