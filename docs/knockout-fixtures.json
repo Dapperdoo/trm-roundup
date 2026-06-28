@@ -1,0 +1,22 @@
+{
+  "round": "Round of 32",
+  "note": "UK kick-off times. Static fallback shown on the Live Hub until the league feed publishes the knockout round, after which the live feed takes over.",
+  "fixtures": [
+    {"home": "RSA", "away": "CAN", "date": "2026-06-28", "kickoff": "20:00"},
+    {"home": "BRA", "away": "JPN", "date": "2026-06-29", "kickoff": "18:00"},
+    {"home": "GER", "away": "PAR", "date": "2026-06-29", "kickoff": "21:30"},
+    {"home": "NED", "away": "MAR", "date": "2026-06-30", "kickoff": "02:00"},
+    {"home": "CIV", "away": "NOR", "date": "2026-06-30", "kickoff": "18:00"},
+    {"home": "FRA", "away": "SWE", "date": "2026-06-30", "kickoff": "22:00"},
+    {"home": "MEX", "away": "ECU", "date": "2026-07-01", "kickoff": "02:00"},
+    {"home": "ENG", "away": "COD", "date": "2026-07-01", "kickoff": "17:00"},
+    {"home": "BEL", "away": "SEN", "date": "2026-07-01", "kickoff": "21:00"},
+    {"home": "USA", "away": "BIH", "date": "2026-07-02", "kickoff": "01:00"},
+    {"home": "ESP", "away": "AUT", "date": "2026-07-02", "kickoff": "20:00"},
+    {"home": "POR", "away": "CRO", "date": "2026-07-03", "kickoff": "00:00"},
+    {"home": "SUI", "away": "ALG", "date": "2026-07-03", "kickoff": "04:00"},
+    {"home": "AUS", "away": "EGY", "date": "2026-07-03", "kickoff": "19:00"},
+    {"home": "ARG", "away": "CPV", "date": "2026-07-03", "kickoff": "23:00"},
+    {"home": "COL", "away": "GHA", "date": "2026-07-04", "kickoff": "02:30"}
+  ]
+}

@@ -234,6 +234,28 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
   fetch("owned-players.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.length){ownedPlayers=j; renderTrivia();} }).catch(function(){});
 
+  // Static knockout fixtures (docs/knockout-fixtures.json): a fallback list of the next
+  // round's ties shown ONLY while the league feed has no upcoming fixtures of its own
+  // (the between-rounds gap). The moment the feed publishes the knockout round, the live
+  // data takes over automatically. Owned players are overlaid by nation from owned-players.json.
+  var koFixtures = null;
+  fetch("knockout-fixtures.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){ if(j&&j.fixtures){ koFixtures=j.fixtures; renderMatches(); } }).catch(function(){});
+  function knockoutUpcoming(){
+    if(!koFixtures) return [];
+    var now=Date.now();
+    return koFixtures.map(function(k){
+      var pls=[];
+      (ownedPlayers||[]).forEach(function(p){
+        var nat=(p.nation||"").toUpperCase();
+        if(nat===k.home||nat===k.away) pls.push({name:p.name, manager:p.manager, pts:null, goals:0, assists:0});
+      });
+      return {home:k.home, away:k.away, score:null, kickoff:k.kickoff, date:k.date, status:"upcoming", scorers:[], players:pls, matchday:k.date};
+    }).filter(function(f){
+      var t=new Date((f.date||"")+"T"+(f.kickoff||"23:59")+":00").getTime();
+      return isNaN(t) || t > now - 2.5*3600*1000;   // drop ties already ~kicked off
+    }).sort(function(a,b){ var ka=a.date+" "+a.kickoff, kb=b.date+" "+b.kickoff; return ka<kb?-1:ka>kb?1:0; });
+  }
+
   // Each player's FULL tournament total (ownership-independent) from the worker's
   // FIFA-backed /players feed. Used so value/overall boxes reflect a player's real
   // points, not just what he's earned since joining his current squad.
@@ -309,8 +331,14 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       $("results").innerHTML = future.map(matchBox).join("");
       $("res-label").textContent = "Next fixtures · tap a match to see owned players";
     } else {
-      $("results").innerHTML = '<div class="mx-none" style="padding:12px 2px">No upcoming fixtures scheduled yet — they appear here as soon as the next round is published.</div>';
-      $("res-label").textContent = "Next fixtures";
+      var ko = knockoutUpcoming();
+      if(ko.length){
+        $("results").innerHTML = ko.slice(0,12).map(matchBox).join("");
+        $("res-label").textContent = "Next fixtures · Round of 32 · tap a match to see owned players";
+      } else {
+        $("results").innerHTML = '<div class="mx-none" style="padding:12px 2px">No upcoming fixtures scheduled yet — they appear here as soon as the next round is published.</div>';
+        $("res-label").textContent = "Next fixtures";
+      }
     }
     $("res-label").style.display = "";
   }
