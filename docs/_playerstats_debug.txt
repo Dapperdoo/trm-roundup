@@ -1,0 +1,6 @@
+STATUS: WARN (0 fixtures)
+when: 2026-06-29T11:26:54Z
+endpoint: https://v3.football.api-sports.io  league=1 season=2026 rapidapi=False
+API errors for /fixtures: {'plan': 'Free plans do not have access to this season, try from 2022 to 2024.'}
+fixtures returned: 0 (results=0)
+No fixtures -- check league/season ids. Sample raw keys: ['get', 'parameters', 'errors', 'results', 'paging', 'response']
