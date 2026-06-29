@@ -1,6 +1,0 @@
-STATUS: OK
-when: 2026-06-29T11:43:30Z
-source: https://trm-live.dapperdon.workers.dev
-feed round label: 'Round of 32'  roundNum: 4  fixtures: 16
-player rows captured this run: 5   total players logged: 5
---- coverage --- owned: 234   appear in stats log so far: 5
