@@ -144,7 +144,7 @@ def clean_name(pre):
             break
     return " ".join(out).strip(" •·|-/")
 
-SCRIPT = r'''<script>(function(){var W="https://trm-live.dapperdon.workers.dev";function nrm(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var used={},rp={};(d.fixtures||[]).forEach(function(f){if(f.status==='finished'||f.status==='live'){(f.players||[]).forEach(function(p){var k=nrm(p.name);used[k]=true;if(p.pts!=null)rp[k]=p.pts;});}});var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){var bt=+tr.getAttribute('data-t');var key=nrm(tr.getAttribute('data-p'));var u=used[key]===true;var r=u?(rp[key]!=null?rp[key]:0):0;var t=bt+r;var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc){rc.textContent=r;rc.style.color=u?'var(--cyan)':'';}if(tc)tc.textContent=t;rnd+=r;tot+=t;});var se=document.getElementById('sq-se'),sr=document.getElementById('sq-rd');if(se)se.textContent=tot;if(sr)sr.textContent=rnd;}).catch(function(){});}poll();setInterval(poll,30000);})();</script>'''
+SCRIPT = r'''<script>(function(){var W="https://trm-live.dapperdon.workers.dev";function nrm(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var used={},rp={};(d.fixtures||[]).forEach(function(f){if(f.status==='finished'||f.status==='live'){(f.players||[]).forEach(function(p){var k=nrm(p.name);used[k]=true;if(p.pts!=null)rp[k]=p.pts;});}});var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){var bt=+tr.getAttribute('data-t');var key=nrm(tr.getAttribute('data-p'));var u=used[key]===true;var r=u?(rp[key]!=null?rp[key]:0):0;var t=bt+r;var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc){rc.textContent=r;rc.style.color=u?'var(--cyan)':'';}if(tc)tc.textContent=t;rnd+=r;tot+=t;});var sr=document.getElementById('sq-rd');if(sr)sr.textContent=rnd;var tEl=document.getElementById('sq-tot');if(tEl){var mgr=tEl.getAttribute('data-mgr');var st=(d.standings||[]).filter(function(s){return s.manager===mgr;})[0];if(st&&st.total!=null)tEl.textContent=st.total;}}).catch(function(){});}poll();setInterval(poll,30000);})();</script>'''
 
 HEAD = (
     '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
@@ -164,6 +164,7 @@ HEAD = (
     '<div class="wrap"><a class="back" href="./">← League table</a>'
     "<h1>{{TEAM}}</h1><div class=\"sub\">Managed by {{MGR}}</div>"
     '<div class="stats">'
+    '<div class="stat"><b id="sq-tot" data-mgr="{{MGR}}">—</b><span>Total pts</span></div>'
     '<div class="stat"><b id="sq-rd">{{RD}}</b><span>This round</span></div>'
     '<div class="stat"><b>{{N}}</b><span>Squad</span></div></div>'
     '<table><thead><tr><th>Pos</th><th>Player</th><th>Nat</th><th class="num">Price</th>'
