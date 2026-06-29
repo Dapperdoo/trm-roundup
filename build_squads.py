@@ -163,7 +163,7 @@ HEAD = (
     "footer{margin-top:24px;border-top:1px solid var(--line);padding-top:12px;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.14em;}</style></head><body>"
     '<div class="wrap"><a class="back" href="./">← League table</a>'
     "<h1>{{TEAM}}</h1><div class=\"sub\">Managed by {{MGR}}</div>"
-    '<div class="stats"><div class="stat"><b id="sq-se">{{SE}}</b><span>Season pts</span></div>'
+    '<div class="stats">'
     '<div class="stat"><b id="sq-rd">{{RD}}</b><span>This round</span></div>'
     '<div class="stat"><b>{{N}}</b><span>Squad</span></div></div>'
     '<table><thead><tr><th>Pos</th><th>Player</th><th>Nat</th><th class="num">Price</th>'
