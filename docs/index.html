@@ -355,7 +355,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       return '<tr class="'+(r.rank===1?'lead':'')+'" data-ch="'+(ch?1:0)+'">'
         +'<td class="pos">'+r.rank+'</td>'
         +'<td><a class="tm" href="team-'+encodeURIComponent(teamSlug(r.slug))+'.html">'+esc(r.team)+'</a>'+mv+'</td>'
-        +'<td class="r rd">'+(r.round>=0?'+':'')+r.round+'</td>'
+        +'<td class="r rd">'+r.round+'</td>'
         +'<td class="r rem">'+(r.remaining==null?'–':r.remaining)+'</td>'
         +'<td class="r tot">'+r.total+'</td></tr>';
     }).join("");
