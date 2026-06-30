@@ -378,10 +378,21 @@ def write_eliminated(feed):
                 still_in.add(a)
             else:
                 draws.append((f"{h}-{a}", h, a, f"{hg}-{ag}"))
+        # Shootout winners are cached in the file so we only web-search a given tie
+        # ONCE; later runs reuse it (cheap to refresh every run).
+        cache = {}
+        try:
+            with open(ELIM_PATH, encoding="utf-8") as fh:
+                cache = (json.load(fh) or {}).get("shootouts", {}) or {}
+        except Exception:
+            cache = {}
         if draws:
-            winners = web_lookup_shootouts(draws, {"round_label": label, "matchday_day_label": ""})
+            unresolved = [d for d in draws if d[0] not in cache]
+            if unresolved:
+                cache.update(web_lookup_shootouts(unresolved, {"round_label": label,
+                                                                "matchday_day_label": ""}))
             for key, h, a, sc in draws:
-                w = winners.get(key)
+                w = cache.get(key)
                 if w == h:
                     still_in.add(h)
                 elif w == a:
@@ -394,7 +405,7 @@ def write_eliminated(feed):
         os.makedirs(os.path.dirname(ELIM_PATH), exist_ok=True)
         with open(ELIM_PATH, "w", encoding="utf-8") as fh:
             json.dump({"eliminated": eliminated, "still_in": sorted(still_in),
-                       "round": label,
+                       "shootouts": cache, "round": label,
                        "updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")},
                       fh, indent=2)
         print(f"Wrote {ELIM_PATH}: {len(eliminated)} eliminated nations", flush=True)
@@ -568,6 +579,10 @@ def render(data):
 def _build():
     print("Fetching league feed...", flush=True)
     feed = get_feed()
+    # Refresh the Live hub's eliminated-nations file on EVERY run (independent of
+    # whether the roundup itself rebuilds), so penalty-shootout exits are picked up
+    # promptly. Decisive and group-stage exits are also computed live in the browser.
+    write_eliminated(feed)
     brief = build_brief(feed)
     if brief is None:
         print("No completed matchday in the feed yet — nothing to recap. Exiting cleanly.", flush=True)
@@ -601,9 +616,6 @@ def _build():
     brief["eliminations"] = resolve_eliminations(feed, brief)
     if brief["eliminations"].get("eliminated"):
         print(f"Knockout exits today: {brief['eliminations']['eliminated']}", flush=True)
-
-    # Refresh the cumulative eliminated-nations file for the Live hub's box.
-    write_eliminated(feed)
 
     print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
           f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)

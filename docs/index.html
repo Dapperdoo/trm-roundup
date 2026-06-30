@@ -137,7 +137,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 <nav class="tabwrap"><div class="tabs">
   <a class="tab active" href="./" aria-current="page">Live</a>
   <a class="tab" href="roundup.html">Roundup</a>
-  <a class="tab" href="morph.html">Gaffers</a>
 </div></nav>
 
 <header class="mast">
@@ -273,6 +272,33 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
   // live round points by normalised name, from all fixtures (for value/overall/flops)
   function liveRoundMap(){ var m={}; fixtures.forEach(function(f){ (f.players||[]).forEach(function(p){ if(p.pts!=null) m[nrm(p.name)]=p.pts; }); }); return m; }
+
+  // Nations no longer in the competition, computed LIVE from the feed every poll so
+  // the Eliminated Players boxes react after EVERY match (evenings included). In a
+  // knockout round: a finished game's loser is OUT (decisive scores read straight
+  // from the feed), and any owned nation not appearing in the current round at all
+  // (a group-stage casualty) is OUT. A drawn tie (penalty shootout) can't be read
+  // from the feed, so those come from eliminated.json (resolved by the build via
+  // web search) and are merged in. Returns a {CODE:true} set.
+  function liveEliminated(){
+    var set={};
+    if(eliminatedNations){ eliminatedNations.forEach(function(c){ set[c]=true; }); }
+    var ko=/round of \d+|last \d+|quarter|semi|third|final/i.test(feedMatchday||"");
+    if(ko && ownedPlayers && fixtures.length){
+      var inRound={};
+      fixtures.forEach(function(f){
+        var h=(f.home||"").toUpperCase(), a=(f.away||"").toUpperCase(); if(!h||!a) return;
+        inRound[h]=true; inRound[a]=true;
+        if(f.status==="finished"){
+          var mm=String(f.score||"").replace("–","-").match(/(\d+)\D+(\d+)/);
+          if(mm){ var hg=+mm[1], ag=+mm[2];
+            if(hg>ag) set[a]=true; else if(ag>hg) set[h]=true; } // decisive loser out; draw -> from file
+        }
+      });
+      ownedPlayers.forEach(function(p){ var nat=(p.nation||"").toUpperCase(); if(nat && !inRound[nat]) set[nat]=true; });
+    }
+    return set;
+  }
 
   function matchBox(f){
     var live=f.status==="live", done=f.status==="finished", up=f.status==="upcoming";
@@ -493,8 +519,8 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       var box=$("tv-elim"), box2=$("tv-elim2"); if(!box) return;
       function put(el,h){ if(el) el.innerHTML=h; }
       if(!ownedPlayers){ need("tv-elim"); if(box2) need("tv-elim2"); return; }
-      if(!eliminatedNations){ put(box,'<div class="tempty">Loading eliminations…</div>'); put(box2,'<div class="tempty">Loading eliminations…</div>'); return; }
-      var out={}, elim={}; eliminatedNations.forEach(function(c){ elim[c]=true; });
+      var elim=liveEliminated();   // live from the feed each poll + eliminated.json for shootouts
+      var out={};
       ownedPlayers.forEach(function(p){ if(p.manager!=null){ var nat=(p.nation||"").toUpperCase(); out[p.manager]=(out[p.manager]||0)+(elim[nat]?1:0); } });
       var rows=Object.keys(out).map(function(m){ return {m:m, n:out[m]}; }).sort(function(a,b){ return (b.n-a.n)||(a.m<b.m?-1:1); });
       function rowHtml(it){ return '<div class="trow"><span class="tn" style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(it.m)+'</span><span class="tv'+(it.n>0?' red':'')+'" style="min-width:30px;text-align:right">'+it.n+'</span></div>'; }
