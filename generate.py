@@ -334,6 +334,7 @@ def write_copy(brief):
     print(f"  copy complete: {len(articles)} articles", flush=True)
     return {
         "matchday_label": f"{brief['round_label']} · {brief['matchday_day_label']}",
+        "matchday_date": brief["matchday_date"],
         "status_live": False,
         "standings": brief["standings"],
         "still_to_play": ", ".join(brief["still_to_play"]) if brief["still_to_play"] else "Everyone has played.",
@@ -389,7 +390,7 @@ def render(data):
         "{{MATCHDAY_SHORT}}": esc(md.split("·")[-1].strip() if "·" in md else md),
         "{{DATE_LABEL}}": datetime.datetime.utcnow().strftime("%A %d %B %Y"),
         "{{STATUS_CHIP}}": "Matchday settled",
-        "{{LEAD}}": f'<p class="lead">{data.get("lead","")}</p>',
+        "{{LEAD}}": f'<!-- TRM-MATCHDAY:{esc(str(data.get("matchday_date","")))} -->\n<p class="lead">{data.get("lead","")}</p>',
         "{{ARTICLES}}": "\n".join(arts),
         "{{STANDINGS_ROWS}}": "\n".join(rows),
         "{{NOTES_ROWS}}": notes_rows,
@@ -410,19 +411,28 @@ def _build():
         print("No completed matchday in the feed yet — nothing to recap. Exiting cleanly.", flush=True)
         return
 
-    # Idempotency guard: only (re)build when THIS matchday hasn't already been
-    # published. Every run for an already-published day exits here — no AI call,
-    # no commit — which is what makes very frequent scheduling safe and cheap.
-    target_keys = set(brief.get("fixture_keys", []))
-    reported = set()
+    # SELF-HEALING idempotency. Decide whether to (re)build from the ACTUALLY
+    # DEPLOYED page — not from a separate state file. The old state-file guard
+    # could desync from the page during merges / manual edits (state said
+    # "published" while the page was still stale), and then EVERY later run
+    # skipped the matchday forever, stranding an out-of-date roundup until it was
+    # rebuilt by hand. Instead we read the matchday marker baked into the live
+    # page: if it already matches the latest completed matchday, skip; if it's
+    # stale or missing, rebuild regardless of what roundup-state.json claims.
+    target_date = brief["matchday_date"]
+    published_date = None
     try:
-        with open(STATE_PATH, encoding="utf-8") as f:
-            reported = set(json.load(f).get("reported_fixtures", []))
+        with open(OUTPUT_PATH, encoding="utf-8") as f:
+            m = re.search(r"TRM-MATCHDAY:(\S+)", f.read())
+            if m:
+                published_date = m.group(1)
     except Exception:
         pass
-    if target_keys and target_keys <= reported:
-        print(f"Matchday {brief['matchday_date']} already published — nothing new. Exiting cleanly.", flush=True)
+    if published_date == target_date:
+        print(f"Live page already covers {target_date} — nothing to do. Exiting cleanly.", flush=True)
         return
+    print(f"Live page covers {published_date!r}; latest completed matchday is {target_date} "
+          f"— (re)building so the page self-heals.", flush=True)
 
     print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
           f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)
@@ -434,13 +444,22 @@ def _build():
         f.write(html)
     print(f"Wrote {OUTPUT_PATH}  ({len(data['articles'])} managers)", flush=True)
 
-    # Record this matchday's fixtures as published so later runs skip it.
+    # Keep roundup-state.json updated purely as a historical record. It is NO
+    # LONGER used to decide whether to build (the page marker above is the single
+    # source of truth), so a desynced state file can no longer strand the page.
+    target_keys = set(brief.get("fixture_keys", []))
+    reported = set()
+    try:
+        with open(STATE_PATH, encoding="utf-8") as f:
+            reported = set(json.load(f).get("reported_fixtures", []))
+    except Exception:
+        pass
     reported |= target_keys
     os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
     with open(STATE_PATH, "w", encoding="utf-8") as f:
         json.dump({"reported_fixtures": sorted(reported),
                    "updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}, f, indent=2)
-    print(f"Updated {STATE_PATH} (+{len(target_keys)} fixtures)", flush=True)
+    print(f"Updated {STATE_PATH} (record only, +{len(target_keys)} fixtures)", flush=True)
 
 
 def main():
