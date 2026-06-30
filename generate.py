@@ -31,6 +31,8 @@ TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/roundup.html"
 STATE_PATH = "docs/roundup-state.json"
 LOG_PATH = "docs/_roundup_log.txt"
+ELIM_PATH = "docs/eliminated.json"
+OWNED_PATH = "docs/owned-players.json"
 MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -341,6 +343,74 @@ def resolve_eliminations(feed, brief):
     return out
 
 
+def write_eliminated(feed):
+    """Write docs/eliminated.json — the FIFA codes of nations no longer in the
+    competition — for the Live hub's 'Eliminated players' box.
+
+    Derived statelessly from the CURRENT round's fixtures: a nation that is still
+    to play, or that won its game, stays IN; the loser of a finished game is OUT;
+    and any nation that never reached this round (group-stage casualties) is OUT
+    by virtue of not appearing at all. Finished LEVEL ties are resolved via the
+    web-search shootout lookup; an unresolved one keeps BOTH teams in so we never
+    wrongly eliminate someone. Only runs in the knockout rounds (group-stage
+    single games don't eliminate anyone). Never raises."""
+    try:
+        label = feed.get("matchday") or ""
+        if not KO_ROUND.search(label):
+            return  # group stage — single results don't settle eliminations
+        fixtures = feed.get("fixtures", []) or []
+        if not fixtures:
+            return
+        still_in, draws = set(), []
+        for f in fixtures:
+            h, a = f.get("home"), f.get("away")
+            if not (h and a):
+                continue
+            if f.get("status") != "finished":
+                still_in.add(h); still_in.add(a); continue
+            mm = re.match(r"\s*(\d+)\D+(\d+)", (f.get("score") or "").replace("–", "-"))
+            if not mm:
+                still_in.add(h); still_in.add(a); continue  # unknown -> don't eliminate
+            hg, ag = int(mm.group(1)), int(mm.group(2))
+            if hg > ag:
+                still_in.add(h)
+            elif ag > hg:
+                still_in.add(a)
+            else:
+                draws.append((f"{h}-{a}", h, a, f"{hg}-{ag}"))
+        if draws:
+            winners = web_lookup_shootouts(draws, {"round_label": label, "matchday_day_label": ""})
+            for key, h, a, sc in draws:
+                w = winners.get(key)
+                if w == h:
+                    still_in.add(h)
+                elif w == a:
+                    still_in.add(a)
+                else:
+                    still_in.add(h); still_in.add(a)  # unresolved -> keep both
+        owned = load_owned()
+        owned_nations = sorted({p.get("nation") for p in owned if p.get("nation")})
+        eliminated = sorted(n for n in owned_nations if n not in still_in)
+        os.makedirs(os.path.dirname(ELIM_PATH), exist_ok=True)
+        with open(ELIM_PATH, "w", encoding="utf-8") as fh:
+            json.dump({"eliminated": eliminated, "still_in": sorted(still_in),
+                       "round": label,
+                       "updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      fh, indent=2)
+        print(f"Wrote {ELIM_PATH}: {len(eliminated)} eliminated nations", flush=True)
+    except Exception as e:
+        print(f"  write_eliminated failed ({e})", file=sys.stderr, flush=True)
+
+
+def load_owned():
+    try:
+        with open(OWNED_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
 def write_copy(brief):
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=600.0, max_retries=1)
 
@@ -531,6 +601,9 @@ def _build():
     brief["eliminations"] = resolve_eliminations(feed, brief)
     if brief["eliminations"].get("eliminated"):
         print(f"Knockout exits today: {brief['eliminations']['eliminated']}", flush=True)
+
+    # Refresh the cumulative eliminated-nations file for the Live hub's box.
+    write_eliminated(feed)
 
     print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
           f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)
