@@ -261,8 +261,97 @@ def _chunks(seq, n):
     return [seq[i:i + n] for i in range(0, len(seq), n)]
 
 
+# --- Knockout eliminations -----------------------------------------------------
+# In the knockout rounds, the LIVE FEED only gives the scoreline (e.g. "1–1") and
+# never says who won a penalty shootout. So: decisive scores are read straight
+# from the feed; LEVEL (drawn) knockout ties are resolved by asking Claude with
+# the web-search tool for the actual shootout result. Group-stage draws are not
+# eliminations. Everything here is best-effort and never raises — if the web
+# lookup is unavailable, drawn ties are simply left unconfirmed (the prose then
+# stays neutral and never invents a winner).
+KO_ROUND = re.compile(r"round of \d+|last \d+|quarter|semi|third[- ]place|\bfinal\b", re.I)
+
+
+def web_lookup_shootouts(level, brief):
+    """level: list of (key, home, away, score). Returns {key: winner_code}."""
+    if not level:
+        return {}
+    ties = "; ".join(f"{h} v {a} (key {k}, finished {sc})" for k, h, a, sc in level)
+    q = ("You are a precise sports-results lookup. It is the "
+         f"{brief.get('round_label', 'knockout stage')} of the 2026 FIFA World Cup; these matches "
+         f"were played on {brief.get('matchday_day_label', '')} and finished level, so were decided "
+         f"on a penalty shootout: {ties}. Search the web for the actual results and tell me which "
+         "nation WON each shootout (and therefore advanced). Use the EXACT 3-letter codes given in "
+         'each key. Return ONLY a JSON object mapping each key to the winning code, e.g. '
+         '{"GER-PAR":"PAR"}. Omit any tie you cannot confirm.')
+    try:
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=600.0, max_retries=1)
+        msg = client.messages.create(
+            model=MODEL, max_tokens=1500, temperature=0,
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+            messages=[{"role": "user", "content": q}],
+        )
+        text = "".join(getattr(b, "text", "") for b in (msg.content or [])
+                       if getattr(b, "type", "") == "text")
+        winners = _loads(text, array=False)
+        return winners if isinstance(winners, dict) else {}
+    except Exception as e:
+        print(f"  shootout web lookup unavailable ({e}) — leaving level ties unconfirmed",
+              file=sys.stderr, flush=True)
+        return {}
+
+
+def resolve_eliminations(feed, brief):
+    """Return {"eliminated":[codes], "lines":[readable strings]} for the matchday."""
+    out = {"eliminated": [], "lines": []}
+    try:
+        if not KO_ROUND.search(brief.get("round_label") or ""):
+            return out  # not a knockout round — draws eliminate nobody
+        target = brief.get("matchday_date")
+        day = [f for f in feed.get("fixtures", [])
+               if f.get("matchday") == target and f.get("status") == "finished"]
+        elim, lines, level = [], [], []
+        for f in day:
+            h, a = f.get("home"), f.get("away")
+            mm = re.match(r"\s*(\d+)\D+(\d+)", (f.get("score") or "").replace("–", "-"))
+            if not (h and a and mm):
+                continue
+            hg, ag = int(mm.group(1)), int(mm.group(2))
+            if hg > ag:
+                elim.append(a); lines.append(f"{a} eliminated ({h} won {hg}-{ag})")
+            elif ag > hg:
+                elim.append(h); lines.append(f"{h} eliminated ({a} won {ag}-{hg})")
+            else:
+                level.append((f"{h}-{a}", h, a, f"{hg}-{ag}"))
+        if level:
+            winners = web_lookup_shootouts(level, brief)
+            for key, h, a, sc in level:
+                w = winners.get(key)
+                if w == h:
+                    elim.append(a); lines.append(f"{a} eliminated ({h} won {sc} on penalties)")
+                elif w == a:
+                    elim.append(h); lines.append(f"{h} eliminated ({a} won {sc} on penalties)")
+                else:
+                    lines.append(f"{h} {sc} {a}: level, settled on penalties — winner UNCONFIRMED, "
+                                 "do NOT state who advanced or was eliminated")
+        out["eliminated"] = sorted(set(elim))
+        out["lines"] = lines
+    except Exception as e:
+        print(f"  elimination resolve failed ({e})", file=sys.stderr, flush=True)
+    return out
+
+
 def write_copy(brief):
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=600.0, max_retries=1)
+
+    elim = brief.get("eliminations", {}) or {}
+    elim_note = (
+        "KNOCKOUT EXITS this matchday (CONFIRMED — treat as FACT): "
+        + ("; ".join(elim.get("lines", [])) if elim.get("lines") else "none today.")
+        + " A player whose nation is listed as eliminated is OUT of the tournament — reflect that"
+        " where it matters. Do NOT claim any side advanced or was eliminated beyond this list, and"
+        " never invent a shootout result."
+    )
 
     # 1) Frame: lead + notes (phrasing only; figures come from the brief).
     frame_task = (
@@ -277,6 +366,7 @@ def write_copy(brief):
         ' "notes": { "top_haul": "<Player (Manager) — N pts>", "bargain": "<Player (Manager) — N pts>",'
         ' "flop": "<Player (Manager) — blank>" } }'
     )
+    frame_task += "\n\n" + elim_note
     frame_payload = {
         "round_label": brief["round_label"],
         "matchday_day_label": brief["matchday_day_label"],
@@ -311,6 +401,7 @@ def write_copy(brief):
             f"{len(batch)} objects in that order:\n"
             '[ {"manager": "<first name>", "headline": "<short headline>", "body": "<~90-130 words>"} ]'
         )
+        task += "\n\n" + elim_note
         try:
             arts = _ask(client, task, {"managers": records}, max_tokens=2500 * len(batch), array=True)
             if not isinstance(arts, list) or len(arts) < len(batch):
@@ -328,6 +419,7 @@ def write_copy(brief):
                     "Use ONLY their_players_today; lead with haul_this_matchday. ~90-130 words. "
                     'Return ONLY a JSON array of one object: [ {"manager":"' + m + '","headline":"..","body":".."} ]'
                 )
+                one += "\n\n" + elim_note
                 arts = _ask(client, one, {"managers": [rec]}, max_tokens=2500, array=True)
                 articles.extend(arts)
 
@@ -433,6 +525,12 @@ def _build():
         return
     print(f"Live page covers {published_date!r}; latest completed matchday is {target_date} "
           f"— (re)building so the page self-heals.", flush=True)
+
+    # Resolve knockout eliminations (incl. penalty shootouts via web search) so the
+    # prose can state who's out without guessing.
+    brief["eliminations"] = resolve_eliminations(feed, brief)
+    if brief["eliminations"].get("eliminated"):
+        print(f"Knockout exits today: {brief['eliminations']['eliminated']}", flush=True)
 
     print(f"Recapping matchday {brief['matchday_date']} ({brief['matchday_day_label']}): "
           f"{len(brief['fixtures'])} fixtures, {len(brief['day_player_pool'])} owned players played", flush=True)
