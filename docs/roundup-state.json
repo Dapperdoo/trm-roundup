@@ -4,6 +4,7 @@
     "BEL-IRN",
     "BIH-QAT",
     "BRA-HAI",
+    "BRA-JPN",
     "CAN-QAT",
     "COD-UZB",
     "COL-POR",
@@ -17,10 +18,12 @@
     "EGY-IRN",
     "ESP-KSA",
     "GER-CIV",
+    "GER-PAR",
     "JOR-ARG",
     "JPN-SWE",
     "MAR-HAI",
     "MEX-KOR",
+    "NED-MAR",
     "NED-SWE",
     "NOR-FRA",
     "NZL-BEL",
@@ -41,5 +44,5 @@
     "URU-ESP",
     "USA-AUS"
   ],
-  "updated": "2026-06-28T22:08:03Z"
+  "updated": "2026-06-30T09:55:07Z"
 }
