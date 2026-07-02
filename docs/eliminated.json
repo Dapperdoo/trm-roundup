@@ -1,6 +1,8 @@
 {
   "eliminated": [
+    "BIH",
     "CIV",
+    "COD",
     "CZE",
     "ECU",
     "GER",
@@ -9,6 +11,7 @@
     "NED",
     "PAN",
     "RSA",
+    "SEN",
     "SWE"
   ],
   "still_in": [
@@ -17,10 +20,8 @@
     "AUS",
     "AUT",
     "BEL",
-    "BIH",
     "BRA",
     "CAN",
-    "COD",
     "COL",
     "CPV",
     "CRO",
@@ -34,7 +35,6 @@
     "NOR",
     "PAR",
     "POR",
-    "SEN",
     "SUI",
     "USA"
   ],
@@ -43,5 +43,5 @@
     "NED-MAR": "MAR"
   },
   "round": "Round of 32",
-  "updated": "2026-07-01T14:52:24Z"
+  "updated": "2026-07-02T10:00:00Z"
 }
