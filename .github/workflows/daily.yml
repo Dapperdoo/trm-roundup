@@ -36,6 +36,19 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Wake & sync the source relay (so scores are current before we read)
+        continue-on-error: true
+        run: |
+          echo "Poking Tristan's relay to wake it + pull the latest FIFA scores..."
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "https://trm-fantasy.onrender.com/wc/sync" || echo 000)
+            echo "  /wc/sync attempt $i -> HTTP $code"
+            [ "$code" = "200" ] && break
+            sleep 15
+          done
+          sleep 25   # let the relay ingest FIFA's data before build_squads/generate read it
+          curl -s -o /dev/null --max-time 60 "https://trm-fantasy.onrender.com/wc" || true
+
       - name: Rebuild squads + prices from source (auto-picks-up transfers)
         run: python build_squads.py
 

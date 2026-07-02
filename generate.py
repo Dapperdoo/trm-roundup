@@ -27,6 +27,8 @@ import urllib.request
 import anthropic
 
 FEED_URL = "https://trm-live.dapperdon.workers.dev"
+SOURCE_SYNC_URL = "https://trm-fantasy.onrender.com/wc/sync"  # forces the relay to re-pull FIFA scores + wakes the free-tier app if asleep
+SOURCE_URL = "https://trm-fantasy.onrender.com/wc"
 TEMPLATE_PATH = "template.html"
 OUTPUT_PATH = "docs/roundup.html"
 STATE_PATH = "docs/roundup-state.json"
@@ -122,7 +124,34 @@ def fetch(url, tries=4):
 
 
 def get_feed():
-    return json.loads(fetch(FEED_URL))
+    # Cache-buster forces a fresh worker invocation so it re-scrapes the (now-synced)
+    # source instead of returning an edge-cached copy.
+    return json.loads(fetch(FEED_URL + "?cb=" + str(int(time.time()))))
+
+
+def wake_and_sync_source():
+    """Wake Tristan's onrender relay and force it to re-pull the latest FIFA fantasy
+    scores BEFORE we read anything. That relay runs on free hosting that sleeps after
+    ~15 min idle and only syncs FIFA while awake — so overnight/idle it goes stale,
+    which is what left the roundup showing yesterday's data at 8am even though FIFA
+    itself was current. Hitting /wc/sync wakes it (cold start ~30-60s) and forces a
+    fresh pull. Best-effort; never fatal."""
+    print("Waking + syncing the source relay...", flush=True)
+    for attempt in range(5):
+        try:
+            req = urllib.request.Request(SOURCE_SYNC_URL, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=90) as r:
+                r.read()
+            print(f"  source sync ok (attempt {attempt+1})", flush=True)
+            break
+        except Exception as e:
+            print(f"  source sync attempt {attempt+1} failed: {e}", file=sys.stderr, flush=True)
+            time.sleep(12)
+    time.sleep(25)  # let it ingest FIFA's data before anything reads it
+    try:
+        fetch(SOURCE_URL, tries=2)  # warm the page the worker scrapes
+    except Exception:
+        pass
 
 
 def pretty_day(iso):
@@ -577,6 +606,7 @@ def render(data):
 
 
 def _build():
+    wake_and_sync_source()
     print("Fetching league feed...", flush=True)
     feed = get_feed()
     # Refresh the Live hub's eliminated-nations file on EVERY run (independent of
