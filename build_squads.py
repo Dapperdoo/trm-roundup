@@ -146,6 +146,12 @@ def clean_name(pre):
 
 SCRIPT = r'''<script>(function(){var W="https://trm-live.dapperdon.workers.dev";function nrm(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}function poll(){fetch(W,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){var used={},rp={};(d.fixtures||[]).forEach(function(f){if(f.status==='finished'||f.status==='live'){(f.players||[]).forEach(function(p){var k=nrm(p.name);used[k]=true;if(p.pts!=null)rp[k]=p.pts;});}});var tot=0,rnd=0;[].forEach.call(document.querySelectorAll('tr[data-p]'),function(tr){var bt=+tr.getAttribute('data-t');var key=nrm(tr.getAttribute('data-p'));var u=used[key]===true;var r=u?(rp[key]!=null?rp[key]:0):0;var t=bt+r;var rc=tr.querySelector('.rd'),tc=tr.querySelector('.tot');if(rc){rc.textContent=r;rc.style.color=u?'var(--cyan)':'';}if(tc)tc.textContent=t;rnd+=r;tot+=t;});var sr=document.getElementById('sq-rd');if(sr)sr.textContent=rnd;var tEl=document.getElementById('sq-tot');if(tEl){var mgr=tEl.getAttribute('data-mgr');var st=(d.standings||[]).filter(function(s){return s.manager===mgr;})[0];if(st&&st.total!=null)tEl.textContent=st.total;}}).catch(function(){});}poll();setInterval(poll,30000);})();</script>'''
 
+# Marks any squad row whose nation is out of the tournament (from docs/eliminated.json)
+# so an eliminated player reads clearly as OUT instead of looking like he's yet to play.
+# Self-contained: injects its own CSS and reads each row's nation from its .nat cell, so
+# it also works when pasted into already-built pages. Refreshes every 60s.
+ELIM_SCRIPT = r'''<script>(function(){var css='tr.out{opacity:.5}.outbadge{display:inline-block;margin-left:6px;font-size:9px;font-weight:800;letter-spacing:.06em;color:#fff;background:#f0556b;padding:1px 5px;border-radius:4px;vertical-align:middle}';var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);function mark(){fetch('eliminated.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j)return;var out={};(j.eliminated||[]).forEach(function(c){out[String(c).toUpperCase()]=true;});[].forEach.call(document.querySelectorAll('tbody tr'),function(tr){var nc=tr.querySelector('.nat');if(!nc)return;var nat=(nc.textContent||'').trim().toUpperCase();var isout=!!(nat&&out[nat]===true);tr.classList.toggle('out',isout);var pn=tr.querySelector('.pn');if(!pn)return;var b=pn.querySelector('.outbadge');if(isout&&!b){b=document.createElement('span');b.className='outbadge';b.textContent='OUT';pn.appendChild(b);}else if(!isout&&b){b.remove();}});}).catch(function(){});}mark();setInterval(mark,60000);})();</script>'''
+
 HEAD = (
     '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
@@ -303,7 +309,7 @@ def team_html(team, manager, players):
                 .replace("{{MGR}}", esc(manager)).replace("{{SE}}", str(se))
                 .replace("{{RD}}", str(rd)).replace("{{N}}", str(len(players)))
                 .replace("{{ROWS}}", "".join(rows)))
-    return html + SCRIPT + "</div></body></html>"
+    return html + SCRIPT + ELIM_SCRIPT + "</div></body></html>"
 
 
 def write_debug(text):
