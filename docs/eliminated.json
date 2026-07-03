@@ -1,7 +1,6 @@
 {
   "eliminated": [
     "ALG",
-    "AUT",
     "BIH",
     "CIV",
     "COD",
@@ -43,5 +42,5 @@
     "NED-MAR": "MAR"
   },
   "round": "Round of 32",
-  "updated": "2026-07-03T09:00:00Z"
+  "updated": "2026-07-03T11:55:46Z"
 }
