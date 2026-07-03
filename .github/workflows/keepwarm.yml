@@ -1,0 +1,35 @@
+name: Keep relay warm
+
+# Tristan's results relay (trm-fantasy.onrender.com) runs on free hosting that
+# SLEEPS after ~15 min idle and only syncs FIFA while awake. Overnight it goes cold,
+# so at build time it serves yesterday's snapshot — which is what made the roundup
+# think there was "nothing new" and leave a stale page up.
+#
+# This tiny job pings /wc/sync repeatedly across the pre-dawn UK window so the relay
+# is already AWAKE and freshly synced before the roundup build runs. It never commits
+# anything. GitHub cron is best-effort, but a missed ping is harmless — the build's
+# own wait-for-fresh loop will wake the relay itself as a backstop.
+on:
+  schedule:
+    # every ~12 min, 02:00-07:59 UTC  (03:00-08:59 UK / BST)
+    - cron: "2,14,26,38,50 2-7 * * *"
+    # a couple of extra pings right up to the late-morning build window
+    - cron: "2,32 8 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: keepwarm
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake + sync the relay
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "https://trm-fantasy.onrender.com/wc/sync" || echo 000)
+            echo "sync attempt $i -> HTTP $code"
+            [ "$code" = "200" ] && break
+            sleep 20
+          done

@@ -129,29 +129,88 @@ def get_feed():
     return json.loads(fetch(FEED_URL + "?cb=" + str(int(time.time()))))
 
 
-def wake_and_sync_source():
-    """Wake Tristan's onrender relay and force it to re-pull the latest FIFA fantasy
-    scores BEFORE we read anything. That relay runs on free hosting that sleeps after
-    ~15 min idle and only syncs FIFA while awake — so overnight/idle it goes stale,
-    which is what left the roundup showing yesterday's data at 8am even though FIFA
-    itself was current. Hitting /wc/sync wakes it (cold start ~30-60s) and forces a
-    fresh pull. Best-effort; never fatal."""
-    print("Waking + syncing the source relay...", flush=True)
-    for attempt in range(5):
-        try:
-            req = urllib.request.Request(SOURCE_SYNC_URL, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=90) as r:
-                r.read()
-            print(f"  source sync ok (attempt {attempt+1})", flush=True)
-            break
-        except Exception as e:
-            print(f"  source sync attempt {attempt+1} failed: {e}", file=sys.stderr, flush=True)
-            time.sleep(12)
-    time.sleep(25)  # let it ingest FIFA's data before anything reads it
+def _poke_sync():
+    """Fire a single /wc/sync at the relay (wakes it if asleep + forces a FIFA
+    re-pull). Best-effort; never raises."""
     try:
-        fetch(SOURCE_URL, tries=2)  # warm the page the worker scrapes
+        req = urllib.request.Request(SOURCE_SYNC_URL, headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=90) as r:
+            r.read()
+        return True
+    except Exception as e:
+        print(f"  /wc/sync poke failed: {e}", file=sys.stderr, flush=True)
+        return False
+
+
+def _feed_age_minutes(feed):
+    """How long ago the relay last synced FIFA, per the feed's own 'updated' stamp."""
+    try:
+        u = (feed.get("updated") or "").replace("Z", "")
+        dt = datetime.datetime.fromisoformat(u)
+        return max(0, int((datetime.datetime.utcnow() - dt).total_seconds() // 60))
     except Exception:
-        pass
+        return 9999
+
+
+def _stuck_fixtures(feed, grace_hours=3):
+    """Fixtures whose kickoff is comfortably in the past yet are still NOT marked
+    finished — the tell-tale sign the relay is serving a stale, pre-games snapshot.
+    A generous grace (hours) absorbs any kickoff-time timezone offset; by the time
+    the morning build runs, a genuinely-finished game is many hours past kickoff."""
+    now = datetime.datetime.utcnow()
+    stuck = []
+    for f in feed.get("fixtures", []) or []:
+        if f.get("status") == "finished":
+            continue
+        d = f.get("date")
+        if not d:
+            continue
+        try:
+            ko = datetime.datetime.strptime(f"{d} {f.get('kickoff') or '00:00'}", "%Y-%m-%d %H:%M")
+        except Exception:
+            continue
+        if now - ko >= datetime.timedelta(hours=grace_hours):
+            stuck.append(f'{f.get("home")}-{f.get("away")}')
+    return stuck
+
+
+def ensure_fresh_feed(max_wait_s=720):
+    """Wake Tristan's onrender relay and DO NOT PROCEED until the feed genuinely
+    reflects reality. That relay runs on free hosting that sleeps after ~15 min idle
+    and only syncs FIFA while awake, so at 8am it typically serves YESTERDAY's
+    snapshot — which is exactly what made the build think there was 'nothing new' and
+    silently leave a stale roundup up. Here we sync, then poll the feed until BOTH
+    (a) it was updated within the last ~20 min AND (b) no long-finished fixture is
+    still shown 'upcoming'. Returns (feed_or_None, fresh_bool); never raises."""
+    print("Waking relay and waiting for a genuinely fresh feed...", flush=True)
+    deadline = time.time() + max_wait_s
+    feed = None
+    attempt = 0
+    while True:
+        attempt += 1
+        _poke_sync()
+        time.sleep(20)  # allow a cold start + FIFA pull to land
+        try:
+            feed = get_feed()
+        except Exception as e:
+            print(f"  feed fetch failed (attempt {attempt}): {e}", file=sys.stderr, flush=True)
+            feed = None
+        if feed is not None:
+            age = _feed_age_minutes(feed)
+            stuck = _stuck_fixtures(feed)
+            if age <= 20 and not stuck:
+                print(f"  feed FRESH after {attempt} sync(s): updated ~{age}m ago, "
+                      "no finished games stuck as 'upcoming'.", flush=True)
+                return feed, True
+            print(f"  feed still stale (attempt {attempt}): updated ~{age}m ago; "
+                  f"{len(stuck)} past-kickoff game(s) still 'upcoming'"
+                  + (f" [{', '.join(stuck[:6])}]" if stuck else "") + ". Re-syncing...",
+                  file=sys.stderr, flush=True)
+        if time.time() >= deadline:
+            print("  TIMED OUT waiting for a fresh feed — relay would not catch up in time.",
+                  file=sys.stderr, flush=True)
+            return feed, False
+        time.sleep(25)
 
 
 def pretty_day(iso):
@@ -606,15 +665,22 @@ def render(data):
 
 
 def _build():
-    wake_and_sync_source()
-    print("Fetching league feed...", flush=True)
-    feed = get_feed()
+    feed, fresh = ensure_fresh_feed()
+    if feed is None:
+        raise RuntimeError("could not reach the league feed at all (relay + worker both unreachable)")
     # Refresh the Live hub's eliminated-nations file on EVERY run (independent of
     # whether the roundup itself rebuilds), so penalty-shootout exits are picked up
     # promptly. Decisive and group-stage exits are also computed live in the browser.
     write_eliminated(feed)
     brief = build_brief(feed)
     if brief is None:
+        # No fully-completed matchday visible. If we NEVER confirmed a fresh feed this
+        # is almost certainly the sleeping relay lying to us — treat it as a real
+        # failure (records a log + lets a later cron retry) rather than silently
+        # accepting "nothing to recap" and stranding a stale page.
+        if not fresh:
+            raise RuntimeError("feed never went fresh AND shows no completed matchday — "
+                               "refusing to trust a stale/asleep relay; a later run will retry.")
         print("No completed matchday in the feed yet — nothing to recap. Exiting cleanly.", flush=True)
         return
 
@@ -636,6 +702,11 @@ def _build():
     except Exception:
         pass
     if published_date == target_date:
+        # Genuinely up to date ONLY if we trust the feed. If we never confirmed
+        # freshness, don't accept "nothing to do" — flag it so a later run retries.
+        if not fresh:
+            raise RuntimeError(f"page marker already {target_date} but feed never confirmed "
+                               "fresh — not trusting a possibly-stale relay; a later run will retry.")
         print(f"Live page already covers {target_date} — nothing to do. Exiting cleanly.", flush=True)
         return
     print(f"Live page covers {published_date!r}; latest completed matchday is {target_date} "
