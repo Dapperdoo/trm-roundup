@@ -1,17 +1,17 @@
 python 3.12.13
 FIFA nation map: 1740 names
-back-of-the-van-united: parsed 18 players
-look-at-his-face: parsed 18 players
-anamaduwa-athletic: parsed 18 players
-shatners-bassoon: parsed 18 players
-trossys-giants: parsed 18 players
-50-shades-of-oshea: parsed 18 players
-von-neumann-trombone: parsed 18 players
+back-of-the-van-united: parsed 16 players
+look-at-his-face: parsed 16 players
+anamaduwa-athletic: parsed 16 players
+shatners-bassoon: parsed 16 players
+trossys-giants: parsed 16 players
+50-shades-of-oshea: parsed 16 players
+von-neumann-trombone: parsed 16 players
 dyers-rusty-9-iron: parsed 18 players
-lloyds-food-and-wine: parsed 18 players
+lloyds-food-and-wine: parsed 16 players
 denton-burn: parsed 18 players
-trippier-and-trippier: parsed 18 players
-propaganda-parade: parsed 18 players
-snacobs-ladder: parsed 18 players
-backfilled nations: 18
-STATUS OK: wrote owned-players.json (234 players) + 13 squad pages
+trippier-and-trippier: parsed 16 players
+propaganda-parade: parsed 16 players
+snacobs-ladder: parsed 16 players
+backfilled nations: 16
+STATUS OK: wrote owned-players.json (212 players) + 13 squad pages
