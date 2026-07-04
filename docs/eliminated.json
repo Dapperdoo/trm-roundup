@@ -8,6 +8,7 @@
     "CZE",
     "ECU",
     "GER",
+    "GHA",
     "HAI",
     "JPN",
     "NED",
@@ -18,17 +19,14 @@
   ],
   "still_in": [
     "ARG",
-    "AUS",
     "BEL",
     "BRA",
     "CAN",
     "COL",
-    "CPV",
     "EGY",
     "ENG",
     "ESP",
     "FRA",
-    "GHA",
     "MAR",
     "MEX",
     "NOR",
@@ -39,8 +37,9 @@
   ],
   "shootouts": {
     "GER-PAR": "PAR",
-    "NED-MAR": "MAR"
+    "NED-MAR": "MAR",
+    "AUS-EGY": "EGY"
   },
   "round": "Round of 32",
-  "updated": "2026-07-03T11:55:46Z"
+  "updated": "2026-07-04T10:20:00Z"
 }
