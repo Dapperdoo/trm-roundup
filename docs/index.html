@@ -182,7 +182,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div class="tc"><h3>Round Live · Top 7 <span class="u">pts · used</span></h3><div id="tv-round-top"></div></div>
   <div class="tc"><h3>Round Live · Bottom 6 <span class="u">pts · used</span></h3><div id="tv-round-bottom"></div></div>
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
-  <div class="tc"><h3>Manager of the round</h3><div id="tv-manager"></div></div>
   <div class="tc"><h3>Biggest table mover</h3><div id="tv-mover"></div></div>
   <div class="tc"><h3>Kane points per million <span class="u">total pts / £m</span></h3><div id="tv-kane"></div></div>
 </div>
@@ -461,12 +460,6 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       botB.innerHTML = rowsFor(ranked.slice(7));
     })();
 
-    // Manager of the round — from standings round column
-    var byR=standings.slice().sort(function(a,b){return b.round-a.round;});
-    if(byR.length){
-      var top=byR[0], rest=byR.slice(1,3);
-      $("tv-manager").innerHTML='<div class="tbig"><div class="b">'+esc(top.team)+'</div><div class="s"><b style="color:var(--ink)">'+esc(top.manager)+'</b> · +'+top.round+' this round<br>'+rest.map(function(x){return esc(x.manager)+' +'+x.round;}).join(' · ')+'</div></div>';
-    } else empty("tv-manager","Awaiting the round.");
 
     // Biggest mover — baseline vs current
     if(!baselineRanks||!standings.length){ empty("tv-mover","Awaiting movement."); }
