@@ -12,6 +12,8 @@
     "HAI",
     "JPN",
     "NED",
+    "PAN",
+    "PAR",
     "RSA",
     "SEN",
     "SWE"
@@ -28,7 +30,6 @@
     "MAR",
     "MEX",
     "NOR",
-    "PAR",
     "POR",
     "SUI",
     "USA"
@@ -39,5 +40,5 @@
     "AUS-EGY": "EGY"
   },
   "round": "Round of 16",
-  "updated": "2026-07-04T23:31:49Z"
+  "updated": "2026-07-04T23:43:39Z"
 }
