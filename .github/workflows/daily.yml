@@ -2,16 +2,13 @@ name: Build Roundup
 
 on:
   schedule:
-    # GitHub cron is UTC-only and BEST-EFFORT: scheduled runs are frequently delayed
-    # and SOMETIMES DROPPED ENTIRELY (especially under load). A handful of morning
-    # attempts can therefore all be missed — which is exactly what kept happening.
-    # Fix: fire every 20 minutes across the whole morning window (off the hour). The
-    # builder is idempotent — once a matchday is published it records the fixtures in
-    # roundup-state.json and every later run exits immediately (no AI call, no commit)
-    # — so these frequent attempts are free no-ops. With ~27 chances spanning 9 hours,
-    # a total miss is extremely unlikely, and the day publishes well before 7am UK.
-    # 03:03–11:43 UTC = 04:03–12:43 UK (BST).
-    - cron: "3,23,43 3-11 * * *"
+    # Every 30 min across a focused early window (04:00–09:30 UTC = 05:00–10:30 UK/BST).
+    # Dialled back from the old every-20-min/9-hour schedule: each run now WAITS for
+    # fresh data within itself (generate.py's freshness gate) and the relay is kept warm
+    # by keepwarm.yml, so far fewer attempts are needed. Fewer runs => far fewer commits,
+    # which — together with the concurrency-locked Pages deploy (pages.yml) — keeps us
+    # comfortably under GitHub Pages' hourly deploy limit so pushes reliably go live.
+    - cron: "12,42 4-9 * * *"
   workflow_dispatch: {}
 
 permissions:

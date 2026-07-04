@@ -1,0 +1,51 @@
+name: Deploy Pages
+
+# Publishes docs/ to GitHub Pages through a SINGLE, controlled deployment.
+#
+# Why this exists: the default "deploy from a branch" setup fires a fresh Pages
+# deployment on EVERY push. A flurry of pushes (bot commits + manual edits + re-runs)
+# therefore piles up many separate deployments and trips Pages' hourly build limit,
+# which shows up as "Deployment failed, try again later". The concurrency group below
+# collapses a burst of pushes into one in-flight deploy plus at most one queued (the
+# latest), so we stay well under the limit and "push -> live" becomes reliable.
+#
+# IMPORTANT one-time setting: repo Settings -> Pages -> Build and deployment ->
+# Source must be set to "GitHub Actions" for this workflow to publish the site.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time; newer pushes wait rather than spawning a
+# parallel deploy. cancel-in-progress:false lets an in-flight production deploy finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload docs/ as the Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
