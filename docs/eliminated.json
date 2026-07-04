@@ -2,7 +2,7 @@
   "eliminated": [
     "ALG",
     "BIH",
-    "CIV",
+    "CAN",
     "COD",
     "CRO",
     "CZE",
@@ -21,7 +21,6 @@
     "ARG",
     "BEL",
     "BRA",
-    "CAN",
     "COL",
     "EGY",
     "ENG",
@@ -40,6 +39,6 @@
     "NED-MAR": "MAR",
     "AUS-EGY": "EGY"
   },
-  "round": "Round of 32",
-  "updated": "2026-07-04T14:54:27Z"
+  "round": "Round of 16",
+  "updated": "2026-07-04T22:02:00Z"
 }
