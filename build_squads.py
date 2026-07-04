@@ -172,7 +172,8 @@ HEAD = (
     '<div class="stats">'
     '<div class="stat"><b id="sq-tot" data-mgr="{{MGR}}">—</b><span>Total pts</span></div>'
     '<div class="stat"><b id="sq-rd">{{RD}}</b><span>This round</span></div>'
-    '<div class="stat"><b id="sq-elim">—</b><span>Eliminated</span></div></div>'
+    '<div class="stat"><b id="sq-elim">—</b><span>Eliminated</span></div>'
+    '<div class="stat"><b>&pound;{{FUNDS}}m</b><span>Funds left</span></div></div>'
     '<table><thead><tr><th>Pos</th><th>Player</th><th>Nat</th><th class="num">Price</th>'
     '<th class="num">Rnd</th><th class="num">Total</th></tr></thead><tbody>{{ROWS}}</tbody></table>'
     "<footer>TRM Fantasy · World Cup 2026 · points update live during games; squad &amp; prices daily</footer>"
@@ -304,10 +305,14 @@ def team_html(team, manager, players):
         )
     se = sum(p["total"] for p in players)
     rd = sum(p["round"] for p in players)
+    funds = round(120.0 - sum(p["price"] for p in players), 1)  # £120m budget minus spend
+    if funds <= 0:
+        funds = 0.0  # avoid a "-0.0" display when the whole budget is spent
     disp = DISPLAY.get(team, team)
     html = (HEAD.replace("{{TITLE}}", esc(disp)).replace("{{TEAM}}", esc(disp))
                 .replace("{{MGR}}", esc(manager)).replace("{{SE}}", str(se))
                 .replace("{{RD}}", str(rd)).replace("{{N}}", str(len(players)))
+                .replace("{{FUNDS}}", f"{funds:.1f}")
                 .replace("{{ROWS}}", "".join(rows)))
     return html + SCRIPT + ELIM_SCRIPT + "</div></body></html>"
 

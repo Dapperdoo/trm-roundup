@@ -333,13 +333,23 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
 
   function renderMatches(){
     var live=fixtures.filter(function(f){return f.status==="live";});
-    // Current matchday = the latest day that has a started (live/finished) game.
-    var started=fixtures.filter(function(f){return f.matchday && (f.status==="live"||f.status==="finished");});
-    var days=started.map(function(f){return f.matchday;}).sort();
-    var cur=days.length? days[days.length-1] : null;
-    // Current matchday RESULTS (finished only). Live games sit above the table;
-    // upcoming games (even same-day) move to the "Next fixtures" section below.
-    var today = cur ? fixtures.filter(function(f){ return f.matchday===cur && f.status==="finished"; }) : [];
+    // RESULTS (finished only) shown above the table. Normally just the latest matchday's
+    // finished games. BUT the source attaches NO date/matchday to finished KNOCKOUT games
+    // (only to upcoming ones), so those arrive with matchday=null. The old code required
+    // f.matchday and therefore silently dropped every knockout result — which is why the
+    // results boxes vanished in the R16. Fix: if there are no dated finished games, show
+    // ALL finished games (the feed only ever holds the current round); otherwise show the
+    // latest dated matchday plus any undated (knockout) finished games.
+    var finishedAll=fixtures.filter(function(f){return f.status==="finished";});
+    var datedFin=finishedAll.filter(function(f){return f.matchday;});
+    var today;
+    if(datedFin.length){
+      var days=datedFin.map(function(f){return f.matchday;}).sort();
+      var cur=days[days.length-1];
+      today=finishedAll.filter(function(f){return f.matchday===cur || !f.matchday;});
+    } else {
+      today=finishedAll;
+    }
     // Next fixtures = ALL upcoming, soonest first, show at least 6 — always shown when any exist.
     // Sort by the TRUE kickoff moment (actual calendar date + time), NOT the worker's
     // matchday, which shifts after-midnight games back a day and would put a 02:00
