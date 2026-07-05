@@ -219,13 +219,21 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   // the next matchday kicks off.
   function computeBaseline(){
     if(!standings.length || !fixtures.length) return null;
-    var seen={};
-    fixtures.forEach(function(f){ if((f.status==="finished"||f.status==="live")&&f.matchday) seen[f.matchday]=true; });
+    // Knockout games arrive from the source with NO date/matchday, so the old
+    // "latest dated matchday" lookup found nothing and movement silently vanished.
+    // If there are dated finished/live games use the latest such day (group stage);
+    // otherwise fall back to the UNDATED finished/live games — the current round's ties.
+    var seen={}, undated=false;
+    fixtures.forEach(function(f){ if(f.status==="finished"||f.status==="live"){ if(f.matchday) seen[f.matchday]=true; else undated=true; } });
     var days=Object.keys(seen).sort();
-    if(!days.length) return null;
-    var M=days[days.length-1], dayPts={};
+    var M=null, useUndated=false;
+    if(days.length){ M=days[days.length-1]; }
+    else if(undated){ useUndated=true; }
+    else { return null; }
+    var dayPts={};
     fixtures.forEach(function(f){
-      if(f.matchday!==M || !(f.status==="finished"||f.status==="live")) return;
+      if(!(f.status==="finished"||f.status==="live")) return;
+      if(useUndated ? !!f.matchday : f.matchday!==M) return;
       (f.players||[]).forEach(function(p){ if(p.pts!=null && p.manager) dayPts[p.manager]=(dayPts[p.manager]||0)+p.pts; });
     });
     var prev=standings.map(function(s){ return {m:s.manager, t:(s.total||0)-(dayPts[s.manager]||0)}; });
