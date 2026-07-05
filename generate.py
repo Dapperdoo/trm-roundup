@@ -220,32 +220,51 @@ def pretty_day(iso):
         return iso or ""
 
 
-def build_brief(feed):
+def build_brief(feed, reported=None):
     """Deterministically reduce the feed to a single-matchday brief."""
+    reported = reported or set()
     standings = sorted(feed.get("standings", []), key=lambda s: s.get("rank", 99))
     fixtures = feed.get("fixtures", [])
-    finished = [f for f in fixtures if f.get("status") == "finished" and f.get("matchday")]
-    if not finished:
-        # No completed, matchday-tagged fixtures in the feed yet (e.g. mid-round with
-        # games still live, or the brief gap between rounds). Nothing to recap — signal
-        # the caller to exit cleanly rather than crashing the workflow.
+    finished_all = [f for f in fixtures if f.get("status") == "finished"]
+    if not finished_all:
+        # Nothing finished in the feed yet (mid-round, or the gap between rounds).
         return None
-    # Prefer the latest FULLY-complete matchday so we never publish a half-done
-    # slate (e.g. an evening's late kickoffs still to play). The worker already
-    # groups post-midnight kickoffs into the correct evening via a 12h shift.
-    days = {}
-    for f in fixtures:
-        d = f.get("matchday")
-        if d:
-            days.setdefault(d, []).append(f)
-    complete = [d for d, fs in days.items() if all(x.get("status") == "finished" for x in fs)]
-    if not complete:
-        # No fully-finished day in the feed yet — e.g. the start of a round/stage when
-        # only some of the current day's games are done. NEVER publish a half-finished
-        # slate: bail out cleanly and let a later run publish once the day completes.
-        return None
-    target = max(complete)
-    md = [f for f in finished if f["matchday"] == target]
+    dated = [f for f in finished_all if f.get("matchday")]
+    if dated:
+        # GROUP STAGE / dated rounds: recap the latest FULLY-complete calendar day so we
+        # never publish a half-done slate (evening kickoffs still to play). The worker
+        # groups post-midnight kickoffs into the correct evening via a 12h shift.
+        days = {}
+        for f in fixtures:
+            d = f.get("matchday")
+            if d:
+                days.setdefault(d, []).append(f)
+        complete = [d for d, fs in days.items() if all(x.get("status") == "finished" for x in fs)]
+        if not complete:
+            return None
+        target = max(complete)
+        md = [f for f in finished_all if f.get("matchday") == target]
+        matchday_date = target
+        day_label = pretty_day(target)
+    else:
+        # KNOCKOUTS: the source attaches NO date/matchday to FINISHED knockout games
+        # (only to upcoming ones), so they arrive undated. Grouping by calendar day is
+        # impossible; instead recap the finished ties we haven't reported yet (tracked in
+        # roundup-state.json). The set of fixture keys IS the matchday identity / page
+        # marker, so a newly-completed tie triggers a fresh roundup and old ones don't repeat.
+        md = [f for f in finished_all if f'{f["home"]}-{f["away"]}' not in reported]
+        if not md:
+            return None
+        matchday_date = ",".join(sorted(f'{f["home"]}-{f["away"]}' for f in md))
+        # Best-effort display date: the day before the earliest still-to-come tie.
+        day_label = feed.get("matchday") or "Latest results"
+        ups = [f.get("date") for f in fixtures if f.get("status") != "finished" and f.get("date")]
+        if ups:
+            try:
+                day_label = (datetime.datetime.strptime(min(ups), "%Y-%m-%d")
+                             - datetime.timedelta(days=1)).strftime("%A %d %B")
+            except Exception:
+                pass
 
     mgr = {}
     for s in standings:
@@ -281,8 +300,8 @@ def build_brief(feed):
 
     return {
         "round_label": feed.get("matchday") or "World Cup 2026",
-        "matchday_date": target,
-        "matchday_day_label": pretty_day(target),
+        "matchday_date": matchday_date,
+        "matchday_day_label": day_label,
         "fixtures": fixture_lines,
         "fixture_keys": sorted({f'{f["home"]}-{f["away"]}' for f in md}),
         "managers_in_order": [s["manager"] for s in standings],
@@ -672,7 +691,13 @@ def _build():
     # whether the roundup itself rebuilds), so penalty-shootout exits are picked up
     # promptly. Decisive and group-stage exits are also computed live in the browser.
     write_eliminated(feed)
-    brief = build_brief(feed)
+    reported = set()
+    try:
+        with open(STATE_PATH, encoding="utf-8") as f:
+            reported = set(json.load(f).get("reported_fixtures", []))
+    except Exception:
+        pass
+    brief = build_brief(feed, reported)
     if brief is None:
         # No fully-completed matchday visible. If we NEVER confirmed a fresh feed this
         # is almost certainly the sleeping relay lying to us — treat it as a real
