@@ -221,7 +221,12 @@ def pretty_day(iso):
 
 
 def build_brief(feed, reported=None):
-    """Deterministically reduce the feed to a single-matchday brief."""
+    """Deterministically reduce the feed to a single-matchday brief.
+
+    Knockout-aware: the source leaves FINISHED knockout ties undated (matchday=null),
+    so those are scoped via roundup-state.json's reported-fixtures set rather than by
+    calendar day. This is the fix that lets the auto-build recap the last-16 onward.
+    """
     reported = reported or set()
     standings = sorted(feed.get("standings", []), key=lambda s: s.get("rank", 99))
     fixtures = feed.get("fixtures", [])
