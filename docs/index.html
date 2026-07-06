@@ -357,6 +357,16 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     } else {
       today=finishedAll;
     }
+    // RESULTS ORDER: newest-first — the most recently finished game shows first, the oldest
+    // last. Dated games sort by true kickoff datetime (desc); knockout games arrive undated,
+    // so fall back to feed order (the source lists finished games chronologically) reversed.
+    today = today.map(function(f){ return {f:f, i:fixtures.indexOf(f)}; })
+      .sort(function(a,b){
+        var ka=(a.f.date||"")+(a.f.kickoff||""), kb=(b.f.date||"")+(b.f.kickoff||"");
+        if(ka && kb && ka!==kb) return ka<kb?1:-1;   // later datetime first
+        return b.i-a.i;                               // else later-in-feed first
+      })
+      .map(function(x){ return x.f; });
     // Next fixtures = ALL upcoming, soonest first, show at least 6 — always shown when any exist.
     // Sort by the TRUE kickoff moment (actual calendar date + time), NOT the worker's
     // matchday, which shifts after-midnight games back a day and would put a 02:00
