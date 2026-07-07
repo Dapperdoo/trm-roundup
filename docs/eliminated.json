@@ -5,9 +5,11 @@
     "BRA",
     "CAN",
     "COD",
+    "COL",
     "CRO",
     "CZE",
     "ECU",
+    "EGY",
     "GER",
     "GHA",
     "HAI",
@@ -25,8 +27,6 @@
   "still_in": [
     "ARG",
     "BEL",
-    "COL",
-    "EGY",
     "ENG",
     "ESP",
     "FRA",
@@ -37,8 +37,9 @@
   "shootouts": {
     "GER-PAR": "PAR",
     "NED-MAR": "MAR",
-    "AUS-EGY": "EGY"
+    "AUS-EGY": "EGY",
+    "SUI-COL": "SUI"
   },
-  "round": "Round of 16",
-  "updated": "2026-07-07T09:25:00Z"
+  "round": "Quarter-finals",
+  "updated": "2026-07-07T23:10:00Z"
 }

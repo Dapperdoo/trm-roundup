@@ -2,13 +2,14 @@ name: Build Roundup
 
 on:
   schedule:
-    # Every 30 min across a focused early window (04:00–09:30 UTC = 05:00–10:30 UK/BST).
-    # Dialled back from the old every-20-min/9-hour schedule: each run now WAITS for
-    # fresh data within itself (generate.py's freshness gate) and the relay is kept warm
-    # by keepwarm.yml, so far fewer attempts are needed. Fewer runs => far fewer commits,
-    # which — together with the concurrency-locked Pages deploy (pages.yml) — keeps us
-    # comfortably under GitHub Pages' hourly deploy limit so pushes reliably go live.
-    - cron: "12,42 4-9 * * *"
+    # Knockout matchdays now finish before ~00:00 UTC (1am UK), so the build fires MUCH
+    # earlier than the old 04:00–09:30 UTC window. First attempt at 00:45 UTC — once the
+    # evening capture (capture-feed.yml) has grabbed the final feed — then twice-hourly
+    # through the morning as a backstop. Because generate.py reads the durable captured
+    # snapshot, it no longer has to wake a cold relay at dawn. Fewer runs than the old
+    # 9-hour sweep => fewer commits, keeping us under GitHub Pages' hourly deploy limit.
+    - cron: "45 0 * * *"
+    - cron: "15,45 1-6 * * *"
   workflow_dispatch: {}
 
 permissions:
