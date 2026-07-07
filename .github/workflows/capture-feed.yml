@@ -1,0 +1,59 @@
+name: Capture Feed
+
+on:
+  schedule:
+    # Grab a fresh feed every 15 min through the evening/night match window (UTC),
+    # when the relay is warm from the live hub and games have just finished. WC2026
+    # knockout kickoffs are North-American afternoons/evenings, i.e. roughly 18:00–04:00
+    # UTC finishes. The morning build (daily.yml) then reads docs/feed-latest.json
+    # instead of trying to wake a cold, sleeping relay at dawn — the exact failure that
+    # kept stranding the roundup. Stdlib-only capture, so these runs are cheap and safe.
+    - cron: "*/15 18-23 * * *"
+    - cron: "*/15 0-4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: capture-feed
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0          # full history so a rebase before push is reliable
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Capture a fresh feed snapshot (stdlib only, no deps)
+        run: python capture_feed.py
+
+      - name: Commit the snapshot if it changed
+        run: |
+          git config user.name  "roundup-bot"
+          git config user.email "roundup-bot@users.noreply.github.com"
+          git add docs/feed-latest.json
+          if git diff --staged --quiet; then
+            echo "No fresher feed this run."
+            exit 0
+          fi
+          git commit -m "Feed snapshot: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # The remote may have advanced (the daily build or another capture). Rebase
+          # onto the latest main and retry so a push race can't fail the job.
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "push rejected; rebasing onto latest main (attempt $i)"
+            git pull --rebase --autostash origin main || true
+            sleep $((RANDOM % 5 + 3))
+          done
+          echo "push still failing after retries" >&2
+          exit 1

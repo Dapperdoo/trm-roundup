@@ -35,6 +35,7 @@ STATE_PATH = "docs/roundup-state.json"
 LOG_PATH = "docs/_roundup_log.txt"
 ELIM_PATH = "docs/eliminated.json"
 OWNED_PATH = "docs/owned-players.json"
+DURABLE_FEED_PATH = "docs/feed-latest.json"  # evening-captured snapshot; read at dawn
 MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -211,6 +212,30 @@ def ensure_fresh_feed(max_wait_s=720):
                   file=sys.stderr, flush=True)
             return feed, False
         time.sleep(25)
+
+
+def load_durable_feed():
+    """Prefer the evening-captured snapshot (docs/feed-latest.json) written by
+    capture_feed.py. It was validated as genuinely fresh AT CAPTURE TIME — relay warm,
+    games finished, nothing stuck showing 'upcoming' — so the dawn build can trust it
+    without gambling on waking a cold, sleeping relay at 04:00 (the exact failure that
+    stranded the roundup morning after morning). Returns (feed, True) if a usable
+    snapshot exists, else (None, False) so the caller falls back to waking the relay."""
+    try:
+        with open(DURABLE_FEED_PATH, encoding="utf-8") as f:
+            feed = json.load(f)
+    except Exception:
+        return None, False
+    if not any(x.get("status") == "finished" for x in feed.get("fixtures", []) or []):
+        # No completed games in the snapshot yet — nothing to recap from it.
+        return None, False
+    if _stuck_fixtures(feed):
+        # A finished game wrongly shown 'upcoming' means a bad capture slipped through;
+        # don't trust it — wake the relay live instead.
+        return None, False
+    print(f"Using durable captured feed {DURABLE_FEED_PATH} "
+          f"(captured {feed.get('_captured', '?')}).", flush=True)
+    return feed, True
 
 
 def pretty_day(iso):
@@ -689,7 +714,12 @@ def render(data):
 
 
 def _build():
-    feed, fresh = ensure_fresh_feed()
+    # Prefer the durable evening snapshot; only wake the (sleepy) relay if we don't
+    # have a usable one. This removes the dawn dependency on a cold relay entirely:
+    # the morning build reads a file that capture_feed.py already validated last night.
+    feed, fresh = load_durable_feed()
+    if feed is None:
+        feed, fresh = ensure_fresh_feed()
     if feed is None:
         raise RuntimeError("could not reach the league feed at all (relay + worker both unreachable)")
     # Refresh the Live hub's eliminated-nations file on EVERY run (independent of
