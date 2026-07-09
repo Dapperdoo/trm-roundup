@@ -835,7 +835,7 @@ def render_interlude(data, ctx, marker):
                     f'<td class="tot">{esc(r.get("total", ""))}</td></tr>')
 
     repl = {
-        "{{SUBTITLE}}": "Interlude Special · The Rest-Day Roast · No Football Was Harmed",
+        "{{SUBTITLE}}": "Interlude Special",
         "{{STANDBY}}": esc(data.get("standby", "one microphone, thirteen defenceless managers")),
         "{{MARKER}}": f"<!-- TRM-MATCHDAY:{marker} -->",
         "{{SET}}": set_html,
