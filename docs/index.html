@@ -380,6 +380,10 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     if(live.length){ lw.style.display=""; $("live").innerHTML=live.map(matchBox).join(""); }
     else { lw.style.display="none"; $("live").innerHTML=""; }
 
+    // TEMP one-off (QF lull): the most recent results are several days old, so hide the
+    // stale results boxes until tonight's first quarter-final kicks off (9pm UK / 20:00 UTC
+    // 9 Jul), after which they return automatically. Delete this one line to restore sooner.
+    if(Date.now() < Date.UTC(2026,6,9,20,0,0)) today = [];
     $("today").innerHTML = today.map(matchBox).join("");
     $("today-label").style.display = today.length? "":"none";
 
