@@ -72,7 +72,8 @@ details.mx{padding:0;}
 details[open] .mx-caret{color:var(--cyan);}
 .mx-pls{margin:0 13px 11px; border-top:1px solid var(--line); padding-top:8px;}
 .mx-pls-h{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--mut); margin-bottom:5px;}
-.pl{display:flex; align-items:baseline; gap:7px; font-size:12.5px; padding:2px 0;}
+.pl-grid{column-width:240px; column-gap:26px;}
+.pl{display:flex; align-items:baseline; gap:7px; font-size:12.5px; padding:2px 0; break-inside:avoid; -webkit-column-break-inside:avoid;}
 .pl-n{color:var(--ink); flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .pl-b{color:var(--magenta); font-size:10px; letter-spacing:1px; white-space:nowrap;}
 .pl-m{color:var(--mut); font-size:10px; white-space:nowrap;}
@@ -335,7 +336,7 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var n=pls.length;
     return '<details class="mx'+(live?' live':'')+'"'+(live?' open':'')+'><summary class="mx-sum">'+head+gsa
       +'<span class="mx-caret">▾</span></summary>'
-      +'<div class="mx-pls"><div class="mx-pls-h">'+n+' owned player'+(n===1?'':'s')+(up?'':' · points')+'</div>'+body+'</div></details>';
+      +'<div class="mx-pls"><div class="mx-pls-h">'+n+' owned player'+(n===1?'':'s')+(up?'':' · points')+'</div><div class="pl-grid">'+body+'</div></div></details>';
   }
 
   function renderMatches(){
