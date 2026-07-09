@@ -224,7 +224,10 @@ def parse_team(slug):
     points ('Nw T' or the trailing Wk/Total integers), and finally the NAME (between
     position and nation/price, or the words just before the position token).
     """
-    blob = re.sub(r"\s+", " ", strip_html(fetch(f"{BASE}/wc/team/{slug}")))
+    # Cache-buster: the relay serves the per-team squad pages from a cache that can lag
+    # DAYS behind after a transfer window (the scores feed updates first). Without a unique
+    # query param the builder fetches weeks-old rosters. This forces a fresh render.
+    blob = re.sub(r"\s+", " ", strip_html(fetch(f"{BASE}/wc/team/{slug}?cb={int(time.time()*1000)}")))
 
     # Drop the page footer (the closing "Standings" link and any flavour text after it)
     # so trailing numbers can't be mistaken for the last player's score.
