@@ -36,6 +36,8 @@ LOG_PATH = "docs/_roundup_log.txt"
 ELIM_PATH = "docs/eliminated.json"
 OWNED_PATH = "docs/owned-players.json"
 DURABLE_FEED_PATH = "docs/feed-latest.json"  # evening-captured snapshot; read at dawn
+INTERLUDE_TEMPLATE_PATH = "template-interlude.html"
+BREAK_GAP_HOURS = 28  # fixture-free break = nothing live and next kickoff at least this far off
 MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -713,6 +715,170 @@ def render(data):
     return html
 
 
+def _parse_ko(dstr, kstr):
+    try:
+        return datetime.datetime.strptime(f'{dstr} {kstr or "00:00"}', "%Y-%m-%d %H:%M")
+    except Exception:
+        return None
+
+
+def _next_fixture_dt(feed):
+    """Earliest still-upcoming kickoff — from the live feed if it lists any, else from the
+    static docs/knockout-fixtures.json fallback. Returns a naive datetime or None."""
+    now = datetime.datetime.utcnow()
+    cands = []
+    for f in feed.get("fixtures", []) or []:
+        if f.get("status") == "upcoming" and f.get("date"):
+            dt = _parse_ko(f["date"], f.get("kickoff"))
+            if dt:
+                cands.append(dt)
+    if not cands:
+        try:
+            with open("docs/knockout-fixtures.json", encoding="utf-8") as fh:
+                for k in (json.load(fh).get("fixtures") or []):
+                    dt = _parse_ko(k.get("date"), k.get("kickoff"))
+                    if dt:
+                        cands.append(dt)
+        except Exception:
+            pass
+    future = [d for d in cands if d > now - datetime.timedelta(hours=2)]
+    return min(future) if future else None
+
+
+def _in_fixture_break(feed):
+    """True when the tournament is between matches: nothing live, and the next kickoff is a
+    comfortable way off (or not scheduled yet). Distinguishes a genuine rest-day / between-
+    rounds lull from the normal day-to-day cadence of games."""
+    if any(f.get("status") == "live" for f in feed.get("fixtures", []) or []):
+        return False
+    nxt = _next_fixture_dt(feed)
+    if nxt is None:
+        return True
+    return (nxt - datetime.datetime.utcnow()) > datetime.timedelta(hours=BREAK_GAP_HOURS)
+
+
+def build_interlude_context(feed):
+    standings = sorted(feed.get("standings", []) or [], key=lambda s: s.get("rank", 99))
+    elim = {}
+    try:
+        with open(ELIM_PATH, encoding="utf-8") as f:
+            elim = json.load(f) or {}
+    except Exception:
+        pass
+    nxt = _next_fixture_dt(feed)
+    return {
+        "standings": [{"rank": s.get("rank"), "team": s.get("team"),
+                       "manager": s.get("manager"), "total": s.get("total")} for s in standings],
+        "eliminated": elim.get("eliminated", []),
+        "round": elim.get("round", ""),
+        "next_fixture_label": nxt.strftime("%A %d %B, %H:%M UK") if nxt else None,
+    }
+
+
+def write_interlude(ctx):
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=600.0, max_retries=1)
+    profiles = "\n".join(f"- {m}: {MANAGERS[m]}" for m in MANAGERS)
+    task = (
+        "CONTEXT: There are NO fixtures today — a lull between matches in the tournament, so there is nothing to "
+        "report. This is a SPECIAL INTERLUDE EDITION.\n"
+        "TASK: Write a single, flowing STAND-UP COMEDY SET that affectionately takes the piss out of all THIRTEEN "
+        "managers as ONE continuous monologue — NOT thirteen separate blurbs, and NOT in league-table order. Open by "
+        "establishing there's no football today so we're turning the spotlight onto the managers themselves; then work "
+        "the room, moving from manager to manager with smooth comedic transitions and the odd callback, grouping them "
+        "by shared theme where it lands (the overthinkers, the walking-wounded, the ones who've checked out, and so "
+        "on); finish with a closing line that points ahead to the next fixtures. Keep it WARM — best-man-speech "
+        "ribbing, affectionate, never cruel. Lean HARD on each manager's real character below; that is the whole point "
+        "of this edition. Reference the standings lightly (who's top, who's bottom, notable positions) and any recent "
+        "eliminations, but DO NOT invent match results, scores or events.\n\n"
+        f"MANAGER PROFILES (use these — they are the entire point):\n{profiles}\n\n"
+        f"RELATIONSHIPS: {RELATIONSHIPS}\n"
+        "Land a joke on EVERY one of these managers, by first name: " + ", ".join(MANAGERS.keys()) + ".\n"
+        "Aim for ~600-800 words across 6-9 paragraphs.\n"
+        "Return ONLY this JSON at the very end (no code fences):\n"
+        '{ "standby": "<one wry sub-title line, ~6-10 words>", '
+        '"open": "<opening paragraph; may use <b>..</b>>", '
+        '"paras": ["<paragraph>", "<paragraph>", "..."], '
+        '"close": "<closing paragraph, pointing to the next fixtures>" }'
+    )
+    payload = {
+        "standings": ctx["standings"],
+        "round": ctx.get("round"),
+        "eliminated_so_far": ctx.get("eliminated", []),
+        "next_fixture": ctx.get("next_fixture_label"),
+    }
+    return _ask(client, task, payload, max_tokens=4000, array=False)
+
+
+def _bold_names(txt):
+    """Bold the first mention of each manager's first name (longest names first)."""
+    for nm in sorted(MANAGERS.keys(), key=len, reverse=True):
+        txt = re.sub(r'(?<![\w>])' + re.escape(nm) + r'\b', f'<b class="name">{nm}</b>', txt, count=1)
+    return txt
+
+
+def render_interlude(data, ctx, marker):
+    paras = [f'<p class="open">{_bold_names(data.get("open", ""))}</p>']
+    for p in (data.get("paras") or []):
+        paras.append(f'<p>{_bold_names(p)}</p>')
+    paras.append(f'<p class="close">{_bold_names(data.get("close", ""))}</p>')
+    set_html = "\n      ".join(paras)
+
+    st = ctx["standings"]
+    n = len(st)
+    rows = []
+    for i, r in enumerate(st):
+        cls = ' class="r1"' if i == 0 else (' class="r13"' if i == n - 1 else "")
+        rows.append(f'<tr{cls}><td class="pos">{r.get("rank", i + 1)}</td><td>'
+                    f'<span class="tname">{esc(r.get("team", ""))}</span>'
+                    f'<span class="mgr">{esc(r.get("manager", ""))}</span></td>'
+                    f'<td class="tot">{esc(r.get("total", ""))}</td></tr>')
+
+    repl = {
+        "{{SUBTITLE}}": "Interlude Special · The Rest-Day Roast · No Football Was Harmed",
+        "{{STANDBY}}": esc(data.get("standby", "one microphone, thirteen defenceless managers")),
+        "{{MARKER}}": f"<!-- TRM-MATCHDAY:{marker} -->",
+        "{{SET}}": set_html,
+        "{{STANDINGS_ROWS}}": "\n".join(rows),
+        "{{NEXT_FIXTURE}}": esc(ctx.get("next_fixture_label") or "To be scheduled"),
+        "{{DATE_LABEL}}": datetime.datetime.utcnow().strftime("%A %d %B %Y"),
+    }
+    html = open(INTERLUDE_TEMPLATE_PATH, encoding="utf-8").read()
+    for k, v in repl.items():
+        html = html.replace(k, v)
+    return html
+
+
+def maybe_build_interlude(feed):
+    """During a fixture-free break, publish the stand-up roast edition — once per UTC day.
+    Self-contained and non-fatal: any failure simply leaves the existing page in place."""
+    try:
+        if not _in_fixture_break(feed):
+            print("Nothing to recap, and not in a fixture break — leaving the page as it is.", flush=True)
+            return
+        marker = "INTERLUDE-" + datetime.datetime.utcnow().strftime("%Y-%m-%d")
+        published = None
+        try:
+            with open(OUTPUT_PATH, encoding="utf-8") as f:
+                m = re.search(r"TRM-MATCHDAY:(\S+)", f.read())
+                if m:
+                    published = m.group(1)
+        except Exception:
+            pass
+        if published == marker:
+            print(f"Interlude roast for {marker} already published — nothing to do.", flush=True)
+            return
+        print(f"Fixture break detected — writing the stand-up interlude roast ({marker})...", flush=True)
+        ctx = build_interlude_context(feed)
+        data = write_interlude(ctx)
+        html = render_interlude(data, ctx, marker)
+        os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+        with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"Wrote interlude roast -> {OUTPUT_PATH}", flush=True)
+    except Exception as e:
+        print(f"  interlude build skipped (non-fatal): {e}", file=sys.stderr, flush=True)
+
+
 def _build():
     # Prefer the durable evening snapshot; only wake the (sleepy) relay if we don't
     # have a usable one. This removes the dawn dependency on a cold relay entirely:
@@ -741,7 +907,9 @@ def _build():
         if not fresh:
             raise RuntimeError("feed never went fresh AND shows no completed matchday — "
                                "refusing to trust a stale/asleep relay; a later run will retry.")
-        print("No completed matchday in the feed yet — nothing to recap. Exiting cleanly.", flush=True)
+        # Nothing to recap. If the tournament is in a fixture-free break, publish the
+        # stand-up INTERLUDE roast instead of leaving the page frozen — once per break-day.
+        maybe_build_interlude(feed)
         return
 
     # SELF-HEALING idempotency. Decide whether to (re)build from the ACTUALLY
