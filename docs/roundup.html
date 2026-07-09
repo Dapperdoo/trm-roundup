@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Morning After — Round of 16 · Tuesday 07 July</title>
+<title>The Morning After — Quarter-Final Eve · Thursday 09 July</title>
 <style>
   :root{
     --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
@@ -12,7 +12,7 @@
     --magenta:#f472b6; --purple:#a855f7;
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.7;}
   .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
   header.mast{
     border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
@@ -26,37 +26,25 @@
   .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
   h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
   h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
-  .live{color:var(--green);}
-  .live::before{content:"●"; margin-right:5px; color:var(--green);}
-  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
-  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
-  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
-  .lead b{color:var(--ink);}
-  article{border-top:1px solid var(--line); padding:24px 0;}
-  article:first-of-type{border-top:none; padding-top:4px;}
-  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
-  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
-  .rank.low{background:var(--red); color:#fff;}
-  .rank.top{background:var(--gold); color:#241c00;}
-  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
-  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
-  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
-  article p{margin:0; color:#c7d1de; font-size:16.5px;}
-  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
-  aside{align-self:start; position:sticky; top:18px;}
-  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .setcol{max-width:720px; margin:30px auto 0;}
+  .standby{font-family:Arial,Helvetica,sans-serif; text-transform:uppercase; letter-spacing:.24em; font-size:11px; color:var(--magenta); text-align:center; margin-bottom:22px;}
+  .set p{margin:0 0 20px; font-size:18px; color:#cdd6e2;}
+  .set p.open{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; font-size:19px; color:#e8edf4;}
+  .set p.open b{color:#fff;}
+  .set p.close{border-left:3px solid var(--magenta); padding:6px 0 6px 18px; color:#e8edf4;}
+  .set b.name{color:#fff; font-weight:700;}
+  .set .drop{float:left; font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:52px; line-height:.8; padding:6px 12px 0 0; color:var(--magenta);}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:30px auto 0; max-width:720px;}
   .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
   table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
   td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
   tr:last-child td{border-bottom:none;}
   .pos{color:var(--mut); width:26px; font-weight:700;}
   .tname{color:var(--ink); font-weight:600;}
-  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; margin-left:8px;}
   .tot{text-align:right; font-weight:900; color:var(--cyan);}
   tr.r1 .pos{color:var(--gold);}
   tr.r13 .pos{color:var(--red);}
-  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
   footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
   .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
   .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
@@ -77,32 +65,36 @@
   <header class="mast">
     <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
     <h1 class="title">THE MORNING <span>AFTER</span></h1>
-    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+    <div class="subtitle">Quarter-Final Eve Special · The Rest-Day Roast · No Football Was Harmed</div>
   </header>
 
-  <div class="layout">
-    <main>
-      <!-- TRM-MATCHDAY:ARG-EGY,SUI-COL -->
-<p class="lead"><b>Tuesday 7 July, and the Round of 16 signed off with heartbreak and heroics.</b> Argentina saw off Egypt 3–2 — Messi a goal and an assist — while Switzerland and Colombia could not be parted across 120 goalless minutes, the Swiss taking the shootout 4–3 as Gregor Kobel saved the decisive kick. <b>Egypt and Colombia are out.</b> The night's story, though, was Tom's: a magnificent 33 points from his Colombia legion's clean sheet — and then the shootout tore the whole squad away. Jeremy's 28 lifts him to third; Joe A's Colombian defenders padded the lead to 351. The quarter-finals are set.</p>
-      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">351 pts</span></div><h2 class="head">Colombia's rearguard pads the lead</h2><p>Fifteen more for the leader, and oddly it came from a losing side: Johan Mojica (9) and Dávinson Sánchez (8) both banked from Colombia's goalless stand against Switzerland — before the Cafeteros bowed out on penalties. Rodri and company had done their bit the night before; here Joe A simply let two Colombian defenders top up the account. Shatner's Bassoon stretches clear to 351, the lead now looking properly commanding. The squad built in the window keeps finding points in the unlikeliest corners — even from a team heading out of the tournament.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">322 pts</span></div><h2 class="head">One point, and a widening gap</h2><p>A solitary point for Sam — Facundo Medina the lone name to register as Argentina edged Egypt — and the gap to the top is suddenly a chasm. No Haaland, no Bellingham, nothing at all from a quiet night that leaves Look At His Face! marooned in second, twenty-nine adrift of Joe A and with the chasing pack now closing from behind. The beer, one imagines, was more consolation than celebration. Second still, but the cushion below is thinning and the summit drifting quietly out of view.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">3rd</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">301 pts</span></div><h2 class="head">The professor's Argentine gamble lands</h2><p>Twenty-eight for the professor, and a night that vaults Von Neumann Trombone to third. Enzo Fernández's goal (10) and Mostafa Zico's consolation for Egypt (10) led it, with Nicolás Tagliafico and Rodrigo De Paul adding to the Argentina haul, plus a James Rodríguez three from the Colombia tie. Zico and Trezeguet exit with Egypt; the Argentines march on. A calculated, model-approved evening — the professor, naturally, insists the spreadsheet had Enzo pegged for a goal all along. Third place, and the mid-table logjam decisively broken.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">4th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">299 pts</span></div><h2 class="head">A quiet six after the De Ketelaere high</h2><p>Six for Tristan, an inevitable comedown after Monday's nineteen-point De Ketelaere fireworks. Lautaro Martínez's four — an assist as Argentina saw off Egypt — and a couple of Swiss singles from Zakaria and Rubén Vargas was the sum of it. Fourth, holding, and still just two off third. Zakaria and the Swiss carry him into the quarters. No hands aloft this time, but no damage done either; the siphoned feed kept him honest, if unspectacular, and Trippier &amp; Trippier stays firmly in the argument at the top.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">5th</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">297 pts</span></div><h2 class="head">Thirty-three points, and utter heartbreak</h2><p>The cruellest night of the tournament belonged to Tom. His Colombia legion was magnificent in the goalless stand against Switzerland — Jhon Lucumí (9), Camilo Vargas and Daniel Muñoz (7 apiece), with Arias, Lerma and Díaz all chipping in for a colossal thirty-three. And then Colombia lost the shootout 4–3. The entire haul, and the entire squad, gone on a single Rubén Vargas penalty. Anamaduwa Athletic surges to fifth on the points — but wakes to a roster stripped of its heartbeat. The biggest haul of the night, from a team now on the plane home.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">6th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">286 pts</span></div><h2 class="head">Messi turns it on for the old pro</h2><p>Nineteen for the old pro, and the little genius did the heavy lifting: Lionel Messi's goal and assist (11) drove Argentina past Egypt, with Cristian Romero's goal (8) alongside. Both march on to the quarters — no trimming this time, just a clean, handsome return that lifts Back of the Van United to sixth. Joe S, who knows a thing or two about a flair career interrupted, will have watched Messi at his imperious best with a professional's appreciation. Hamstrings intact, squad intact, Argentina rolling: a rare night with no casualties at all.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">7th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">284 pts</span></div><h2 class="head">Two, and a slip down the order</h2><p>Just two for Nick — Remo Freuler's contribution to Switzerland's goalless night the only return of note — and Dyer's Rusty 9 Iron slides to seventh as the pack around him surged. A rare wayward swing on an evening the sensible irons found only rough. Freuler, at least, advances with the Swiss to the quarters. A night to forget quickly, then; the well-spread hauls of recent rounds dried up, and a couple of rivals sailed past. The clubs go back in the bag, muttered over — the quarters a chance to re-groove the swing.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">8th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">267 pts</span></div><h2 class="head">A modest six for Lloydy</h2><p>Six for Lloydy, spread across the Argentina win: Alexis Mac Allister's three, plus Lisandro Martínez and Nico González singles, with a Granit Xhaka point from the Swiss. The Argentines and Swiss both progress, so no losses to mourn. Eighth, ticking along. The old algorithm, one suspects, is still busily updating its Colombia projections in blissful ignorance of the shootout just gone. A steady, unremarkable night that keeps Lloyd's Food and Wine in the mid-table conversation without ever threatening to light it up.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">9th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">265 pts</span></div><h2 class="head">A Swiss wall rebuilds the counsellor</h2><p>Fourteen for Wigs, and a welcome bounce-back after Monday's blank: Manuel Akanji's nine anchored Switzerland's clean sheet, with Breel Embolo adding two and a scattering from Egypt's Salah and Ashour before they exited. Akanji and the Swiss march on; Salah's tournament, alas, is over. Ninth, and climbing again. No one on the squad in need of grief counselling — save, perhaps, the owner of Mohamed Salah, who mustered just two before Egypt fell. The tissues stay in the drawer; tonight, the couch is for somebody else's Colombians.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">10th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">261 pts</span></div><h2 class="head">A blank, and a slide</h2><p>Nothing for Malik — not a single owned player featured in either tie, and Propaganda Parade stands still on 261 as the field moved on around it, dropping to tenth. After Monday's Portuguese exodus stripped his squad, this was a night on the sidelines in every sense. Watching from his Icelandic hillside, Malik can only note the quarter-final draw and plan a recovery. A quiet, pointless evening — the kind that, strung together, quietly undoes a season. The parade, for now, has stalled in the street; the fresh cards of a new round can't come soon enough.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">11th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">256 pts</span></div><h2 class="head">Kobel's heroics haul Jake upward</h2><p>Nineteen for Jake, and a goalkeeper at the heart of it: Gregor Kobel kept Colombia out for 120 minutes (10) and then saved the decisive spot-kick in Switzerland's shootout win, with Ricardo Rodríguez's nine alongside. Both advance to the quarters — a shrewd Swiss double doing exactly what it was bought to do. He'll have bellowed the team name at Kobel's save loud enough to rattle the windows, and stayed, remarkably, injury-free through the drama. The dentist still waits; Snacob's Ladder, tonight, climbs on a keeper's cool head.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank">12th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">250 pts</span></div><h2 class="head">An Egyptian defender lifts the bassline</h2><p>Eleven for the off-grid musician, and an unlikely source: Yasser Ibrahim popped up with a goal for Egypt (9), with Mostafa Shobeir and Julián Alvarez adding to it. Ibrahim and Shobeir exit as Egypt fall to Argentina; Álvarez rolls on. A second solid night in a row that keeps Denton Burn off the bottom on 250. The volume, lately, has crept up nicely — a defender's goal an unexpected grace note. Twelfth, and steadier than the foot of the table has felt in a while.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-      <article><div class="rankbar"><span class="rank low">13th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">249 pts</span></div><h2 class="head">Five, and down to the foot</h2><p>Five for Trossy Ginge — Gustavo Puerta's three and a Dan Ndoye two from the Switzerland–Colombia stalemate — and it wasn't enough to stop the slide to the bottom. Ndoye advances with the Swiss; Puerta exits with Colombia. A thin night on which the rivals mostly pulled clear, leaving Trossy's Giants propping up the table on 249. A stanza of 'Trossy's Wafflecock' surely brewing on the indignity of a five-point night — but the quarter-finals bring fresh cards, and the waffle, as ever, will find its rhythm again.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
-    </main>
+  <div class="setcol">
+    <!-- TRM-MATCHDAY:INTERLUDE-2026-07-09 -->
+    <div class="standby">Thursday 9 July · one microphone · thirteen defenceless managers</div>
+    <div class="set">
+      <p class="open"><b>Thursday. No football until nine o'clock tonight — which means, for the first time in three weeks, there is absolutely nothing to report.</b> No hauls, no heroes, no Haaland. Just thirteen grown men and a frozen league table. So pull up a chair and switch your phones off. Tonight's show isn't about the football. Tonight, it's about you.</p>
 
-    <aside>
-      <div class="panel">
-        <h3>Standings · Round of 16</h3>
-        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">351</td></tr>
+      <p><span class="drop">L</span>et's start at the top, because he'd want us to. <b class="name">Joe A</b> — twenty-nine points clear and utterly insufferable about it. This man won the transfer window back in the group stage and has spent every day since doing a slow lap of honour round his own living room, refreshing the table to confirm he's still right. He files his tax return in April. He colour-codes his socks. Give him a day with no football and he does what he does best — precisely nothing, immaculately — radiating the serene smugness of a man who knows the rest of us can't reach him. Enjoy it, Joe. Hubris is a quarter-final tradition.</p>
+
+      <p>Twenty-nine points back, doing his finest impression of a tragic hero, is <b class="name">Sam</b> — second place, a pint, and a running Shakespearean monologue nobody ordered. "To press the transfer button, or not to press." He spends his rest days willing Haaland to score in matches that aren't being played, the face doing all the heavy lifting: part hope, part heartburn. The eternal nearly-man — forever one Norwegian hat-trick from glory, and one heavy sigh from the sofa.</p>
+
+      <p>Now, if Sam's overthinking it, spare a thought for the two who've made overthinking a lifestyle. <b class="name">Jeremy</b> — the professor — has spent the entire rest day rebuilding his model from first principles: a spreadsheet the size of a small moon, back-testing quarter-final permutations no living human requested. He'll surface tonight with forty tabs, three confidence intervals, and precisely the same gut feeling he started with. And in the next seat, <b class="name">Tristan</b>, whose whole operation runs on a data feed he siphons off Jez's mother site — a feed that, on a day with no football, serves nothing but tumbleweed. He's spent the afternoon poking the relay to check it hasn't fallen asleep, which, given its track record, isn't paranoia. It's grief counselling for a server.</p>
+
+      <p>And speaking of hopelessly out of date — <b class="name">Chris</b>. Somewhere in his corner an ancient algorithm still insists Brazil are 4/1 favourites and the USA have "real momentum," a machine so behind the times it qualifies for listed-building status. The beauty of Chris is that he ignores it completely and does fine anyway. Trust the vibe, not the silicon.</p>
+
+      <p>Speaking of grief — and we must, because there's an epidemic of it — this rest day is high season for one man. <b class="name">Wigs</b>. The counsellor. His couch is stacked: <b class="name">Tom</b> clutching a Colombia shirt, still sobbing over thirty-three points and an entire legion binned on a single penalty run-up — a man who can only really process loss with a fresh festival wristband and a warm cup raised to a field with questionable plumbing. And beside him, <b class="name">Malik</b>, gazing into an Icelandic fjord, watching horizontal sleet, quietly asking why he runs a fantasy team from latitude 64 with better views than wifi. Wigs hands out the good two-ply, nods sympathetically, and sits a comfortable ninth needing counsel from precisely no one. Business is booming.</p>
+
+      <p>Then there's the danger list — men for whom a day off is a genuine health-and-safety hazard. <b class="name">Joe S</b>, our beloved ex-pro, a career that read less like a highlight reel than a medical dossier, a man who can tweak a hamstring reaching for the remote — the medical guidance ahead of the quarters is simply: do not move. And <b class="name">Jake</b>, fully capable of injuring himself celebrating a goal that happened on another continent, currently climbing the table and one over-enthusiastic fist-pump from the physio's table, with a dentist's appointment already looming on the calendar like a horror-film reveal. Between them, a safety seminar waiting to happen.</p>
+
+      <p>Which leaves the three who've simply opted out. <b class="name">Nick</b>'s at the driving range, alone, hosing 9-irons into a net, chasing a tempo he last owned in 2011 and insisting the new grip "feels great, actually." It doesn't. <b class="name">Dan</b>'s off-grid entirely — solar-powered, gloriously unreachable, strumming a bassline by candlelight, cheerfully unaware he's even in twelfth, which is frankly the healthiest relationship anyone here has with this competition. And propping up the whole edifice, dead last, <b class="name">Dave</b> — who's taken a five-point week and a bottom-of-the-table finish and done the only thing a poet can: reached for the quill. 'Trossy's Wafflecock' is, as we speak, producing a fourteen-stanza epic on the cruelty of the penalty spot, metaphors stacked like unstable pancakes, a rhyme for "Cubarsí" being wrestled to the ground even now.</p>
+
+      <p class="close">And that's your league — thirteen men, one frozen table, not a single ball kicked. Get it out of your systems: at nine o'clock tonight France play Morocco, the points come flooding back, and every last one of you scuttles straight back behind your footballers. Enjoy the last quiet night, gaffers. You've earned the ribbing. See you in the wreckage.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Standings · frozen for the rest day</h3>
+    <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">351</td></tr>
 <tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">322</td></tr>
 <tr><td class="pos">3</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">301</td></tr>
 <tr><td class="pos">4</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">299</td></tr>
@@ -115,29 +107,16 @@
 <tr><td class="pos">11</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">256</td></tr>
 <tr><td class="pos">12</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">250</td></tr>
 <tr class="r13"><td class="pos">13</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">249</td></tr></table>
-      </div>
-      <div class="panel">
-        <h3>Round Highlights</h3>
-        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Lionel Messi (Joe S) — 11 pts</span></td></tr>
-<tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Gregor Kobel (Jake) — 10 pts</span></td></tr>
-<tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Mohamed Salah (Wigs) — 2, and out</span></td></tr></table>
-      </div>
-      <div class="panel">
-        <h3>Knocked out last night</h3>
-        <table>
-          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Colombia (pens) &amp; Egypt — Round of 16 complete</span></td></tr>
-        </table>
-      </div>
-      <div class="panel">
-        <h3>Quarter-finals</h3>
-        <table>
-          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">FRA-MAR (Thu) · ESP-BEL (Fri) · NOR-ENG (Sat) · ARG-SUI (Sat)</span></td></tr>
-        </table>
-      </div>
-    </aside>
   </div>
 
-  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+  <div class="panel">
+    <h3>Quarter-finals</h3>
+    <table>
+      <tr><td><span class="mgr" style="font-size:12px;color:var(--ink);margin:0">FRA-MAR (tonight, 9pm) · ESP-BEL (Fri) · NOR-ENG (Sat) · ARG-SUI (Sat)</span></td></tr>
+    </table>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · Normal service resumes tonight</footer>
 </div>
 <script>
 (function(){
