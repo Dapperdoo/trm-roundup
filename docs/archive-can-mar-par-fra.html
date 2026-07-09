@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Round of 16 · Saturday 04 July</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+    <a class="tab" href="morph.html">Gaffers</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- TRM-MATCHDAY:CAN-MAR,PAR-FRA -->
+<p class="lead"><b>Saturday 4 July, and the last 16 turned on a transfer masterclass.</b> Morocco tore Canada apart 3–0 and France edged Paraguay 1–0 — both beaten sides, Canada and Paraguay, out of the World Cup. But the night belonged to <b>Joe A</b>: recent additions Azzedine Ounahi (a two-goal 16) and Lucas Digne (9) headlined a colossal 41-point haul that nudges Shatner's Bassoon above Sam and into first place — a couple of new faces settling in rather nicely. Malik's Moroccans piled on 24; at the foot, Jake and Chris drew blanks.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">321 pts</span></div><h2 class="head">The window pays off — straight to the top</h2><p>Forty-one points, and top of the pile. Joe A's two most recent recruits led the charge: Azzedine Ounahi struck twice as Morocco dismantled Canada (16), and Lucas Digne banked a full clean-sheet nine as France saw off Paraguay. Kylian Mbappé's goal (9) and Dayot Upamecano's seven finished the job. A couple of new faces bedding in and delivering at once — quietly handy business — and enough to edge Shatner's Bassoon above Sam into first. For once, no AI had to keep its promises; his own signings did the talking.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">303 pts</span></div><h2 class="head">Brahim Díaz keeps Sam close, but the lead is gone</h2><p>Seventeen for Sam, and on almost any other night it would have held top spot — not this one. Brahim Díaz was the pick, two assists as Morocco ran up three (12), with Adrien Rabiot and a strangely quiet Michael Olise (2) adding the rest from France's win. Solid work, but Joe A's new-signing avalanche has bumped Look At His Face! down to second for the first time in an age. Somewhere between a beer and a Shakespeare quote, Sam will note that the chasing pack has finally caught a leader who'd made the summit look like home.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">3rd</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">260 pts</span></div><h2 class="head">Rahimi strikes, but Canada takes two down with it</h2><p>Eighteen for the old pro, led by Soufiane Rahimi's goal as Morocco cruised (10) and Jules Koundé's clean-sheet seven for France. The sting: Richie Laryea managed a point before Canada were dumped out 3–0, and both he and Alistair Johnston exit with the Canadians — two of Joe S's cut-price defenders gone in a single evening. Up to third, though, and without so much as a physio-room scare for the perennially crocked ex-pro. A good night's work, lightened squad and all.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">4th</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">258 pts</span></div><h2 class="head">A lone point, and the wait goes on</h2><p>Just one for Tom — Jonathan David's solitary return before Canada were taken apart and knocked out, David's tournament ending with them. A thin evening that slips Anamaduwa Athletic a place to fourth. No festival, no field of hippies; just a Colombia-heavy squad kicking its heels until Switzerland–Colombia later in the week, when Díaz, Suárez, Lucumí and the rest finally get their knockout. Patience — the big guns are loaded, just not yet fired.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">5th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">247 pts</span></div><h2 class="head">Bounou's shut-out leads a tidy twelve</h2><p>Twelve for Nick, and nothing skied into row Z for once. Yassine Bounou anchored Morocco's clean sheet for a keeper's eight, Désiré Doué chipped in three off France's win, and Ismael Saibari a single. A well-judged haul from the two winning sides, no wild swings required, and up to fifth. The rusty nine-iron stayed firmly in the bag; this was all clean contact.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">6th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">246 pts</span></div><h2 class="head">Maignan's clean sheet, and a glance below</h2><p>Seven for Tristan — Mike Maignan's shut-out as France edged Paraguay, and little else. Steady if unspectacular, and sixth is held. The man whose feed quietly siphons from Jez's mother site will note the professor sitting a place below him on the very same seven — proof, perhaps, that borrowed numbers don't win the round on their own. A quiet keeper's night; the hands, for once, stayed down.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">7th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">243 pts</span></div><h2 class="head">Saliba holds firm for the traditionalist</h2><p>Seven for the professor, all of it from William Saliba's clean-sheet return as France kept Paraguay out. No fireworks, but no fuss — picked on instinct, as ever, not on any algorithm. Von Neumann Trombone holds seventh. A defensively-minded seven is exactly the understated sort of return the taste-led approach tends to throw up: unglamorous, reliable, and entirely deliberate.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">8th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">242 pts</span></div><h2 class="head">A blank, and the keeper ships three</h2><p>Nothing for Lloydy, and it stung twice: Maxime Crépeau not only blanked but shipped three as Canada were torn apart and knocked out, his tournament — and Chris's asset — over. Not one other pick took the field across the two ties. Lloyd's Food and Wine flatlines on 242 and slips to eighth. The algorithm, one assumes, is still somewhere recalculating; the pitch, meanwhile, offered precisely nothing. A night to file under 'anomaly' and move past.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">9th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">233 pts</span></div><h2 class="head">The Morocco battalion erupts — 24 and climbing</h2><p>Now that is a return. Malik's Moroccan contingent feasted on Canada: Issa Diop and Noussair Mazraoui nine apiece, with Ayyoub Bouaddi and Neil El Aynaoui adding threes — twenty-four points that haul Propaganda Parade three places up to ninth. No fresh signings needed here, just a stack of retained North Africans all cashing in on the same rout. Managing from his Icelandic hillside, Malik allows himself a rare smile: a tournament dormant for weeks has finally roared into life.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">10th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">232 pts</span></div><h2 class="head">Hakimi shines, but the waiting room overflows</h2><p>Fourteen for the counsellor, Achraf Hakimi's assist heading a Moroccan clean-sheet nine. But the couch is heaving: Julio Enciso and Gustavo Gómez both exit as Paraguay fall, and Nathan Saliba goes down with Canada — three names to talk off the ledge in one evening, Enciso a fresh window signing whose knockout barely began. Tenth holds. Salah and the Argentines are still to come; for now, it's tissues and a heavy sigh.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">11th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">225 pts</span></div><h2 class="head">Six from the new boys, no cymbals required</h2><p>Six for Trossy Ginge, and a couple of the window's fresh faces got him going: new signing Bilal El Khannouss chipped in two for Morocco, and fellow newcomer Tajon Buchanan added two before Canada's exit ended his tournament. Bradley Barcola's two from France rounded it off. A modest, scattergun return — not enough to warrant the ceremonial cymbals, which stay cased. Eleventh, ticking along, a segment of 'Trossy's Wafflecock' no doubt brewing on the fleeting nature of a Canadian cup run.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">12th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">215 pts</span></div><h2 class="head">A lone Dembélé three, off the grid</h2><p>Three for the off-grid musician — Ousmane Dembélé's return as France edged Paraguay, and nothing more. A quiet hum of an evening that holds twelfth. Denton Burn's bigger names — the Argentines, the Spaniards — are cued up for later in the week; last night was barely a soundcheck. The volume is due to rise sharply once his knockout ties finally arrive.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank low">13th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">208 pts</span></div><h2 class="head">Rock bottom, and not a soul on the pitch</h2><p>Nothing for Jake — not one of his squad featured across the two ties, leaving Snacob's Ladder marooned at the foot on 208. On the plus side, with nobody playing there was nobody to injure, which by Jake's standards counts as a clean bill of health — though the week is young, and there's always a dentist's appointment to hurt himself getting to. Harry Kane and the rest report for duty against Mexico midweek; until then, Jake bellows his own team name into the void and waits. "Snacob's Ladder!" Nobody answers.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Round of 16</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">321</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">303</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">260</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">258</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">247</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">246</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">243</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">242</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">233</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">232</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">225</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">215</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">208</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Azzedine Ounahi (Joe A) — 16 pts</span></td></tr>
+<tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Issa Diop (Malik) — 9 pts</span></td></tr>
+<tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Maxime Crépeau (Chris) — 0, shipped three</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Knocked out last night</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Canada &amp; Paraguay — both out of the Round of 16</span></td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">BRA-NOR, MEX-ENG, POR-ESP, USA-BEL, ARG-EGY, SUI-COL</span></td></tr>
+        </table>
+      </div>
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+</div>
+<script>
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

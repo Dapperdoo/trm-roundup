@@ -38,6 +38,7 @@ OWNED_PATH = "docs/owned-players.json"
 DURABLE_FEED_PATH = "docs/feed-latest.json"  # evening-captured snapshot; read at dawn
 INTERLUDE_TEMPLATE_PATH = "template-interlude.html"
 BREAK_GAP_HOURS = 28  # fixture-free break = nothing live and next kickoff at least this far off
+ARCHIVE_INDEX_PATH = "docs/archive-index.json"
 MODEL = "claude-sonnet-4-6"
 UA = "Mozilla/5.0 (compatible; TRM-Roundup/1.0; +https://github.com)"
 
@@ -875,8 +876,75 @@ def maybe_build_interlude(feed):
         with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"Wrote interlude roast -> {OUTPUT_PATH}", flush=True)
+        archive_edition(html, marker, f"Interlude · {datetime.datetime.utcnow().strftime('%A %d %B')}")
     except Exception as e:
         print(f"  interlude build skipped (non-fatal): {e}", file=sys.stderr, flush=True)
+
+
+def _slugify(s):
+    return re.sub(r'[^A-Za-z0-9]+', '-', s or '').strip('-').lower() or "edition"
+
+
+def _stage_of(label):
+    l = (label or "").lower()
+    if "round of 16" in l:
+        return "R16"
+    if "round of 32" in l:
+        return "R32"
+    if "quarter" in l:
+        return "QF"
+    if "semi" in l:
+        return "SF"
+    if "matchday 3" in l:
+        return "GS3"
+    if "matchday 2" in l:
+        return "GS2"
+    if "matchday 1" in l:
+        return "GS1"
+    if "interlude" in l or "rest" in l or "eve" in l:
+        return "INT"
+    if l.strip().endswith("final"):
+        return "FIN"
+    return "—"
+
+
+def _archive_date(label, marker):
+    if marker and re.fullmatch(r"\d{4}-\d{2}-\d{2}", marker or ""):
+        return marker
+    months = {m[:3]: i for i, m in enumerate(
+        ["january", "february", "march", "april", "may", "june", "july",
+         "august", "september", "october", "november", "december"], 1)}
+    best = None
+    for mo in re.finditer(r'(\d{1,2})\s+([A-Za-z]{3,})', label or ""):
+        mon = months.get(mo.group(2).lower()[:3])
+        if mon:
+            best = f"2026-{mon:02d}-{int(mo.group(1)):02d}"
+    return best or datetime.datetime.utcnow().strftime("%Y-%m-%d")
+
+
+def archive_edition(html, marker, label):
+    """Snapshot the just-built edition into docs/archive-<slug>.html and update the
+    archive index. Non-fatal: any failure just skips archiving and leaves the build fine."""
+    try:
+        slug = _slugify(marker or label)
+        with open(f"docs/archive-{slug}.html", "w", encoding="utf-8") as f:
+            f.write(html)
+        idx = {"editions": []}
+        try:
+            with open(ARCHIVE_INDEX_PATH, encoding="utf-8") as f:
+                idx = json.load(f) or {"editions": []}
+        except Exception:
+            pass
+        eds = [e for e in idx.get("editions", []) if e.get("slug") != slug]
+        eds.append({"slug": slug, "label": label, "stage": _stage_of(label),
+                    "date": _archive_date(label, marker)})
+        eds.sort(key=lambda e: (e.get("date", ""), e.get("slug", "")), reverse=True)
+        with open(ARCHIVE_INDEX_PATH, "w", encoding="utf-8") as f:
+            json.dump({"updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                       "editions": eds}, f, indent=2)
+        print(f"  archived edition -> docs/archive-{slug}.html (+ index, {len(eds)} total)", flush=True)
+    except Exception as e:
+        print(f"  archive step skipped (non-fatal): {e}", file=sys.stderr, flush=True)
 
 
 def _build():
@@ -955,6 +1023,8 @@ def _build():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Wrote {OUTPUT_PATH}  ({len(data['articles'])} managers)", flush=True)
+    archive_edition(html, str(data.get("matchday_date", "")),
+                    f"{brief['round_label']} · {brief['matchday_day_label']}")
 
     # Keep roundup-state.json updated purely as a historical record. It is NO
     # LONGER used to decide whether to build (the page marker above is the single

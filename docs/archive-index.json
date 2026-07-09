@@ -1,0 +1,113 @@
+{
+  "updated": "2026-07-09",
+  "editions": [
+    {
+      "slug": "interlude-2026-07-09",
+      "label": "Quarter-Final Eve \u00b7 Thursday 09 July",
+      "stage": "QF",
+      "date": "2026-07-09"
+    },
+    {
+      "slug": "arg-egy-sui-col",
+      "label": "Round of 16 \u00b7 Tuesday 07 July",
+      "stage": "R16",
+      "date": "2026-07-07"
+    },
+    {
+      "slug": "por-esp-usa-bel",
+      "label": "Round of 16 \u00b7 Monday 06 July",
+      "stage": "R16",
+      "date": "2026-07-06"
+    },
+    {
+      "slug": "bra-nor-mex-eng",
+      "label": "Round of 16 \u00b7 Sunday 05 July",
+      "stage": "R16",
+      "date": "2026-07-05"
+    },
+    {
+      "slug": "can-mar-par-fra",
+      "label": "Round of 16 \u00b7 Saturday 04 July",
+      "stage": "R16",
+      "date": "2026-07-04"
+    },
+    {
+      "slug": "2026-07-03",
+      "label": "Round of 32 \u00b7 Friday 03 July",
+      "stage": "R32",
+      "date": "2026-07-03"
+    },
+    {
+      "slug": "2026-07-02",
+      "label": "Round of 32 \u00b7 Thursday 02 July",
+      "stage": "R32",
+      "date": "2026-07-02"
+    },
+    {
+      "slug": "2026-07-01",
+      "label": "Round of 32 \u00b7 Wednesday 01 July",
+      "stage": "R32",
+      "date": "2026-07-01"
+    },
+    {
+      "slug": "2026-06-30",
+      "label": "Round of 32 \u00b7 Tuesday 30 June",
+      "stage": "R32",
+      "date": "2026-06-30"
+    },
+    {
+      "slug": "2026-06-29",
+      "label": "Round of 32 \u00b7 Monday 29 June",
+      "stage": "R32",
+      "date": "2026-06-29"
+    },
+    {
+      "slug": "round-of-32-sunday-28-june",
+      "label": "Round of 32 \u00b7 Sunday 28 June",
+      "stage": "R32",
+      "date": "2026-06-28"
+    },
+    {
+      "slug": "group-matchday-3-saturday-27-june",
+      "label": "Group Matchday 3 \u00b7 Saturday 27 June",
+      "stage": "GS3",
+      "date": "2026-06-27"
+    },
+    {
+      "slug": "group-matchday-3-friday-26-june",
+      "label": "Group Matchday 3 \u00b7 Friday 26 June",
+      "stage": "GS3",
+      "date": "2026-06-26"
+    },
+    {
+      "slug": "group-matchday-3-thursday-25-june",
+      "label": "Group Matchday 3 \u00b7 Thursday 25 June",
+      "stage": "GS3",
+      "date": "2026-06-25"
+    },
+    {
+      "slug": "group-matchday-3-wednesday-24-june",
+      "label": "Group Matchday 3 \u00b7 Wednesday 24 June",
+      "stage": "GS3",
+      "date": "2026-06-24"
+    },
+    {
+      "slug": "group-matchday-2-tuesday-23-june",
+      "label": "Group Matchday 2 \u00b7 Tuesday 23 June",
+      "stage": "GS2",
+      "date": "2026-06-23"
+    },
+    {
+      "slug": "group-matchday-2-monday-22-june",
+      "label": "Group Matchday 2 \u00b7 Monday 22 June",
+      "stage": "GS2",
+      "date": "2026-06-22"
+    },
+    {
+      "slug": "matchday-sun-21-jun",
+      "label": "Matchday \u00b7 Sun 21 Jun",
+      "stage": "GS1",
+      "date": "2026-06-21"
+    }
+  ]
+}

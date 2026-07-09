@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Matchday · Sun 21 Jun</title>
+<style>
+:root{
+--bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+--ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+--gold:#f5c451; --red:#f0556b; --green:#34d399;
+--magenta:#f472b6; --purple:#a855f7;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+.wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+
+/* ===== Tabs ===== */
+.tabs{display:flex; gap:6px; justify-content:center; padding:22px 0 0;}
+.tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2); transition:color .15s, background .15s;}
+.tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+.tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta); box-shadow:0 0 22px rgba(244,114,182,.28);}
+.tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+
+header.mast{
+border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+position:relative; overflow:hidden;
+background:
+radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+}
+.kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+.subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+.live{color:var(--green);}
+.live::before{content:"●"; margin-right:5px; color:var(--green);}
+.layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+@media(max-width:820px){.layout{grid-template-columns:1fr;}}
+.lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+.lead b{color:var(--ink);}
+article{border-top:1px solid var(--line); padding:24px 0;}
+article:first-of-type{border-top:none; padding-top:4px;}
+.rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+.rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+.rank.low{background:var(--red); color:#fff;}
+.rank.top{background:var(--gold); color:#241c00;}
+.team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+.pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+article p{margin:0; color:#c7d1de; font-size:16.5px;}
+.byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+aside{align-self:start; position:sticky; top:18px;}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+.panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+tr:last-child td{border-bottom:none;}
+.pos{color:var(--mut); width:26px; font-weight:700;}
+.tname{color:var(--ink); font-weight:600;}
+.mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+.tot{text-align:right; font-weight:900; color:var(--cyan);}
+tr.r1 .pos{color:var(--gold);}
+tr.r13 .pos{color:var(--red);}
+.note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== Tabs ===== -->
+<nav class="tabwrap">
+  <div class="tabs">
+    <a class="tab" href="./">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+  </div>
+</nav>
+
+<!-- ===== THE MORNING AFTER (daily roundup) ===== -->
+<header class="mast">
+<div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+<h1 class="title">THE MORNING <span>AFTER</span></h1>
+<div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+<div class="dateline">
+<span>Monday 22 June 2026</span>
+<span>Matchday · Sun 21 Jun</span>
+<span class="live">All games settled</span>
+</div>
+</header>
+
+<div class="layout">
+<main>
+<p class="lead">Sunday served up four fixtures and a proper mixed bag. <b>Spain 4–0 Saudi Arabia</b> was the headline act — a ruthless demolition that had fantasy managers with La Roja assets punching the air. <b>Belgium 0–0 Iran</b> was the dour antidote, a goalless grind that still managed to reward a couple of patient clean-sheet merchants. <b>Uruguay 2–2 Cape Verde</b> was the drama of the day — two goals apiece, late twists, and a Maxi Araújo goal-and-assist double that made at least one manager very happy. And <b>New Zealand 1–3 Egypt</b> rounded things off, Mohamed Salah doing what Mohamed Salah does. The table has been shuffled. The knives are already out.</p>
+<article><div class="rankbar"><span class="rank top">1st</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">122 pts</span></div><h2 class="head">Araújo Hauls, Courtois Keeps — Trossy's Giants Go Top</h2><p>Twenty-four points on Sunday and Dave wakes up as league leader. Maxi Araújo was the jewel — 13 points from Uruguay's wild 2–2 with Cape Verde, goal and assist, the full package. Thibaut Courtois added 8 from Belgium's clean sheet against Iran, and Omar Marmoush and Nico Williams chipped in 2 and 1 respectively to round it off neatly. Trossy's Giants sit on 122, one point clear of Wigs in second. One point. Dave will be insufferable about this, which is entirely fair. Whether he's still insufferable after tonight's Argentina and France games is another matter — but for now, the lecturer is top of the class, and the VHS machine is presumably recording something to celebrate.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">121 pts</span></div><h2 class="head">Salah Delivers, But the Gap at the Top Is Razor-Thin</h2><p>Thirteen points for Wigs, and the headline writes itself: Mohamed Salah scored in Egypt's 3–1 win over New Zealand, banking 11 points and doing exactly what you'd want from him. Mehdi Taremi added a quiet 2 from the Belgium–Iran stalemate. Stopira of Cape Verde was on the pitch but returned nothing, which in a goalless draw for his side is hardly a scandal. The issue isn't Sunday — it's that Dave had a blinder and now sits one point above Wigs at the summit. One point. The brothers Sam and Wigs have very different Sundays to reflect on, and Wigs at least has the better end of that particular family conversation. Second place, 121 points, and the title race is very much alive.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">118 pts</span></div><h2 class="head">Doku Goes Walkabout — Tomo's Sunday Goes Nowhere</h2><p>Jérémy Doku was Tom's sole representative on Sunday, turning out for Belgium against Iran in a match that ended 0–0 and returned precisely nothing. Zero points from the matchday, and Tom stays on 118 in third. To be fair, a blank from one player in a goalless draw is barely a flesh wound — the squad is built for the long game, and Tom's left-field instincts have kept him in the top three all tournament. But third place is starting to feel a little precarious: Dave and Wigs are pulling clear at the top, and Nick and Sam are lurking just three points behind. Tomo's probably somewhere in Asia eating a curry and not losing too much sleep over it. The real test comes when his more exotic picks start clicking — or don't.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">116 pts</span></div><h2 class="head">Olmo and Valverde Steady the Ship for Sheerin</h2><p>Thirteen points and a solid Sunday for Joe S. Dani Olmo led the way with 8 from Spain's demolition of Saudi Arabia — a tidy return from a player who looked sharp all evening. Federico Valverde added 5 from Uruguay's entertaining 2–2 with Cape Verde, and David Raya kept goal for Spain without troubling the scorers. Back of the Van United sit fourth on 116, two points behind Tom and two clear of Nick and Sam who are snapping at their heels. Not a flashy haul, but steady and purposeful — which is about as Sheerin as it gets when the technology isn't confusing him. The table is tight enough that every point matters, and 13 on a Sunday is a perfectly respectable shift.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">115 pts</span></div><h2 class="head">Yamal and Porro Fire — Rusty Iron Gets Some Shine</h2><p>Fifteen points for Nick, and a very good Sunday. Lamine Yamal and Pedro Porro both returned 7 apiece from Spain's 4–0 rout of Saudi Arabia — two players who looked like they were enjoying themselves enormously, which is the best kind of fantasy football. Romelu Lukaku added a single point from Belgium's goalless grind with Iran, which is the least enjoyable kind of fantasy football, but it barely dents the total. Dyer's Rusty 9 Iron sit fifth on 115, level with Sam on points but ahead on round score. Nick will be pleased — 15 points is a proper day's work. Whether the iron is still rusty after that is debatable. The shot, at least, found the target.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Look at his face. Just Look at his FACE! &middot; Sam</span><span class="pts">115 pts</span></div><h2 class="head">The Bard Had No Lines on Sunday</h2><p>None of Sam's players featured in yesterday's four fixtures — Spain, Belgium, Uruguay, Cape Verde, Egypt, Iran, New Zealand: not a single one of his squad was on the pitch. Zero points from the matchday, and Look at his face. Just Look at his FACE! stays on 115 in sixth, level with Nick but a point behind him. Sam is a man who can hold a crowd's attention through sheer force of personality, but even he can't conjure points from players who weren't playing. The good news is that tonight's fixtures — Argentina, France, Norway, Senegal, Jordan, Algeria — offer the prospect of a big swing. Whether his squad is loaded for those games is the question. For now, the stage is empty and the curtain is down.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">112 pts</span></div><h2 class="head">De Bruyne and Núñez Offer Little — Algorithms Still Searching</h2><p>Four points. Kevin De Bruyne managed 3 from Belgium's 0–0 with Iran — present, tidy, but in a match that offered precious little to anyone — and Darwin Núñez contributed 1 from Uruguay's 2–2 with Cape Verde. Lloyd's Food and Wine sit seventh on 112, and the gap to the top six is growing. The optimisation models have been running for years now and the returns remain stubbornly modest — Sunday's haul of 4 is not going to close the distance to Dave and Wigs. Chris is never sitting still, always building something, always refining the algorithm. One day it'll click. Today was not that day. The good news: tonight's fixtures are loaded, and if the models have done their work on Argentina and France, there could be a big swing coming.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">111 pts</span></div><h2 class="head">Oyarzabal Masterclass Puts the Professor in Business</h2><p>Twenty-seven points. The best haul of the day, and it wasn't particularly close. Mikel Oyarzabal was magnificent — 15 points from Spain's 4–0 dismantling of Saudi Arabia, two goals and the full attacking midfielder's dream return. Marc Cucurella added a superb 10 alongside him, and Elijah Just chipped in 2 from New Zealand's defeat to Egypt. Von Neumann Trombone climb to eighth on 111, and Jeremy — who codes the entire league's website but picks his squad entirely on gut — will be quietly delighted. The professor runs no models, uses no algorithms, and just had the best day in the league. Chris, whose algorithms are still warming up somewhere in seventh, may want to look away. Gut instinct: 27. Machine learning: 4. The data speaks for itself.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">105 pts</span></div><h2 class="head">Rodri and Ruiz Keep the Lights On — Just About</h2><p>Four points for Joe A, and Shatner's Bassoon drift to ninth on 105. Rodri returned 3 from Spain's big win over Saudi Arabia, Fabián Ruiz added 1, and Marcos Llorente was on the pitch without troubling the scoreboard. It's a quiet Sunday for a manager who usually prefers his Sundays horizontal and unhurried — and in fantasy football terms, that's more or less what he got. The gap to Tristan in 12th is now 29 points, which is comfortable enough, but the distance to the top half of the table is starting to look meaningful. Joe A will not be panicking — panicking would require a level of urgency that is fundamentally at odds with his outlook. But a bigger haul tonight wouldn't go amiss.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">84 pts</span></div><h2 class="head">Gavi Goes Quiet — Kane Still Costs £33.4m</h2><p>Gavi played in Spain's 4–0 win over Saudi Arabia and returned precisely zero points. That's Jake's entire Sunday contribution — nil — and Snacob's Ladder stay on 84 in tenth. To be fair, Gavi had a quiet evening in a match Spain were winning comfortably, and these things happen. What doesn't change is that Jake spent £33.4m of his £120m budget on Harry Kane, who is not playing until England face Ghana tomorrow night, and has had to fill the other seventeen slots accordingly. Gavi, it turns out, is one of those slots. The Kane investment was bold, visionary, and leaves the rest of the squad looking like it was assembled from the reduced-to-clear aisle. England play tomorrow. Kane will either justify everything or make Sunday look like the good part of the week.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">82 pts</span></div><h2 class="head">De Cuyper, Simón, Cubarsí — Denton Burn's Quiet Brilliance</h2><p>Twenty-six points from Sunday, and Dan does it with characteristic understatement. Maxim De Cuyper led with 9 from Belgium's clean sheet against Iran — superb value from a player who barely gets mentioned in dispatches. Unai Simón and Pau Cubarsí both returned 7 apiece from Spain's 4–0 win, a pair of defenders who made the clean sheet look effortless. Mostafa Shobeir added 3 from Egypt's win over New Zealand. José María Giménez and Ronald Araujo were both on the pitch for Uruguay's 2–2 but returned nothing — absorbed quietly, as these things tend to be. Denton Burn sit 11th on 82, but with a 26-point Sunday, the gap to the top is looking a little less daunting. Dan doesn't make a fuss. He just scores points.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">76 pts</span></div><h2 class="head">Laporte Delivers — The Russian Climbs, Quietly Satisfied</h2><p>Fifteen points for Tristan, and a very decent Sunday. Aymeric Laporte was the standout — 12 points from Spain's 4–0 win over Saudi Arabia, a commanding performance from a centre-back who looked entirely at home in a side that was never troubled. Leandro Trossard added 3 from Belgium's goalless draw with Iran. Trippier & Trippier move to 12th on 76, and The Russian will be satisfied — 15 points is a proper haul, and Laporte in particular was a fine pick. The gap to Joe A in ninth is 29 points, which is the real mountain to climb. But after a Sunday like this, the hands are staying down and the mood is good. Progress, even from 12th, is still progress.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">51 pts</span></div><h2 class="head">Pedri Points — Propaganda Parade Tread Water</h2><p>Three points. Pedri was Malik's sole contributor on Sunday, returning 3 from Spain's 4–0 win over Saudi Arabia — present, involved, but not among the scorers. Propaganda Parade remain rooted to the foot of the table on 51, a full 25 points behind Tristan in 12th. Malik manages from afar with his own particular logic — if it's ever worn a Manchester United or Portugal shirt, he's interested — and Sunday offered limited reward for that philosophy. The Portugal contingent haven't played yet, and when they do, there may be a points surge coming. For now, though, it's 3 points and a long way back. The parade continues, if at a somewhat muted tempo.</p><div class="byline">The Morning After</div></article>
+</main>
+
+<aside>
+<div class="panel">
+<h3>Standings · MD · Sun 21 Jun</h3>
+<table><tr class="r1"><td class="pos">1</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">122</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">121</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">118</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">116</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">115</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Look at his face. Just Look at his FACE!</span><span class="mgr">Sam</span></td><td class="tot">115</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">112</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">111</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">105</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">84</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">82</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">76</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">51</td></tr></table>
+</div>
+<div class="panel">
+<h3>Round Highlights</h3>
+<table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Mikel Oyarzabal (Jeremy) — 15pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Maxim De Cuyper (Dan) — 9pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Priciest flop</span><span class="mgr">Gavi (Jake) — 0pts</span></td></tr></table>
+</div>
+<div class="panel">
+<h3>Still to play</h3>
+<table>
+<tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Tonight: ARG v AUT, FRA v IRQ, NOR v SEN, JOR v ALG — Messi, Mbappé, Haaland and company all waiting in the wings.</span></td></tr>
+</table>
+</div>
+
+</aside>
+</div>
+
+<footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+
+</div>
+</body>
+</html>

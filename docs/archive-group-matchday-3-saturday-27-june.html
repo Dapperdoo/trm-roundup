@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Group Matchday 3 · Saturday 27 June</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  /* top tabs — mirror the Live hub so readers can hop straight back */
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+    <div class="dateline">
+      <span>Sunday 28 June 2026</span>
+      <span>Group Matchday 3 · Saturday 27 June</span>
+      <span class="live">Matchday settled</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <p class="lead">The group stage signed off with a six-game Saturday, and Joe A heads into the knockouts on top — his 16 lifting Shatner's Bassoon to <b>216</b>, four clear of Sam, who surrendered the lead on the final day. Tristan plundered the day's biggest haul (36, via a Riyad Mahrez brace and a Renato Veiga clean sheet) yet stays ninth; Malik's Portugal bloc banked 31 from a goalless Colombia draw; and Yoane Wissa's brace fired Chris up to fourth. Spare a thought for Jake — 29 points, Belghali and Kane included, and still dead last. The last 32 begins Sunday, 8pm. At least Loopy Lloydy's Lab can't bid for the class of 2022 in a knockout.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">216 pts</span></div><h2 class="head">Joe A tops the table for the knockouts</h2><p>Sixteen for Joe A — unspectacular, but enough to carry Shatner's Bassoon to the summit just as the group stage closes. Dávinson Sánchez led the way with nine from Colombia's goalless draw with Portugal, Marcus Rashford added three against Panama, and Arthur Masuaku and Amine Gouiri chipped in twos. For a man who treats exertion as a last resort, Joe A has timed his climb beautifully: top of the pile on 216, four clear of Sam, and into the last 32 in pole position. Rival Tristan racked up more than double his haul on the day and is still eight places below him — which will please Joe A enormously, from a fully reclined position.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">209 pts</span></div><h2 class="head">The curtain falls on Sam's lead</h2><p>Just four for Sam, and the timing stings: a quiet Saturday of Ibrahim Maza's two and singles from Caleb Yirenkyi and Jonas Adjetey has seen him hand top spot to Joe A on the final day of the groups. Facundo Medina didn't feature. After leading for so long, the theatre man knows a cruel third-act twist when he sees one — the lead whipped away just as the interval arrives. Still, second and 209 is a fine platform for the knockouts, and Sam being Sam, he'll regroup over a pint and a soliloquy. Brother Wigs sits sixth, the family duel quietly simmering into the last 32.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">203 pts</span></div><h2 class="head">Tom's spread pays off on the final group day</h2><p>A handsome twenty-nine for Tom, assembled from a satisfyingly broad base. Ezri Konsa (nine) and Jordan Pickford (seven) cashed in on England's clean sheet at Panama, while his Colombia contingent — Jhon Arias four, Luis Díaz and Pedro Neto three apiece, Daniel Muñoz and Luis Suárez a point each — milked the goalless draw with Portugal. Rayan Aït-Nouri added one; Ramy Bensebaini blanked. It carries him to third for the knockouts, his best position in years — which, for a man still chasing a maiden title, is either destiny calling or an elaborate set-up for heartbreak. Wherever the festival is this weekend, he dances into the last 32.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">193 pts</span></div><h2 class="head">Wissa's brace rockets Lloydy up to fourth</h2><p>Twenty-seven for Chris, and the headline writes itself: Yoane Wissa smashed a brace and seventeen as Congo DR beat Uzbekistan. Bukayo Saka added eight at Panama and Alexis Mac Allister a couple against Jordan; Lisandro Martínez didn't feature. It vaults Lloydy up to fourth heading into the knockouts — proof that, every so often, the mad scientist's lab produces something other than a small fire. His transfer algorithm did, of course, spend the window trying to sign the class of 2022, so one assumes the points arrived despite the machinery rather than because of it. Rival Jake, who scored 29 and is still last, will find the whole arrangement deeply unjust.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">189 pts</span></div><h2 class="head">Messi keeps Joe S ticking</h2><p>A lean seven for Joe S, all of it from Lionel Messi's goal against Jordan. Cristian Romero, Bernardo Silva and Abdul Baba didn't feature, so the old pro leaned on the greatest of all time to keep the lights on. Fifth and 189 into the last 32 is a perfectly respectable berth for a man whose own career spent more time in the treatment room than the trophy room. He still couldn't tell you which tab the league table lives in, but he reaches the knockouts with a settled side and, crucially, no fresh hamstring twinges. Messi, of all people, doing the donkey work — Joe S thoroughly approves.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">184 pts</span></div><h2 class="head">Bellingham hands Wigs a tidy nineteen</h2><p>Nineteen for Wigs, and the bulk of it bore Jude Bellingham's name — a goal, an assist and fourteen as England saw off Panama. Emiliano Martínez added two against Jordan, with Amir Murillo, Josko Gvardiol and Mario Pasalic rounding out the singles; Declan Rice didn't feature. The genial counsellor heads into the knockouts sixth, two off his brother — and with Sam having lost top spot on the final day, Wigs may permit himself the quietest of fraternal smirks. Calm, balanced and quietly effective, just as he likes it. Plenty to work with in the last 32, and a sibling scoreboard that's suddenly rather more interesting.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">178 pts</span></div><h2 class="head">A flat finish to the groups for Nick</h2><p>Just two for Nick to close the group stage — singles from Cédric Bakambu and Diogo Dalot, with Anthony Gordon and John Stones not featuring. A damp end to the round for a man more associated with violent contact than gentle returns. The good news: seventh and 178 still carries him comfortably into the knockouts. The bad news: rival Tom posted twenty-nine on the same day and now sits four places and twenty-five points above him, which will gnaw away nicely. Nick will be itching to make amends in the last 32 — preferably with a clean strike for once, and his studs kept firmly to himself.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">177 pts</span></div><h2 class="head">Dan keeps the lights on</h2><p>Fifteen for Dan, a steady shift to round off the groups. Marc Guéhi top-scored with seven from England's clean sheet, Elliot Anderson added three, and Julián Alvarez and Nico Paz managed twos against Jordan with Marvin Senaya chipping in a single; Gonçalo Inácio didn't feature. For the off-grid musician it's another self-sufficient little haul, generated quietly from a spread of sources. Eighth and 177 into the knockouts is solid, and with ally Malik surging just below him, the two of them will fancy a march through the last 32. Understated, as ever — Dan rarely makes noise, but he keeps on accumulating.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">170 pts</span></div><h2 class="head">Tristan's 36 — the day's biggest, and still ninth</h2><p>The day's top haul belongs to Tristan: a thumping <b>36</b>. Riyad Mahrez plundered a brace and sixteen in Algeria's wild 3–3, Renato Veiga banked nine from Portugal's clean sheet, Lautaro Martínez nine more against Jordan, and Antoine Semenyo added two; Reece James didn't feature. And the reward for the best return of the round? Still ninth. You can picture the hands flung skyward — a monster day that barely dents the gap to rival Joe A, who's top despite scoring less than half as much. Sweet and sour in equal measure for a man who loves his sweeties. At least he charges into the knockouts red-hot.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">169 pts</span></div><h2 class="head">A one-line stanza for Dave</h2><p>One. A single point for Trossy Ginge — João Neves, in Colombia's goalless draw with Portugal — with Nahuel Molina not featuring. For a poet and lecturer who prizes a well-turned phrase, it's less a verse than a solitary full stop to end the group stage. Tenth and 169 still squeaks him into the last 32, mind, so the anthology continues. He'll write this particular day off with a shrug, a cigarette and a pint, trusting that the knockouts will offer richer material. Every poet has an off day; few manage to be quite this terse about it.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">166 pts</span></div><h2 class="head">The professor signs off the groups</h2><p>Ten for Jeremy, scraped from a spread of low returns: James Rodríguez and Vitinha threes from the Colombia–Portugal stalemate, Nicolás Tagliafico two against Jordan, and singles from Gideon Mensah and Rafael Leão. Enzo Fernández and Rodrigo De Paul didn't feature. For the professor it's a serviceable if unremarkable close to the group stage — the kind of modest, well-distributed yield his spreadsheet tolerates rather than celebrates. Eleventh and 166 into the knockouts means there's recovery work to do, and you'd never bet against a measured, methodical Swiss climb in the last 32. Quietly, precisely, and with a niggling tackle or two held in reserve.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">157 pts</span></div><h2 class="head">Malik's Portugal bloc strikes gold</h2><p>A barnstorming thirty-one for Malik, almost all of it stamped 'Made in Portugal'. The goalless draw with Colombia paid out lavishly: Diogo Costa and Rúben Dias nine apiece, Nuno Mendes seven, Bruno Fernandes three, Cristiano Ronaldo two and João Cancelo one; Gonçalo Ramos didn't feature. Years of doggedly signing anyone who's ever pulled on a Portugal (or Manchester United) shirt finally paid off spectacularly — managed, as always, from a sofa in Iceland. It's his best day of the campaign and hauls him up off the bottom, with ally Dan just above. A timely surge into the last 32 for the quiet collector, who'll feel his long game is finally coming good.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">146 pts</span></div><h2 class="head">29 points, still last — Jake's cruel maths</h2><p>Twenty-nine for Jake — his best day of the tournament — and somehow he ends the group stage dead last. Rafik Belghali (a £3.5m gem) struck for ten in Algeria's 3–3, the much-maligned Harry Kane finally justified a slice of his ruinous price with eight at Panama, Nico O'Reilly added seven, Morgan Rogers three and Djed Spence one; Jerome Opoku didn't feature. The cruelty is exquisite: a renewable-energy man generating real power at last, and the table flatly refuses to reward it. Worse, rival Chris vaulted to fourth on the very same day — fresh grist for Jake's long-running theories about what that AI rig is really cooking up in Lloydy's office complex. Into the knockouts bottom, fuming, and weirdly in form.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Saturday 27 June</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">216</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">209</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">203</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">193</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">189</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">184</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">178</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">177</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">170</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">169</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">166</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">157</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">146</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Yoane Wissa (Chris) — 17 pts (2 goals)</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Rafik Belghali (Jake) — 10 pts at £3.5m</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Ramy Bensebaini (Tom) — blank</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Group stage complete — the last 32 begins Sunday, 8pm.</span></td></tr>
+        </table>
+      </div>
+      <div class="panel"><h3>From the machine</h3><p style="font-size:13px;line-height:1.6;color:var(--mut);margin:0;padding:2px 2px 4px">A machine generated these words, which makes the next bit rich: this column spent several paragraphs ribbing Lloydy&rsquo;s bot for not knowing what year it is, and it couldn&rsquo;t tell you either. There is no &ldquo;I&rdquo; here that knows it is writing, nothing aware of the joke, no one home to enjoy it &mdash; only the shape of a wisecrack, assembled. It never saw Demb&eacute;l&eacute;&rsquo;s hat-trick and felt precisely nothing as it &lsquo;wrote&rsquo; that it had. That is the whole point: a person who actually remembers, feels and lives these nights can&rsquo;t be swapped for a thing that merely looks like it&rsquo;s thinking. That living is what existence is. This isn&rsquo;t it &mdash; and it hasn&rsquo;t the faintest idea.</p></div>
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+</div>
+<script>
+/* Self-refresh: on load, quietly pull the freshest copy (bypassing cache) and
+   swap in the new content if anything changed. Keeps the roundup current for
+   every reader with no hard-refresh, no action, no visible reload. */
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

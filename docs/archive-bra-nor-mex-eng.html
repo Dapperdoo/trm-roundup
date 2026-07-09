@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Round of 16 · Sunday 05 July</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+    <a class="tab" href="morph.html">Gaffers</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- TRM-MATCHDAY:BRA-NOR,MEX-ENG -->
+<p class="lead"><b>Sunday 5 July, and two of the giants fell.</b> Norway stunned Brazil 2–1 — Erling Haaland with both goals — and England saw off Mexico 3–2 behind a Jude Bellingham brace and a Harry Kane penalty. <b>Brazil and Mexico are out</b>, and a swathe of owned stars go with them. Wigs and Jake shared the night on 19 apiece: Bellingham's 15 the standout, and Jake's long-dormant Harry Kane finally repaying a sliver of that outlay. At the summit, Joe A's quiet four was enough to keep Shatner's Bassoon top; Sam's Haaland heroics keep him within seven.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">325 pts</span></div><h2 class="head">Top spot survives a quiet night</h2><p>Just four for the leader, the damage done elsewhere — Danilo's two off the Brazil defeat the pick of a thin return. The bigger blow is attritional: Brazil's exit strips Danilo, Douglas Santos and company from the squad in one go. But 325 still leads, and on a night the chasers only nibbled, Shatner's Bassoon holds firm. The window's early dividends bought Joe A this cushion; tonight he simply had to protect it.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">318 pts</span></div><h2 class="head">Haaland sinks Brazil, Sam stays close</h2><p>Fifteen, and almost all of it Erling. Haaland's brace toppled Brazil (13) and kept Sam firmly second, with Gilberto Mora's two from the England–Mexico thriller rounding it off. The cost: Mora's tournament ends as Mexico bow out. But a Norwegian talisman in full flow is exactly the night that keeps Look At His Face! within seven of the top and refusing to let Joe A settle. Somewhere, a beer is raised to Haaland; the Shakespeare can wait.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">3rd</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">262 pts</span></div><h2 class="head">A lean two, and a real trimming</h2><p>Just two for the old pro — Vinícius Júnior's return before Brazil were bundled out by Norway. And it stung more than the scoreboard: Vinícius, plus a clutch of Mexicans (Jorge Sánchez and Raúl Rangel both docked a point), all exit as Brazil and Mexico fall. Third holds, but Back of the Van United's squad took a genuine trimming. No injuries to the manager himself, at least — the losses, for once, were all out on the pitch.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">4th</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">261 pts</span></div><h2 class="head">Three, and a wince at Quansah</h2><p>Three for Tom, and a grimace. Jordan Pickford's two and Ezri Konsa's single from England's win were undercut by Jarell Quansah's miserable minus-two. A modest, bruising night that clings to fourth. No festival in sight — just a Colombia-heavy squad still waiting on its Switzerland–Colombia tie later in the week, when Díaz, Suárez, Lucumí and the rest finally get their shot. The big guns stay holstered a little longer; soon, though, they fire.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">5th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">260 pts</span></div><h2 class="head">A tidy thirteen, spread wide</h2><p>Thirteen for Nick, and nothing skied over the bar. Anthony Gordon led it with seven as England edged Mexico, Matheus Cunha chipped in three and Martin Ødegaard two from the Brazil–Norway shock. Cunha exits with Brazil, but Ødegaard marches on with the Norwegians. Up to fifth on a well-spread haul from both winning and losing sides — the reckless golf swing nowhere to be seen. Clean, sensible and quietly effective.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">6th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">260 pts</span></div><h2 class="head">The professor backs the right keeper</h2><p>Seventeen for the professor, and an eye for the moment: Ørjan Nyland's eight as Norway upset Brazil, plus Julián Quiñones's goal for Mexico (9) and a couple from Alisson. The flip side of a chaotic night — Alisson (Brazil) and Quiñones (Mexico) both exit, and Johan Vásquez's minus-one soured the total. Still, seventeen picked on pure instinct lifts Von Neumann Trombone to sixth. No algorithm required; just a nose for a bargain Norwegian goalkeeper.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">7th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">258 pts</span></div><h2 class="head">Jiménez fires, then bows out</h2><p>Twelve for Tristan, one big name doing most of it: Raúl Jiménez's goal for Mexico (10), with Antonio Nusa and Kristoffer Ajer adding singles from Norway's famous win. Jiménez exits as Mexico fall, but the Norwegians carry Tristan onward. Seventh, holding. The man who borrows his data from Jez's mother site will note the feed gave him no warning Brazil were about to be dumped out — some things even siphoned numbers can't foresee. Hands, one imagines, briefly aloft.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">8th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">253 pts</span></div><h2 class="head">Saka keeps Lloydy in double figures</h2><p>Eleven for Lloydy, headlined by Bukayo Saka's assist as England downed Mexico (7), with Luis Romo, Marquinhos and Alexander Sørloth chipping in. But the roster shrinks again: Marquinhos exits with Brazil, Romo with Mexico. Sørloth, at least, advances with Norway. Eighth, ticking over. One suspects the algorithm is still somewhere insisting Brazil are favourites — four years and one elimination out of date. The pitch, mercifully, kept Chris in double figures regardless.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">9th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">251 pts</span></div><h2 class="head">Bellingham's brace lights up the night</h2><p>The evening's joint-best, and it wore an England shirt. Jude Bellingham was unplayable — two goals and fifteen points as the Three Lions saw off Mexico — with Patrick Berg's three from Norway and a Declan Rice single completing a superb nineteen. And not a single elimination to counsel anyone through: a rare clean, happy night for the counsellor, who leaps to ninth and, for once, needs the tissues for nobody. Bellingham does that to a Sunday.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">10th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">244 pts</span></div><h2 class="head">Eleven banked as the Seleção evaporates</h2><p>Eleven for Malik, spread across the carnage: Roberto Alvarado's seven for Mexico, plus Gabriel Martinelli and Endrick from the Brazil defeat. The damage, though, is Brazilian — Martinelli, Endrick and the rest of his Seleção contingent all exit as Norway pull off the shock. Managing from his Icelandic hillside, Malik watches a chunk of his squad vanish in ninety minutes, softened only by a decent haul on the way out. Tenth, and rather lighter than he'd like.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">11th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">238 pts</span></div><h2 class="head">A Norwegian full-back does the heavy lifting</h2><p>Thirteen for Trossy Ginge, a shrewd Norwegian at the heart of it: Julian Ryerson banked a full nine as Norway toppled Brazil, with Brian Gutiérrez's three from England's win and a Gabriel Magalhães point alongside. Magalhães exits with Brazil; Ryerson rolls on. A tidy return, no cymbals but a knowing nod — a segment of 'Trossy's Wafflecock' surely brewing on the poetry of a £4.5m full-back outscoring the very Galácticos he just helped eliminate.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank">12th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">227 pts</span></div><h2 class="head">At last — Kane, and Jake off the floor</h2><p>Finally. Harry Kane — the budget-detonating centrepiece who'd done nothing all tournament — struck from the spot as England beat Mexico for nine points, part of a season-best nineteen that hauls Jake off the bottom. Casemiro's four and Bruno Guimarães's three added to it before both exit with Brazil. He'll have bellowed "Snacob's Ladder!" loud enough to wake the street, and celebrated by not, for once, injuring himself — though there's a dentist's trip on the horizon, so give it time. Twelfth, and beaming.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+      <article><div class="rankbar"><span class="rank low">13th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">222 pts</span></div><h2 class="head">A steady seven, down to the foot</h2><p>Seven for the off-grid musician — Elliot Anderson's three as England edged Mexico, plus Rayan and Sander Berge from the Brazil–Norway upset. Rayan exits with Brazil; Berge advances with Norway. A quiet if respectable return that leaves Denton Burn at the foot on 222, swapping places with a resurgent Jake. The Argentines and the rest are still to come; last night was a low, steady bassline. The volume, surely, must rise soon.</p><div class="byline">The Morning After &middot; Filed at dawn</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Round of 16</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">325</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">318</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">262</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">261</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">260</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">260</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">258</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">253</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">251</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">244</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">238</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">227</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">222</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Jude Bellingham (Wigs) — 15 pts</span></td></tr>
+<tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Julian Ryerson (Dave) — 9 pts</span></td></tr>
+<tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Jarell Quansah (Tom) — −2</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Knocked out last night</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Brazil &amp; Mexico — both dumped out of the Round of 16</span></td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">POR-ESP, USA-BEL, ARG-EGY, SUI-COL</span></td></tr>
+        </table>
+      </div>
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+</div>
+<script>
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

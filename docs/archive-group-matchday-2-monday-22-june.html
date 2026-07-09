@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Group Matchday 2 · Monday 22 June</title>
+<style>
+:root{
+--bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+--ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+--gold:#f5c451; --red:#f0556b; --green:#34d399;
+--magenta:#f472b6; --purple:#a855f7;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+.wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+
+/* ===== Tabs ===== */
+.tabs{display:flex; gap:6px; justify-content:center; padding:22px 0 0;}
+.tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2); transition:color .15s, background .15s;}
+.tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+.tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta); box-shadow:0 0 22px rgba(244,114,182,.28);}
+.tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+
+header.mast{
+border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+position:relative; overflow:hidden;
+background:
+radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+}
+.kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+.subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+.live{color:var(--green);}
+.live::before{content:"●"; margin-right:5px; color:var(--green);}
+.layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+@media(max-width:820px){.layout{grid-template-columns:1fr;}}
+.lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+.lead b{color:var(--ink);}
+article{border-top:1px solid var(--line); padding:24px 0;}
+article:first-of-type{border-top:none; padding-top:4px;}
+.rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+.rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+.rank.low{background:var(--red); color:#fff;}
+.rank.top{background:var(--gold); color:#241c00;}
+.team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+.pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+article p{margin:0; color:#c7d1de; font-size:16.5px;}
+.byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+aside{align-self:start; position:sticky; top:18px;}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+.panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+tr:last-child td{border-bottom:none;}
+.pos{color:var(--mut); width:26px; font-weight:700;}
+.tname{color:var(--ink); font-weight:600;}
+.mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+.tot{text-align:right; font-weight:900; color:var(--cyan);}
+tr.r1 .pos{color:var(--gold);}
+tr.r13 .pos{color:var(--red);}
+.note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== Tabs ===== -->
+<nav class="tabwrap">
+  <div class="tabs">
+    <a class="tab" href="./">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+  </div>
+</nav>
+
+<!-- ===== THE MORNING AFTER (daily roundup) ===== -->
+<header class="mast">
+<div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+<h1 class="title">THE MORNING <span>AFTER</span></h1>
+<div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+<div class="dateline">
+<span>Wednesday 24 June 2026</span>
+<span>Group Matchday 2 · Monday 22 June</span>
+<span class="live">Matchday settled</span>
+</div>
+</header>
+
+<div class="layout">
+<main>
+<p class="lead">Monday delivered four fixtures and a feast of goals — <b>Argentina</b> dispatched Austria 2–0, <b>France</b> put three past Iraq, and the day's standout thriller saw <b>Norway edge Senegal 3–2</b> in a game that handed this league's most loaded squad a haul for the ages. <b>Algeria</b> completed the evening's business with a 2–1 win over Jordan. Messi scored twice, Mbappé scored twice, Haaland scored twice — and somehow a Senegalese winger still topped the lot. Colombia vs Congo DR is still to come, but the damage — and the delight — is already done.</p>
+<article><div class="rankbar"><span class="rank top">1st</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">158 pts</span></div><h2 class="head">Sarr and Haaland fire Sam to the top of the pile</h2><p>A 62-point haul and Sam stays rooted at the summit on 158 — look at his face, go on, just look at it. Ismaïla Sarr was the standout, bagging a brace against Norway for 15 points, while Erling Haaland replied with two of his own for 13. Facundo Medina chipped in with 11 from an assist in Argentina's win, and Michael Olise dazzled with two assists for 9 in France's dismantling of Iraq. Sadio Mané added a tidy 8. Adrien Rabiot and Ibrahim Maza were functional if unspectacular. Aurélien Tchouaméni didn't feature. Brother Wigs will be watching this scoreline with a familiar mix of pride and quiet despair.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">146 pts</span></div><h2 class="head">Anamaduwa Athletic scrape a 9 — somewhere between a curry and a connecting flight</h2><p>Tom's Monday haul of 9 points is, frankly, the fantasy equivalent of a lukewarm airport meal — technically nourishment, not exactly satisfying. Ramy Bensebaini led the charge with 7 points from Algeria's win over Jordan, which is doing a lot of heavy lifting. Rayan Aït-Nouri contributed 2. That's your lot. To be fair, Tom still has four players yet to play, so the week isn't done — though given he's currently in second on 146 and rival Nick is lurking, he'll need those remaining assets to actually show up. Wherever Tom is right now, we hope the Wi-Fi holds.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">136 pts</span></div><h2 class="head">Mbappé leads a solid 40-point shift for Shatner's Bassoon</h2><p>Joe A managed 40 points Monday — not bad for a man who makes relaxation look like a competitive sport. Kylian Mbappé did the heavy lifting with a brace and 13 points, and Dayot Upamecano quietly banked 9 at the back. Amine Gouiri got in on the act with a goal for Algeria, netting 10. Nicolas Jackson contributed 7 with an assist in the Norway-Senegal clash. Rayan Cherki scraped 1 — present, if not exactly electrifying. Joe still has one player to come, sitting third on 136. Rival Tristan will be keeping a very close eye. Joe, for his part, is probably keeping one eye on the sofa.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">125 pts</span></div><h2 class="head">Trossy's Giants limp to 13 — a poem in underperformance</h2><p>Dave — lecturer, poet, lover of a well-placed pun — might describe Monday's 13-point return as a haiku: sparse, deliberate, and leaving you wanting more. Nahuel Molina led with 9 from Argentina's win, which is the kind of solid if unflashy contribution that Dave probably appreciates on some level. Bradley Barcola managed 3 in France's rout of Iraq, and Julian Ryerson scraped 1 in Norway-Senegal. Mohammed Amoura didn't feature for Algeria. Dave finishes the matchday with nothing remaining, sitting fourth on 125 total. The cigarette is lit, the beer is open, and somewhere a city-break is being planned to forget all about it.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">124 pts</span></div><h2 class="head">Saliba Holds the Fort as Jeremy Ticks Over</h2><p>Seventeen points for Jeremy this matchday — functional, measured, very Swiss. The headline act was William Saliba, who pocketed a tidy 7 from France's comfortable evening against Iraq. Behind him, a delegation of Argentines did their bit without doing anything spectacular: Enzo Fernández and Rodrigo De Paul both clocked 3 apiece, Nicolás Tagliafico chipped in with 1. Over in the Norway–Senegal fixture, Alexander Sørloth managed 2 and Ørjan Nyland a solitary 1. No blanks, no disasters, no fireworks — just six players all ticking along. The professor keeps his calculations tidy. Still one player to come, sitting fifth on 124.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">123 pts</span></div><h2 class="head">Ødegaard Rescues a Thin Return for Nick</h2><p>Eight points. Not exactly the thunderous, all-action haul Nick's reputation demands — more a wayward effort that clips the post and trickles wide. Martin Ødegaard did the heavy lifting with 7, his assist in Norway's fixture the kind of composed, incisive pass Nick himself would never attempt before clattering someone from behind. Désiré Douécontributed a single point from France's stroll against Iraq, which is about as much as you'd expect from a man whose manager's idea of a decisive contribution is a mistimed lunge in a Tuesday five-a-side. One player still to come, and Tom will be watching. Sixth on 123.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">122 pts</span></div><h2 class="head">Messi Drags Joe S Off the Treatment Table</h2><p>Twenty-two points — and almost all of it down to one man. Lionel Messi, apparently unbothered by the concept of ageing, scored twice against Austria for 14 points, which is the fantasy equivalent of Joe S's entire playing career condensed into one afternoon. Jules Koundé added a clean-sheet 7 from France's win over Iraq. Cristian Romero contributed 1, and Kalidou Koulibaly blanked with 0 against Norway. Iliman Ndiaye didn't feature at all — rested, or perhaps just empathising with Joe's extensive injury history. No remaining players to come, so 22 is the final tally. Seventh on 122, but Messi did the physio proud.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">122 pts</span></div><h2 class="head">Martínez Delivers a Quiet Seven for Wigs</h2><p>Seven points, all from one source: Emiliano Martínez, keeping a clean sheet as Argentina saw off Austria. Solid, unspectacular, dependable — much like a good counsellor, or a reliable mid-order batsman nudging ones and twos on a flat pitch. That's the entirety of Wigs's matchday contribution, with no players left to come. His brother Sam will no doubt have something to say about it, though in the gentle, fraternal way these things go. Eighth on 122, level with Joe S, and the gap to the top isn't closing today. Still, Martínez earned his keep. Sometimes a clean sheet is enough.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">114 pts</span></div><h2 class="head">Dembélé Does the Heavy Lifting for Denton Burn</h2><p>Dan hauls 15 points on Monday, and the story is almost entirely Ousmane Dembélé — a goal, an assist, 12 points from France's stroll past Iraq. The rest of the card is thin: Julián Álvarez contributed a polite 1 point from Argentina's win, Sander Berge chipped in 2 from Norway's draw with Senegal, and Nico Paz didn't feature at all. Still, 15 is a respectable return for a man who lives off-grid — presumably he'll find out the score via carrier pigeon. Ally Malik will be watching with envy. Denton Burn climb no further for now, sitting 9th on 114, but Dembélé at least kept the lights on.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">112 pts</span></div><h2 class="head">Martínez Muscles Lloyd's to a Solid 13</h2><p>Chris banks 13 points, and Lisandro Martínez is the engine — 9 points from a composed Argentina clean-sheet shift against Austria. Alexis Mac Allister added a tidy 4 alongside him, which is the kind of low-drama midfield return Lloydy can live with. Theo Hernández didn't feature for France, so no harm done there — the mad scientist dodged a blank rather than engineered one. One player still to play keeps the door ajar for more. Sitting 10th on 112, Chris is breathing down Dan's neck, and with rival Jake lurking, every point counts. Not a fireworks display, but functional. Sometimes the circuits just quietly hum.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">104 pts</span></div><h2 class="head">Propaganda Parade's Monday: One Point, One Man, One Sigh</h2><p>Malik hauls 1 point. One. Oscar Bobb turned out for Norway against Senegal and returned a single point for his troubles — present, accounted for, largely invisible. That's the entire Monday scorecard for Propaganda Parade. No goals, no assists, no drama, no joy. From Iceland, managing from afar, Malik will have refreshed his app and seen a solitary '1' staring back at him. Ally Dan at least had Dembélé to celebrate; Malik had Bobb doing Bobb things. Sitting 11th on 104, the gap to the top is widening quietly. There's no United or Portugal player in sight to save him today.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">96 pts</span></div><h2 class="head">Trippier &amp; Trippier Roar to 21 — Best of the Day</h2><p>Tristan storms to 21 points on Monday — the day's standout haul — and he'll be throwing his hands up in celebration rather than disgust for once. Riyad Mahrez delivered 7 with an assist in Jordan vs Algeria, Mike Maignan matched him with 7 in goal for France, Lautaro Martínez added 4 from Argentina's win, Antonio Nusa chipped in 2 from Norway, and Kristoffer Ajer rounded it off with 1. Five players, five contributions, zero blanks. Rival Joe A will not enjoy reading this. Tristan climbs with 96 total, sitting 12th but with momentum. The big Russian is loading up on sweeties tonight — he's earned them.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">90 pts</span></div><h2 class="head">Snacob's Ladder Scrapes Two From the Bottom of the Barrel</h2><p>Two points. That's the haul from Monday for Jake, sitting at the foot of the table on 90 total — and Chris will be sleeping soundly tonight. Rafik Belghali did the heavy lifting, which is a sentence nobody had on their bingo card, chipping in a modest 2 points from Jordan's clash with Algeria. El Hadji Malick Diouf featured for Senegal against Norway and returned precisely nothing — a blank as blank as a wind turbine on a still day. Mateta didn't even make it off the bench. No remaining players to play. The mushrooms are not growing, Jake.</p><div class="byline">The Morning After</div></article>
+</main>
+
+<aside>
+<div class="panel">
+<h3>Standings · Monday 22 June</h3>
+<table><tr class="r1"><td class="pos">1</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">158</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">146</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">136</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">125</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">124</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">123</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">122</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">122</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">114</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">112</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">104</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">96</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">90</td></tr></table>
+</div>
+<div class="panel">
+<h3>Round Highlights</h3>
+<table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Ismaïla Sarr (Sam) — 15 pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Facundo Medina (Sam) — 11 pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Kalidou Koulibaly (Joe S) — blank</span></td></tr></table>
+</div>
+<div class="panel">
+<h3>Still to play</h3>
+<table>
+<tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">COL-COD</span></td></tr>
+</table>
+</div>
+
+</aside>
+</div>
+
+<footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Round of 32 · Sunday 28 June</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  /* top tabs — mirror the Live hub so readers can hop straight back */
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <p class="lead">Sunday 28 June delivered exactly one fixture — <b>South Africa 0–1 Canada</b> — and the day's player pool reflects it: four managers had skin in the game, the points ceiling was a modest 3, and the rest of the Round of 32 draw stretches out ahead like a very long queue at passport control. Ronwen Williams kept Canada out for long enough to bank the day's top score, Jonathan David reminded everyone he exists, and somewhere in the background Lloydy's algorithm was presumably still cross-referencing the 2022 squad list to see if Bafana Bafana had anyone worth a cheeky bid. It did not. One game down, fifteen still to play — and this bulletin was assembled by a machine that has no idea it's Sunday, no idea there's a World Cup on, and no idea it's writing any of this. Onward.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">216 pts</span></div><h2 class="head">Bassoon Stays Silent — But Stays Top</h2><p>Zero. A round, perfect, utterly untroubled zero. No players in action on Sunday, no points to sweat over, no decisions to agonise about — which, frankly, suits Shatner's Bassoon's general operating philosophy down to the ground. Joe A remains at the summit on 216, watching the rest of the league scramble below him with the serene detachment of a man who has found a very comfortable sofa and sees no reason to leave it. Rival Tristan will be eyeing that gap. Joe has 18 players still to come. Whether he's actively monitoring that or not is, diplomatically, an open question.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">209 pts</span></div><h2 class="head">The Bard Can Wait — Zero Points Today</h2><p>A blank Sunday for Look at his Face!, with no players featuring in the day's fixtures and the matchday haul reading a Shakespearean nothing — which, to be fair, is a number the Bard himself had strong opinions about. Sam sits second on 209, just seven behind Joe A, and with 18 players still to deploy there's plenty of drama yet to be written. No beer was spilled, no dancing was done, no cricket was played — at least not in the service of fantasy football points. Sunday was simply a rest day, and the scoreboard looks exactly like it did on Saturday. All's well that ends well. Probably.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">205 pts</span></div><h2 class="head">David Delivers a Quiet Two From Johannesburg</h2><p>Two points. Jonathan David trudged through South Africa vs Canada and returned a modest, unspectacular, entirely typical two — no goals, no assists, just the baseline appearance fee and a shrug. Somewhere Tom is presumably aware of this, though whether he's checked the scores between DJ sets is another matter entirely. He's currently hunched over a mixing desk at an event one eyewitness — beaming, swaying, and entirely unsure what day or country it is — could only describe as "mate, it's… it's the LIGHTS, honestly, the lights" before wandering off happily into an unspecified European field, blissfully unaware that his league position — third, 205 points — is being gently nibbled at. Rival Nick will have noted it. Tom probably hasn't. The music is very loud.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">195 pts</span></div><h2 class="head">Maseko Keeps Lloydy Ticking Over — Just</h2><p>Two points from Thapelo Maseko in the South Africa fixture — no goals, no assists, just a polite appearance and a wave. Modest, yes, but let's be clear: Maseko was a real, current, actually-existing footballer who plays in this actual World Cup — except South Africa just lost, so his tournament is over and, as of tonight, he's no longer current at all. In other words he's graduated cleanly into the one category Lloydy's algorithm truly excels at: bygone-tournament names the bot keeps trying to sign. The lab humming away somewhere in Chris's garage will be delighted — a fresh has-been to file alongside the 2022 squad. Jake, naturally, has filed this two-point haul as further evidence of something. Chris sits fourth on 195. The algorithm, presumably, is convinced it's 2022.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">192 pts</span></div><h2 class="head">Williams Keeps the Lights On in Cape Town</h2><p>Three points for Back of the Van United this Sunday — modest, yes, but when you're Joe Sheerin, a man who spent roughly half his playing career horizontal on a treatment table, you take what you can get and you're grateful for it. Ronwen Williams was the sole contributor, earning his 3 points in the RSA-CAN fixture and doing the whole shift alone. Nobody else featured. Seventeen players still to come, which is the only real comfort here. Joe sits 5th on 192 total — still in the mix, still upright, which is more than could be said for him on any given Tuesday during his playing days.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">185 pts</span></div><h2 class="head">Saliba Scrapes a Single for 50 Shades</h2><p>A haul of 1 for 50 Shades of O'Shea — the kind of return that makes you long for a long afternoon of Test cricket instead, where at least a draw feels earned. Nathan Saliba played his part in RSA-CAN and returned a solitary point for the trouble. That's it. That's the matchday. Wigs is a gentle, witty soul and he'll take this with good grace, but his brother Sam will not be letting it go quietly at the family dinner table. Sixth on 185 total, fifteen players still remaining. Better days are coming. Probably.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">178 pts</span></div><h2 class="head">Dyer's Rusty 9 Iron Swings and Misses Entirely</h2><p>Zero points, zero players, zero action — Dyer's Rusty 9 Iron had absolutely nothing in the Sunday fixtures. Not a single representative on the pitch, which means Nick can't even blame a reckless last-ditch lunge or a shot that cleared the stadium roof by twelve rows. The matchday simply passed him by. He sits 7th on 178 total with 18 players still to come — the most remaining of this group — so the runway is long. Tom, his rival, will be watching the standings closely. Nick will be watching the next fixture list and sharpening whatever passes for a rusty 9 iron in fantasy football terms.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">177 pts</span></div><h2 class="head">Off-Grid, Off the Scoresheet</h2><p>A blank Sunday for Denton Burn — no players in action, no points added, no movement. Dan sits 8th on 177 total, one point behind Nick above him, with 17 players still to deploy. Historically one of the sharper operators in this league, the off-grid musician is currently in a quiet patch, though ally Malik will no doubt be keeping a watchful eye on proceedings. There's nothing to dissect here, no goals to celebrate or blanks to bemoan — just a still, silent matchday. Much like this bulletin, which was assembled by a machine that has no idea it's Sunday, no idea it's June, and no idea it's writing anything at all.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">170 pts</span></div><h2 class="head">Hands Up, Nothing to Show</h2><p>Zero. A round, hollow, entirely unsatisfying zero. Tristan — 9th, 170 points, rival Joe A lurking somewhere in the standings with that infuriating look on his face — had nobody featuring on Sunday 28 June. Not a single player from Trippier & Trippier stepped onto a pitch. The big Russian Londoner who doesn't suffer fools found himself with nothing to throw his hands up about, which is almost worse than having something to throw his hands up about. Eighteen players still to come, so the damage is limited to the psychological variety. The sweetie tin remains unopened. The disgust is internal. The haul: nil.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">169 pts</span></div><h2 class="head">The Poet Draws a Blank Verse</h2><p>A blank matchday for Trossy's Giants — and Dave, lecturer, poet and lover of wordplay, will appreciate that 'blank verse' has never felt quite so literal. Zero points on Sunday 28 June; no Trossy player featured across the day's fixtures. He sits 10th on 169, one point behind Tristan, which is the kind of gap that makes a city-break feel necessary. Perhaps Dave is somewhere on a cobbled European street right now, beer in hand, cigarette on the go, blissfully unaware that his squad spent the day as spectators. Eighteen players still to come. The pun for this one writes itself, and frankly so did the rest of it — there's no one in here, Dave.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">166 pts</span></div><h2 class="head">The Professor Submits No Data</h2><p>Von Neumann Trombone: zero. Jeremy — the professor, the programmer, the man whose systems actually work (a pointed glance in the general direction of Loopy Lloydy's Lab) — had no players active on Sunday 28 June. Trombone sits 11th on 166, which for a historically top manager must feel like an anomaly requiring investigation, a bug in the model, an outlier to be quietly noted and corrected. His algorithm, unlike certain others, has not recently attempted to sign players from a previous tournament. It simply returned no output today. Eighteen players remaining. The measured Swiss type will recalibrate. He always does.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">157 pts</span></div><h2 class="head">Propaganda Goes Quiet</h2><p>Propaganda Parade: zero. Malik, managing from Iceland with an eye perpetually on Manchester United and Portugal alumni, had no players featuring on Sunday 28 June. He sits 12th on 157 — ally Dan somewhere nearby, presumably commiserating across whatever timezone separates them. Seventeen players still to play, so there is runway. The quirky, smart Icelandic operation has been in tighter spots. It is worth noting, purely in the spirit of solidarity, that this bulletin was also assembled by something with no players, no points, no stake in the outcome, and no actual awareness that any of this happened. Malik at least knows he's watching. This thing does not know anything at all.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">146 pts</span></div><h2 class="head">Snacob's Ladder Sits Out Sunday</h2><p>Zero. That's Jake's haul this matchday, and it's a clean, uncomplicated zero: Cyle Larin didn't feature in RSA-CAN, sitting unused as Canada went about their business without him. Nothing to parse, nothing to spin. Jake stays on 146 points, rooted to 13th, with 16 players still to come.
+
+The only noise from the Snacob's Ladder camp today was, predictably, not about football. Word reaches us that Jake spent Sunday refreshing his theories about what Lloydy is running in that office complex of his — convinced the algorithm has evolved, mutated, possibly achieved sentience. Mate, Lloydy's bot can't even identify the correct World Cup. It's fine. It's fine.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Sunday 28 June</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">216</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">209</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">205</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">195</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">192</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">185</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">178</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">177</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">170</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">169</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">166</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">157</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">146</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Ronwen Williams (Joe S) — 3 pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Thapelo Maseko (Chris) — 2 pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Jonathan David (Tom) — blank</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">BRA-JPN, GER-PAR, NED-MAR, CIV-NOR, FRA-SWE, MEX-ECU, ENG-COD, BEL-SEN, USA-BIH, ESP-AUT, POR-CRO, SUI-ALG, AUS-EGY, ARG-CPV, COL-GHA</span></td></tr>
+        </table>
+      </div>
+      <div class="panel"><h3>From the machine</h3><p style="font-size:13px;line-height:1.6;color:var(--mut);margin:0;padding:2px 2px 4px">A machine generated these words, which makes the next bit rich: this column spent several paragraphs ribbing Lloydy’s bot for not knowing what year it is, and it couldn’t tell you either. There is no “I” here that knows it is writing, nothing aware of the joke, no one home to enjoy it — only the shape of a wisecrack, assembled. It never saw Dembélé’s hat-trick and felt precisely nothing as it ‘wrote’ that it had. That is the whole point: a person who actually remembers, feels and lives these nights can’t be swapped for a thing that merely looks like it’s thinking. That living is what existence is. This isn’t it — and it hasn’t the faintest idea.</p></div>
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+</div>
+<script>
+/* Self-refresh: on load, quietly pull the freshest copy (bypassing cache) and
+   swap in the new content if anything changed. Keeps the roundup current for
+   every reader with no hard-refresh, no action, no visible reload. */
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

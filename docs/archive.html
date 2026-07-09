@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Archive</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:760px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(30px,5vw,50px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  .intro{color:var(--mut); font-size:14px; margin:24px 0 18px; text-align:center;}
+  a.entry{display:flex; align-items:center; gap:14px; text-decoration:none; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:13px 16px; margin-bottom:9px; transition:border-color .15s, background .15s, transform .05s;}
+  a.entry:hover{border-color:var(--magenta); background:#141b28;}
+  a.entry:active{transform:translateY(1px);}
+  .chip{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:10px; letter-spacing:.08em; padding:3px 8px; border-radius:5px; min-width:44px; text-align:center; color:#0a0e14; flex:none;}
+  .s-GS1,.s-GS2,.s-GS3{background:var(--green);}
+  .s-R32{background:var(--cyan);}
+  .s-R16{background:var(--gold);}
+  .s-QF{background:var(--magenta);}
+  .s-SF{background:var(--purple); color:#fff;}
+  .s-FIN{background:var(--red); color:#fff;}
+  .s-INT{background:var(--mut);}
+  .elabel{font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; color:var(--ink); flex:1; letter-spacing:-.1px;}
+  .edate{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.1em; flex:none;}
+  .empty{color:var(--mut); font-size:14px; text-align:center; border:1px dashed var(--line); border-radius:10px; padding:26px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab" href="roundup.html">Roundup</a>
+    <a class="tab" href="morph.html">Gaffers</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE <span>ARCHIVE</span></h1>
+    <div class="subtitle">Every edition · by matchday</div>
+  </header>
+
+  <p class="intro">Every Morning After, filed by fixture day. Tap any date to reopen that day's roundup.</p>
+
+  <div id="list"><div class="empty">Loading the archive…</div></div>
+
+  <footer>The Morning After · The Archive · All reports affectionate</footer>
+</div>
+<script>
+(function(){
+  var STAGE={GS1:"Group Matchday 1",GS2:"Group Matchday 2",GS3:"Group Matchday 3",
+             R32:"Round of 32",R16:"Round of 16",QF:"Quarter-final",SF:"Semi-final",
+             FIN:"Final",INT:"Interlude"};
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function fmt(d){
+    var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d||""); if(!m) return "";
+    return parseInt(m[3],10)+" "+MON[parseInt(m[2],10)-1];
+  }
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  fetch("archive-index.json?_="+Date.now(),{cache:"no-store"})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){
+      var eds=(j&&j.editions)||[];
+      if(!eds.length){document.getElementById("list").innerHTML='<div class="empty">No archived editions yet.</div>';return;}
+      document.getElementById("list").innerHTML=eds.map(function(e){
+        var st=e.stage||"—", cls=/^(GS1|GS2|GS3|R32|R16|QF|SF|FIN|INT)$/.test(st)?("s-"+st):"";
+        return '<a class="entry" href="archive-'+encodeURIComponent(e.slug)+'.html" title="'+esc(STAGE[st]||st)+'">'
+          +'<span class="chip '+cls+'">'+esc(st)+'</span>'
+          +'<span class="elabel">'+esc(e.label)+'</span>'
+          +'<span class="edate">'+esc(fmt(e.date))+'</span></a>';
+      }).join("");
+    })
+    .catch(function(){document.getElementById("list").innerHTML='<div class="empty">Could not load the archive index.</div>';});
+})();
+</script>
+</body>
+</html>

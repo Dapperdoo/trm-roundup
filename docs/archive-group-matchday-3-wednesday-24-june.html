@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Group Matchday 3 · Wednesday 24 June</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  /* top tabs — mirror the Live hub so readers can hop straight back */
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+    <div class="dateline">
+      <span>Thursday 25 June 2026</span>
+      <span>Group Matchday 3 · Wednesday 24 June</span>
+      <span class="live">Matchday settled</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <p class="lead">Group Matchday 3 served up six fixtures on Wednesday 24 June and the pool did not disappoint. <b>Brazil dismantled Scotland 3–0</b>, handing their owners a clean-sheet bonanza and gifting Vinícius Júnior a brace for the ages. Morocco put four past Haiti, Switzerland edged Canada, Bosnia beat Qatar, Mexico swept the floor with Czech Republic, and South Africa nicked it against South Korea — a varied, points-rich evening that separated the well-stocked squads from the stragglers. With eighteen fixtures still to come in the round, the damage — and the delight — is already very much on the board.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">166 pts</span></div><h2 class="head">Two Points From The Field — Somewhere</h2><p>A haul of 2 for Anamaduwa Athletic, which is at least a number Tom can count on one hand while asleep on a long-haul flight somewhere over the Pacific. Jonathan David played and collected 2 points without troubling the scorer, while Andy Robertson featured against Brazil and returned precisely nothing. Tom sits top of the league on 166, which is the kind of fact that would delight him if he could work out what day it is. Sixteen games remaining, a healthy lead, and still chasing that first-ever league title. The universe, as ever, is keeping him waiting.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">165 pts</span></div><h2 class="head">Shatner's Bassoon Booms — Minimal Effort Required</h2><p>21 points for Joe A, which is a very decent Wednesday's work for a man who approaches most Wednesdays horizontally. Johan Manzambi was the star turn — a goal, an assist, and 13 points out of the Switzerland–Canada fixture. Danilo then chipped in a tidy 8 from the Scotland–Brazil game to round things off nicely. Shatner's Bassoon climbs to 165 total, just one point behind rival Tom at the summit. Joe A may look like he stumbled into these returns by accident, but don't be fooled — he is watching the table very closely, probably from a very comfortable sofa.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">160 pts</span></div><h2 class="head">Bard's Eye View of a Thin Return</h2><p>A haul of 2 for Look At His Face!, which even Sam — a man who can find dramatic meaning in a rain delay at a county cricket match — would struggle to spin into something stirring. Brahim Díaz featured in Morocco's win over Haiti, played his part, and returned 2 points. That's it. The full cast list. As the Bard himself might have noted, all the world's a stage, and today Brahim delivered a very brief supporting role. Sam stays third on 160 with 17 games still to play, so there's plenty of second act left. The beer, at least, is still cold.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">157 pts</span></div><h2 class="head">Sheerin Walks Out of the Physio Room and Immediately Scores 42</h2><p>42 points. Back of the Van United absolutely purring on Wednesday, which is the kind of form Sheerin himself used to produce in the rare windows between hamstring complaints and ice-bath appointments. Vinícius Júnior led the charge with two goals against Scotland and 15 points. Soufiane Rahimi then weighed in with a goal, an assist, and 11 points in Morocco's rout of Haiti. Raúl Rangel added 7 and Ronwen Williams a tidy 9 in goal for South Africa. Four players, four fixtures, zero blanks. Sheerin probably tried to look this up on his phone and accidentally ordered a pizza, but the points are real. Up to fourth, 157 total.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">145 pts</span></div><h2 class="head">Hakimi Does the Heavy Lifting for the Brothers Grimm</h2><p>22 points for Wigs on Wednesday, and the lion's share came from one man: Achraf Hakimi bagged a goal and an assist against Haiti for a tidy 11-point haul. Breel Embolo chipped in with 8 from an assist in Switzerland's win over Canada, while Kim Min-Jae and Scott McTominay added a modest 2 apiece. The only blemish was Martin Expérience, who managed to go negative — a feat that takes a certain commitment. Still, at 22 points Wigs climbs to 5th on 145 total, and brother Sam will be keeping a close eye on that leaderboard. A solid Wednesday.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">141 pts</span></div><h2 class="head">Alajbegovic and Gabriel Keep Trossy Ticking Over</h2><p>16 points for Dave, which in the poetry of fantasy football scans as a decent enough couplet. Kerim Alajbegovic led the way with 9 points and a goal for Bosnia against Qatar — a name that trips off the tongue like a particularly satisfying compound noun. Gabriel Magalhães contributed 7 from the Scotland-Brazil fixture, keeping a clean sheet in typically imperious fashion. Brian Gutiérrez did not feature against Czech Republic and Mexico. Two contributors, one non-appearance, 16 points. Dave sits 6th on 141 total with 15 players still to come — there's a pun in there somewhere, he'll find it.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">141 pts</span></div><h2 class="head">Cunha and Saibari Fire Nick's Rusty Iron — But Bounou Goes Negative</h2><p>18 points for Nick, which keeps him level with Dave on 141 but one place higher at 7th. Matheus Cunha did the damage with a goal against Scotland for 10 points, and Ismael Saibari added another goal and 8 points in Morocco's win over Haiti. Amar Memic contributed a quiet but inoffensive 1. Then there's Yassine Bounou — Morocco's goalkeeper, who somehow ended on -1 despite his side winning. Nick's shot selection has always been questionable, but picking a goalkeeper who goes negative is a new kind of wayward. Tom will be watching. Seventeen players still to play for Nick — plenty of time to launch another reckless challenge at the table.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">132 pts</span></div><h2 class="head">Alisson Stands Alone in a Quiet Night for the Professor</h2><p>8 points for Jeremy on Wednesday — the entire haul delivered by a single man. Alisson Becker kept a clean sheet as Brazil dealt with Scotland, and that was that. No other players featured for Von Neumann Trombone on this matchday. For a manager of Jeremy's analytical precision, a one-player day is the kind of dataset that requires careful processing. He sits 8th on 132 total, but with 17 players still to play he has more variables in the equation than most. The Swiss-type patience will be tested. Alisson, at least, did his job.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">131 pts</span></div><h2 class="head">Lloydy's Brazilians Keep the Lights On</h2><p>A 19-point haul for Chris — not spectacular, but tidy enough to keep the mad scientist tinkering. Marquinhos led the way with 7 points from Brazil's comfortable win over Scotland, while Lucas Paquetá chipped in with 4. The real gem, though, was Luis Romo: 8 points including an assist in the Czech Republic vs Mexico clash. Three players, three returns, zero blanks — clean, efficient, almost suspiciously so. Rival Jake managed 18, so Chris edges Wednesday's head-to-head by a single point. Currently 9th on 131, Lloydy will take it. The lab is producing results.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">114 pts</span></div><h2 class="head">Chaloupek Doesn't Feature, Denton Burn Scores Zero</h2><p>A haul of precisely zero for Dan on Wednesday. His sole representative today, Štepán Chaloupek, did not feature in the Czech Republic vs Mexico fixture — an unused sub, nothing more, nothing less. So Denton Burn sits in silence, watching the points pile up elsewhere. The historically sharp fantasy operator finds himself 10th on 114, and Wednesday offered nothing to claw that back. Ally Malik at least managed 8. Dan has 17 players still to play in the tournament, so the ammunition exists — Wednesday just wasn't the day to fire any of it.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">112 pts</span></div><h2 class="head">Hadzikadunic Leads a Patchwork Eight</h2><p>Eight points for Malik on Wednesday — cobbled together from a crowded squad with mixed results. Dennis Hadzikadunic was the standout, picking up 4 points including an assist for Bosnia-Herzegovina. Neil El Aynaoui returned 2 and Noussair Mazraoui 1 from Morocco's win over Haiti, while Endrick contributed a solitary point from the Brazil game. Matej Kovár played and returned nothing in Czech Republic vs Mexico. Igor Thiago, Ayyoub Bouaddi and Issa Diop did not feature. Malik sits 11th on 112 — just two points behind ally Dan, though Dan's zero today means the gap hasn't shifted. Modest, but it's something.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">108 pts</span></div><h2 class="head">Bruno Delivers; Jake Trails Lloydy by One</h2><p>Eighteen points for Jake, and Bruno Guimarães was the engine — 12 points, two assists in Brazil's dismantling of Scotland. Gregor Kobel added 4 from Switzerland's clean sheet against Canada, and Nikola Katić chipped in 2 from the Bosnia-Qatar game. Vladimír Coufal played in the Czech Republic vs Mexico fixture and returned nothing. It's a solid Wednesday, and Jake will feel the sting of finishing one point behind rival Chris — a single Romo assist the difference. Currently 12th on 108, the renewable-energy man generated a decent amount of power today. Just not quite enough to overtake Lloydy. Again.</p><div class="byline">The Morning After</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">98 pts</span></div><h2 class="head">Demirovic Carries the Whole Operation</h2><p>Two points. TWO. Tristan — sitting 13th with 98 in the bank — can be forgiven for throwing his hands up at this one. Ermedin Demirovic trudged through Bosnia's clash with Qatar and returned a solitary 2 points, which, on this matchday, is apparently the entire haul. Raphinha didn't feature in Scotland vs Brazil, and Raúl Jiménez was nowhere to be seen in Czech Republic vs Mexico either. So the whole day rested on Demirovic's shoulders, and he delivered the bare minimum. Joe A will be watching this with a smirk. Fifteen players still to play — Tristan will need every single one of them.</p><div class="byline">The Morning After</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Wednesday 24 June</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">166</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">165</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">160</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">157</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">145</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">141</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">141</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">132</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">131</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">114</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">112</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">108</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">98</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Vinícius Júnior (Joe S) — 15 pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Johan Manzambi (Joe A) — 13 pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Andy Robertson (Tom) — 0 pts</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">CUW-CIV, ECU-GER, TUN-NED, JPN-SWE, PAR-AUS, TUR-USA, NOR-FRA, SEN-IRQ, CPV-KSA, URU-ESP, EGY-IRN, NZL-BEL, CRO-GHA, PAN-ENG, COL-POR, COD-UZB, JOR-ARG, ALG-AUT</span></td></tr>
+        </table>
+      </div>
+      
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+</div>
+<script>
+/* Self-refresh: on load, quietly pull the freshest copy (bypassing cache) and
+   swap in the new content if anything changed. Keeps the roundup current for
+   every reader with no hard-refresh, no action, no visible reload. */
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

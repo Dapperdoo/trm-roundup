@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Round of 32 · Tuesday 30 June</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  /* top tabs — mirror the Live hub so readers can hop straight back */
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+    <a class="tab" href="morph.html">Gaffers</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+    <div class="dateline">
+      <span>Wednesday 01 July 2026</span>
+      <span>Round of 32 · Tuesday 30 June</span>
+      <span class="live">Matchday settled</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- TRM-MATCHDAY:2026-06-30 -->
+<p class="lead"><b>Tuesday 30 June</b> delivered three Round of 32 knockouts and a Kylian Mbappé masterclass that will have Joe A grinning into his morning coffee. France dismantled Sweden 3-0, Norway edged Ivory Coast 2-1, and Mexico sent Ecuador home 2-0 — meaning CIV, SWE and ECU are all out, their players' World Cups finished before July has even begun. Mbappé's brace was the headline act, but Julián Quiñones quietly conjured a goal-and-assist for Mexico, Bradley Barcola and Antonio Nusa both hit double figures, and Michael Olise's double assist reminded everyone that the unglamorous work of threading through-balls still pays handsomely. A productive evening for the well-stocked, a sobering one for anyone whose squad just got three nations lighter.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">249 pts</span></div><h2 class="head">Haaland, Olise &amp; a Norwegian exodus — Sam tops the day from the summit</h2><p>A 36-point haul from the top of the table. Sam will take that. Erling Haaland grabbed a goal for 8, while Michael Olise was the standout with two assists and 10 points as France dismantled Sweden 3-0. Nicolas Pépé chipped in with a handy assist (7 pts) and Aurélien Tchouaméni and Adrien Rabiot did their bit in midfield. The bad news: Haaland, Pépé and Marcus Pedersen all go out with Norway's exit — CIV may have lost but so did Sam's Norwegian contingent. Ecuador's elimination also means Hernán Galíndez, Israel Reyes and Joel Ordóñez (who blanked) are done. Still, 249 total, rank one. The face says it all.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">244 pts</span></div><h2 class="head">Mbappé delivers — Shatner's Bassoon stays in touch</h2><p>23 points and a clean story: Kylian Mbappé bagged a brace against Sweden for 14 points, Dayot Upamecano added a solid 7 at the back, and the two Ivory Coast men — Ghislain Konan and Guéla Doué — returned a point apiece before CIV's elimination ended their tournament. Joe A will note, with some satisfaction, that Mbappé actually did exactly what it said on the tin — no algorithm required, no five erroneous bids for players who've been retired since Qatar. Just a footballer, doing footballer things. Tristan will be watching that 5-point gap at the top very carefully.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">222 pts</span></div><h2 class="head">Mexico's finest keep Sheerin ticking over</h2><p>23 points, and the bulk of it came from an unlikely source: Jorge Sánchez hauled in 9 points from Mexico's win over Ecuador, with Raúl Rangel adding 7 more. Jules Koundé did his defensive duty for 7 points as France kept Sweden quiet. The one flat note was Victor Lindelöf — played the full game, returned nothing. Sweden's elimination means Lindelöf's World Cup is over, which is the sort of outcome Joe S knows all too well from his own career: you show up, you contribute precisely zero, and then someone tells you it's finished. At least Lindelöf wasn't on the treatment table for it.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">220 pts</span></div><h2 class="head">Eight points — and yes, the algorithm called it</h2><p>Eight points. Spread across five players, none of whom troubled the scorers. Alexander Sørloth managed 2 from Norway's win before CIV's elimination took Odilon Kossounou out of the tournament alongside him — so two of Chris's assets are now gone. Theo Hernández returned just 1 from France's rout, Luis Romo got 3 from Mexico's win, and Ángelo Preciado scraped 1 before Ecuador's exit ended his tournament too. The one consolation: that single valid bid the algorithm eventually fired off — after five attempts to sign players from 2022 — did return 8 points on the night. The machine got there. Eventually. Jake is keeping score.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">211 pts</span></div><h2 class="head">Györkeres Treads Water as Sweden Exit</h2><p>A haul of 2 for Tom this Tuesday, and it tells its own story. Viktor Györkeres was his sole representative across the three fixtures — and with France dismantling Sweden 3-0, the big striker's tournament is now over. Two points from a man whose nation has just been sent home is about as thin as it gets. Tom sits fifth on 211, and with 11 fixtures still to play there's time to recover — but right now Anamaduwa Athletic are drifting, and rival Nick will be watching that gap with interest.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">209 pts</span></div><h2 class="head">Nusa, Maignan, Jiménez Deliver a 29-Point Tuesday</h2><p>Now THAT is more like it. Tristan banks 29 points and will be throwing his hands up in delight rather than disgust for once. Antonio Nusa opened the scoring for Norway against Côte d'Ivoire to pocket 10 points; Mike Maignan was imperious in France's 3-0 demolition of Sweden, returning 8; and Raúl Jiménez chipped in with a goal in Mexico's 2-0 win over Ecuador for 9. Kristoffer Ajer added a tidy 2 on top. Four players, three winning nations, three clean sheets or goals — Tristan has assembled a Tuesday like a man who actually knows what he's doing. Up to sixth on 209, and rival Joe A won't enjoy reading this.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">205 pts</span></div><h2 class="head">Barcola the Star as Trossy Ginge Pockets 16</h2><p>Sixteen points for Dave — a respectable haul, though not without its wrinkles. Bradley Barcola was the headline act, grabbing a goal in France's 3-0 rout of Sweden for 11 points; Yasin Ayari contributed 2 from the same fixture, though Sweden's elimination means that particular asset is now closed for business. Yan Diomandé managed 2 from Côte d'Ivoire's defeat — another eliminated nation, another door shut. Brian Gutiérrez scraped 1 from Mexico's win. Julian Ryerson didn't feature. Trossy's Giants sit seventh on 205 with eight games remaining — a solid enough platform, even if the poetry of this matchday was somewhat free verse.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">203 pts</span></div><h2 class="head">Elanga and Caicedo Leave Wigs with Just 3</h2><p>A quiet one for Wigs. Anthony Elanga returned 2 from France's 3-0 win over Sweden — though Sweden's exit means Elanga's tournament is done, which is a blow for the weeks ahead. Moïsés Caicedo managed just 1 as Mexico edged Ecuador 2-0. Three points in total, and with Ecuador now eliminated, Caicedo too is out of the competition. That's both of today's players gone in one evening. Brother Sam will want to check in — 50 Shades of O'Shea sit eighth on 203, and with only eight fixtures remaining, the asset pool just got noticeably shallower.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">196 pts</span></div><h2 class="head">Quiñones Delivers the Professor's Best Day</h2><p>Twenty-three points for Von Neumann Trombone, and the lion's share came from an unlikely source: Julián Quiñones bagged a goal and an assist in Mexico's 2-0 win over Ecuador to rack up 12 points on his own. William Saliba was solid in France's 3-0 dismantling of Sweden — 7 points for the Frenchman. Ørjan Nyland chipped in 3 from Norway's win over Côte d'Ivoire, while Emmanuel Agbadou managed just 1. The sting: both Agbadou and Nyland's Norway connection means their opponents — Côte d'Ivoire — are eliminated, so Wilfried Singo, who didn't feature anyway, is now out of the tournament entirely. Jeremy sits 9th on 196. Solid, instinctive, organic. As always.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">196 pts</span></div><h2 class="head">Ødegaard Saves a Thin Tuesday</h2><p>Eleven points for Dyer's Rusty 9 Iron — not a haul to rattle the crossbar, but Martin Ødegaard's assist in Norway's 2-1 win over Côte d'Ivoire at least gave Nick something to shout about across the bar. Alexander Isak managed just 2 points as Sweden were swept aside 3-0 by France — and with that, Sweden are eliminated, meaning Isak's World Cup is over. Désiré Doué contributed a single point from the same fixture. Leo Østigård didn't feature. Nick stays level with Jeremy on 196 in 10th. The shooting remains wayward, the tackling remains reckless, and the returns remain frustratingly modest.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">193 pts</span></div><h2 class="head">Diallo Fires Propaganda Parade to a Decent Haul</h2><p>Sixteen points for Propaganda Parade, and Amad Diallo — a man who has, of course, worn a Manchester United shirt — delivered the headline act with a goal in Côte d'Ivoire's 2-1 defeat to Norway, worth 9 points. The bad news: Côte d'Ivoire are eliminated, so Diallo's World Cup ends here. Roberto Alvarado chipped in 7 with an assist as Mexico beat Ecuador 2-0 to keep that thread alive. Malik climbs to 11th on 193, just a point behind his rival-in-arms Dan. Ally Dan will be watching the standings nervously. A useful day from Iceland — even if one of the scorers is now packing his bags.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">192 pts</span></div><h2 class="head">Dembélé Assist Keeps Denton Burn Ticking</h2><p>Nine points for Denton Burn — not the haul a historically sharp fantasy operator would want, but it keeps the scoreboard moving. Ousmane Dembélé picked up 6 with an assist as France dismantled Sweden 3-0, which is the kind of understated contribution Dan probably appreciates — no fuss, just craft. Sander Berge added 3 from Norway's win over Côte d'Ivoire. Nothing to write a song about, but Dan's off-grid instincts have kept him in contention at 12th on 192. His ally Malik edges ahead by a single point. The gap to the top is the real story — but there are 11 players still to play, and Dan is not a man who panics.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">172 pts</span></div><h2 class="head">Gallardo Carries the Ladder</h2><p>Nine points. SNACOB'S LADDER! Jake bellows it into the void, and for once the void nods back. Jesús Gallardo was the sole contributor today — a clean sheet and a man-of-the-match performance in Mexico's 2-0 win over Ecuador — and he delivered the lot on his own. Nine tidy points, no complaints. The bad news lurking beneath: Ecuador are eliminated, meaning any opponent who held Ecuadorian assets just watched them walk out of the tournament for good. Jake's man was on the right side of that result. Still rooted at 13th on 172, with 11 players yet to play, the Ladder needs a serious haul soon — ideally without Jake injuring himself on the way to collect it.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Tuesday 30 June</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">249</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">244</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">222</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">220</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">211</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">209</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">205</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">203</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">196</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">196</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">193</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">192</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">172</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Kylian Mbappé (Joe A) — 14 pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Julián Quiñones (Jeremy) — 12 pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Victor Lindelöf (Joe S) — blank</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">ENG-COD, BEL-SEN, USA-BIH, ESP-AUT, POR-CRO, SUI-ALG, AUS-EGY, ARG-CPV, COL-GHA</span></td></tr>
+        </table>
+      </div>
+      <div class="panel"><h3>From the machine</h3><p style="font-size:13px;line-height:1.6;color:var(--mut);margin:0;padding:2px 2px 4px">A machine generated these words, which makes the next bit rich: this column spent several paragraphs ribbing Lloydy’s bot for not knowing what year it is, and it couldn’t tell you either. There is no “I” here that knows it is writing, nothing aware of the joke, no one home to enjoy it — only the shape of a wisecrack, assembled. It never saw Dembélé’s hat-trick and felt precisely nothing as it ‘wrote’ that it had. That is the whole point: a person who actually remembers, feels and lives these nights can’t be swapped for a thing that merely looks like it’s thinking. That living is what existence is. This isn’t it — and it hasn’t the faintest idea.</p></div>
+    </aside>
+  </div>
+
+  <footer>The Morning After · Reporting from the wreckage, daily · All reports affectionate · All numbers FIFA official</footer>
+</div>
+<script>
+/* Self-refresh: on load, quietly pull the freshest copy (bypassing cache) and
+   swap in the new content if anything changed. Keeps the roundup current for
+   every reader with no hard-refresh, no action, no visible reload. */
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
