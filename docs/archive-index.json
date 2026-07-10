@@ -1,9 +1,15 @@
 {
-  "updated": "2026-07-09",
+  "updated": "2026-07-10T11:39:22Z",
   "editions": [
     {
       "slug": "interlude-2026-07-09",
       "label": "Quarter-Final Eve \u00b7 Thursday 09 July",
+      "stage": "QF",
+      "date": "2026-07-09"
+    },
+    {
+      "slug": "fra-mar",
+      "label": "Quarter-Finals \u00b7 Thursday 09 July",
       "stage": "QF",
       "date": "2026-07-09"
     },
