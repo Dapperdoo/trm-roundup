@@ -1,6 +1,12 @@
 {
-  "updated": "2026-07-10T11:39:22Z",
+  "updated": "2026-07-11T07:29:22Z",
   "editions": [
+    {
+      "slug": "esp-bel",
+      "label": "Quarter-Finals \u00b7 Friday 10 July",
+      "stage": "QF",
+      "date": "2026-07-10"
+    },
     {
       "slug": "interlude-2026-07-09",
       "label": "Quarter-Final Eve \u00b7 Thursday 09 July",

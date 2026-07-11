@@ -1,6 +1,7 @@
 {
   "eliminated": [
     "ALG",
+    "BEL",
     "BIH",
     "BRA",
     "CAN",
@@ -23,7 +24,6 @@
   ],
   "still_in": [
     "ARG",
-    "BEL",
     "ENG",
     "ESP",
     "FRA",
@@ -37,5 +37,5 @@
     "SUI-COL": "SUI"
   },
   "round": "Quarter-Finals",
-  "updated": "2026-07-10T12:12:22Z"
+  "updated": "2026-07-11T07:28:17Z"
 }
