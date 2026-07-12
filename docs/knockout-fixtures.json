@@ -1,10 +1,8 @@
 {
-  "round": "Quarter-finals",
-  "note": "UK kick-off times. Static fallback shown on the Live Hub ONLY while the league feed has no upcoming fixtures (the between-rounds gap). The live feed takes over automatically once the fantasy game opens the quarter-final round.",
+  "round": "Semi-finals",
+  "note": "UK kick-off times. Upcoming knockout ties maintained by hand and MERGED into the Live Hub's Next-fixtures list alongside the league feed, so future rounds appear without waiting for the fantasy game to open them. Replace with the next round's ties as each round completes.",
   "fixtures": [
-    {"home": "FRA", "away": "MAR", "date": "2026-07-09", "kickoff": "21:00"},
-    {"home": "ESP", "away": "BEL", "date": "2026-07-10", "kickoff": "20:00"},
-    {"home": "NOR", "away": "ENG", "date": "2026-07-11", "kickoff": "22:00"},
-    {"home": "ARG", "away": "SUI", "date": "2026-07-12", "kickoff": "02:00"}
+    {"home": "FRA", "away": "ESP", "date": "2026-07-14", "kickoff": "20:00"},
+    {"home": "ENG", "away": "ARG", "date": "2026-07-15", "kickoff": "20:00"}
   ]
 }

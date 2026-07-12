@@ -372,9 +372,15 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     // matchday, which shifts after-midnight games back a day and would put a 02:00
     // game ahead of the prior 23:00 one.
     function ko(f){ return (f.date||f.matchday||"9999-99-99")+" "+(f.kickoff||"99:99"); }
-    var future = fixtures.filter(function(f){ return f.status==="upcoming"; })
+    // Next fixtures = the feed's own upcoming ties MERGED with the hand-maintained
+    // knockout-fixtures.json (future rounds), so upcoming rounds show WITHOUT waiting for
+    // the fantasy game to open them. Any fallback tie the feed already carries is dropped.
+    var feedUp = fixtures.filter(function(f){ return f.status==="upcoming"; });
+    var haveKey={}; fixtures.forEach(function(f){ haveKey[(f.home||"")+"-"+(f.away||"")]=1; });
+    var fbExtra = knockoutUpcoming().filter(function(f){ return !haveKey[(f.home||"")+"-"+(f.away||"")]; });
+    var future = feedUp.concat(fbExtra)
       .sort(function(a,b){ var ka=ko(a), kb=ko(b); return ka<kb?-1:ka>kb?1:0; })
-      .slice(0,6);
+      .slice(0,10);
 
     var lw=$("live-wrap");
     if(live.length){ lw.style.display=""; $("live").innerHTML=live.map(matchBox).join(""); }
@@ -393,14 +399,8 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
       $("results").innerHTML = future.map(matchBox).join("");
       $("res-label").textContent = "Next fixtures · tap a match to see owned players";
     } else {
-      var ko = knockoutUpcoming();
-      if(ko.length){
-        $("results").innerHTML = ko.slice(0,12).map(matchBox).join("");
-        $("res-label").textContent = "Next fixtures · " + (koRound || "next round") + " · tap a match to see owned players";
-      } else {
-        $("results").innerHTML = '<div class="mx-none" style="padding:12px 2px">No upcoming fixtures scheduled yet — they appear here as soon as the next round is published.</div>';
-        $("res-label").textContent = "Next fixtures";
-      }
+      $("results").innerHTML = '<div class="mx-none" style="padding:12px 2px">No upcoming fixtures scheduled yet — they appear here as soon as the next round is published.</div>';
+      $("res-label").textContent = "Next fixtures";
     }
     $("res-label").style.display = "";
   }
