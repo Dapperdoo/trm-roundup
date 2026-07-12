@@ -16,19 +16,19 @@
     "MAR",
     "MEX",
     "NED",
+    "NOR",
     "PAN",
     "PAR",
     "POR",
     "RSA",
+    "SUI",
     "USA"
   ],
   "still_in": [
     "ARG",
     "ENG",
     "ESP",
-    "FRA",
-    "NOR",
-    "SUI"
+    "FRA"
   ],
   "shootouts": {
     "GER-PAR": "PAR",
@@ -37,5 +37,5 @@
     "SUI-COL": "SUI"
   },
   "round": "Quarter-Finals",
-  "updated": "2026-07-11T07:28:17Z"
+  "updated": "2026-07-12T08:57:18Z"
 }
