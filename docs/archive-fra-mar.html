@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Quarter-Finals · Thursday 09 July</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  /* top tabs — mirror the Live hub so readers can hop straight back */
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+    <a class="tab" href="morph.html">Gaffers</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- TRM-MATCHDAY:FRA-MAR -->
+<p class="lead">One quarter-final on Thursday, and France made it look straightforward — <b>Kylian Mbappé</b> with a goal, an assist and 13 points as Les Bleus swept Morocco aside 2-0. Ousmane Dembélé added a goal of his own, Désiré Doué chipped in with an assist, and the French backline — Upamecano, Koundé, Digne, Saliba, Maignan — handed clean-sheet points to five different managers like party favours. Morocco's players did what they could in a losing cause, but the Atlas Lions are now out of the tournament, and everyone who backed them has seen their investment end here. Three quarter-finals still to come — ESP-BEL, NOR-ENG and ARG-SUI — but Thursday belonged entirely to France.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">380 pts</span></div><h2 class="head">Mbappé Does the Heavy Lifting as Bassoon Stays Top</h2><p>Twenty-nine points for the league leader, and the lion's share of it came from exactly the player you'd hope: Mbappé with a goal and an assist for 13 points, flanked by Upamecano and Digne both chipping in with 7 apiece from the France backline. Ounahi contributed a modest 2 from the Morocco side of FRA-MAR, but nobody's complaining when three of your four starters return like that. Joe A sits top on 380 with nine players still to come — a position that looked unassailable a fortnight ago but, with rivals strengthening, is now merely very good. He'll take it, probably over a Guinness he's been trying to get some AI tool to pour for him since Tuesday.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">331 pts</span></div><h2 class="head">France-Morocco Yields a Quiet Nine for Look At His Face</h2><p>Nine points from a matchday that had four of Sam's players on the pitch — which tells you most of what you need to know. Rabiot and Olise split 3 apiece, Brahim Díaz added 2, and Yassine scraped 1. Tchouaméni and Cherki didn't feature, which at least means they weren't actively dragging the tally down. It's a thin return for a manager sitting second on 331, and with only six players remaining in the tournament the margins are tightening. Sam will be hoping his survivors find some form sharpish — though given his track record, he'd probably settle for a decent pint and a rethink.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">308 pts</span></div><h2 class="head">Saliba Stands Firm, Delivers Seven Clean and Simple</h2><p>One player, one fixture, seven points. William Saliba was Jeremy's sole representative on Thursday, and the Arsenal centre-back did his job — clean sheet, composed, exactly the kind of dependable defensive return that suits a manager who picks on instinct and experience rather than spreadsheet gymnastics. There's something almost elegant about a single-player matchday that still returns 7; no fuss, no noise, just a good call quietly vindicated. Von Neumann Trombone sits third on 308 with eight players still active in the tournament. The professor won't be panicking. He rarely does.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">306 pts</span></div><h2 class="head">Maignan Keeps It Clean, Tristan Keeps the Faith</h2><p>Seven points from Mike Maignan — a clean sheet for the French goalkeeper — and that's your lot for Tristan on Thursday. It's a perfectly respectable single-player return, though it does nothing to close the gap on Joe A above him, which will have Tristan throwing his hands up somewhere in the general direction of north London. He's fourth on 306 with a healthy 13 players still to come, which is the real story here — more runway than almost anyone else in the league. The hand-compiled FIFA data will be getting another thorough going-over tonight. The rivalry with Joe A is very much alive.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">298 pts</span></div><h2 class="head">Doué and Bounou deliver a tidy 14 for the Rusty 9 Iron</h2><p>Fourteen points from the France-Morocco quarter-final, and Nick will take that without argument. Désiré Doué was the standout, picking up 8 points off the back of an assist — a clean, measured delivery that Nick himself would never manage in a month of Sundays given his tendency to loft the ball somewhere over the stadium roof. Yassine Bounou chipped in with a solid 6 from the Moroccan end. Ismael Saibari didn't feature, which is a cold fact and nothing more. Still, two contributors from one fixture is a decent Thursday's work. Nick sits fifth on 298 — one point clear of Tom, who had nothing going on today whatsoever.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">297 pts</span></div><h2 class="head">Anamaduwa Athletic go quiet — zero from Thursday</h2><p>No players. No points. Zero. Anamaduwa Athletic had nothing in the France-Morocco fixture and therefore nothing on the board for Thursday's matchday. Tom picks up a haul of 0 and watches Nick — his great rival — pocket 14 and nudge one point ahead of him in the table. Tom is sixth on 297 with only six players remaining in the tournament, so the margins are tightening. He'll need his remaining assets to show up, and soon. A blank day is a blank day; the standings don't wait.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">294 pts</span></div><h2 class="head">Koundé keeps Back of the Van ticking over with 8</h2><p>Eight points from Thursday, built almost entirely on Jules Koundé's 7-point shift at the back for France — a performance that was, pleasingly, completely injury-free, which puts it ahead of roughly half of Joe S's actual playing career. Soufiane Rahimi contributed a single point from the Moroccan side, which is at least something. Joe S climbs no further than seventh on 294 with just five players left in the tournament, so every remaining game counts. The physio room may be a distant memory now, but the arithmetic is doing its own damage — he needs his survivors to start hauling.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">267 pts</span></div><h2 class="head">Theo Hernández a non-starter; Lloydy blanks on Thursday</h2><p>Théo Hernández didn't feature in the France-Morocco tie, leaving Chris with a haul of 0 for Thursday. One player, no minutes, nothing on the board. Lloydy sits eighth on 267 with ten players still to play, so there's runway — but the algorithm that was supposed to be identifying these opportunities did, famously, spend its most recent active session trying to sign players from four years ago. Qatar 2022 called; it wants its transfer bids back. Hernández at least remains in the tournament, which is more than can be said for the class of players the bot was originally targeting.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">266 pts</span></div><h2 class="head">Hakimi Holds the Fort — Just About</h2><p>A haul of 1 for Wigs today, which is at least a number greater than zero. Achraf Hakimi was the sole representative in Thursday's France vs Morocco fixture and returned a single point for his troubles — present, tidy, and utterly unspectacular. With six games still to come there's no need to panic in the 50 Shades camp, but sitting joint-ninth with 266 points, Wigs will be hoping his brother Sam is having an equally quiet day rather than pulling clear. One point. Hakimi was there. That's the full story, and it doesn't take long to tell.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">266 pts</span></div><h2 class="head">Morocco's Midfield Keeps the Lights On</h2><p>Five points from Propaganda Parade on Thursday — modest, but functional. Neil El Aynaoui led the way with 3, Ayyoub Bouaddi chipped in with 2, and between them they kept Malik off the dreaded zero. Less helpfully, Issa Diop and Noussair Mazraoui both played the full fixture and returned nothing whatsoever — a pair of blanks that rather undercut the positives. Redouane Halhal didn't feature. With only two games remaining and sitting tenth on 266 points, Malik needs his remaining assets to do considerably more than tread water. Ally Dan is breathing down his neck from eleventh, and the gap is closing.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">260 pts</span></div><h2 class="head">Dembélé Does the Business</h2><p>Ten points for Dan on Thursday, and the credit goes entirely to one man: Ousmane Dembélé, who found the net in France vs Morocco and banked a tidy 10-point return. That's the sort of contribution that makes a matchday feel worthwhile. Chadi Riad didn't feature, so there's nothing to add there — just Dembélé, doing what good players occasionally do. Dan climbs to eleventh with 260 total, nine games still to play, and the quiet confidence of a man who lives off-grid and doesn't need anyone's approval. Ally Malik will have noticed the gap between them narrowed today. Funny how that works.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">256 pts</span></div><h2 class="head">Three Threes and a One — Trossy Tallies Up</h2><p>Seven points for Dave on Thursday — a haul assembled with the careful, considered hand of a man who once dreamed of presenting 'Trossy's Wafflecock' on The Culture Show. Bilal El Khannouss and Manu Koné each returned 3, a pleasing symmetry that Dave would no doubt describe as structurally resonant. Bradley Barcola rounded things off with 1, which is less resonant but still a point. No blanks, no disasters — just a clean, unshowy 7 that nudges Trossy's Giants to 256 in twelfth place. Six games remaining. The cymbals stay in the case for now, but this was at least a day worth noting in the ledger.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">256 pts</span></div><h2 class="head">Snacob's Ladder Idles as the Matchday Passes Him By</h2><p>Zero. A big, round, dentist-approved zero. Jake's haul this matchday is 0 — not because his players blanked, but because none of them featured at all. A quiet Thursday for Snacob's Ladder, which Jake will almost certainly announce loudly to anyone within earshot regardless. He sits 13th on 256 points with nine fixtures still to play, so there's time yet. One imagines he spent the evening at a routine check-up, returning with a glowing report about his gum health and absolutely no points. Harry Kane, meanwhile, continues to be a very expensive way of doing very little. Tomorrow is another day, Jake. SNACOB'S LADDER.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Thursday 09 July</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">380</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">331</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">308</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">306</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">298</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">297</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">294</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">267</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">266</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">266</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">260</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">256</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">256</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Kylian Mbappé (Joe A) — 13 pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Désiré Doué (Nick) — 8 pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Noussair Mazraoui (Malik) — blank</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">ESP-BEL, NOR-ENG, ARG-SUI</span></td></tr>
+        </table>
+      </div>
+      <div class="panel"><h3>From the machine</h3><p style="font-size:13px;line-height:1.6;color:var(--mut);margin:0;padding:2px 2px 4px">A machine generated these words, which makes the next bit rich: this column spent several paragraphs ribbing Lloydy’s bot for not knowing what year it is, and it couldn’t tell you either. There is no “I” here that knows it is writing, nothing aware of the joke, no one home to enjoy it — only the shape of a wisecrack, assembled. It never saw Dembélé’s hat-trick and felt precisely nothing as it ‘wrote’ that it had. That is the whole point: a person who actually remembers, feels and lives these nights can’t be swapped for a thing that merely looks like it’s thinking. That living is what existence is. This isn’t it — and it hasn’t the faintest idea.</p></div>
+    </aside>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin:26px 0 10px;"><a href="archive.html" style="display:inline-block;font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);text-decoration:none;border:1px solid var(--cyan-dim);border-radius:8px;padding:11px 24px;background:var(--panel2);" onmouseover="this.style.background='var(--panel)';this.style.borderColor='var(--cyan)'" onmouseout="this.style.background='var(--panel2)';this.style.borderColor='var(--cyan-dim)'">Archive &rarr;</a></div>
+  <footer></footer>
+</div>
+<script>
+/* Self-refresh: on load, quietly pull the freshest copy (bypassing cache) and
+   swap in the new content if anything changed. Keeps the roundup current for
+   every reader with no hard-refresh, no action, no visible reload. */
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

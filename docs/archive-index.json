@@ -1,9 +1,33 @@
 {
-  "updated": "2026-07-09",
+  "updated": "2026-07-12T09:02:57Z",
   "editions": [
+    {
+      "slug": "interlude-2026-07-12",
+      "label": "Interlude \u00b7 Sunday 12 July",
+      "stage": "INT",
+      "date": "2026-07-12"
+    },
+    {
+      "slug": "arg-sui-nor-eng",
+      "label": "Quarter-Finals \u00b7 Quarter-Finals",
+      "stage": "QF",
+      "date": "2026-07-12"
+    },
+    {
+      "slug": "esp-bel",
+      "label": "Quarter-Finals \u00b7 Friday 10 July",
+      "stage": "QF",
+      "date": "2026-07-10"
+    },
     {
       "slug": "interlude-2026-07-09",
       "label": "Quarter-Final Eve \u00b7 Thursday 09 July",
+      "stage": "QF",
+      "date": "2026-07-09"
+    },
+    {
+      "slug": "fra-mar",
+      "label": "Quarter-Finals \u00b7 Thursday 09 July",
       "stage": "QF",
       "date": "2026-07-09"
     },

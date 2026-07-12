@@ -1,38 +1,34 @@
 {
   "eliminated": [
     "ALG",
+    "BEL",
     "BIH",
     "BRA",
     "CAN",
-    "COD",
     "COL",
     "CRO",
     "CZE",
     "ECU",
     "EGY",
-    "GER",
     "GHA",
     "HAI",
     "JPN",
+    "MAR",
     "MEX",
     "NED",
+    "NOR",
     "PAN",
     "PAR",
     "POR",
     "RSA",
-    "SEN",
-    "SWE",
+    "SUI",
     "USA"
   ],
   "still_in": [
     "ARG",
-    "BEL",
     "ENG",
     "ESP",
-    "FRA",
-    "MAR",
-    "NOR",
-    "SUI"
+    "FRA"
   ],
   "shootouts": {
     "GER-PAR": "PAR",
@@ -40,6 +36,6 @@
     "AUS-EGY": "EGY",
     "SUI-COL": "SUI"
   },
-  "round": "Round of 16",
-  "updated": "2026-07-09T12:21:14Z"
+  "round": "Quarter-Finals",
+  "updated": "2026-07-12T09:02:04Z"
 }

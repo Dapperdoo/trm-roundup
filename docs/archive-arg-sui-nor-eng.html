@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morning After — Quarter-Finals · Quarter-Finals</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131c; --line:#1e2937;
+    --ink:#e8edf4; --mut:#8a98ab; --cyan:#22d3ee; --cyan-dim:#0e7490;
+    --gold:#f5c451; --red:#f0556b; --green:#34d399;
+    --magenta:#f472b6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:"Georgia","Times New Roman",serif; line-height:1.6;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 22px 60px;}
+  header.mast{
+    border-bottom:3px double var(--magenta); margin-bottom:6px; padding:38px 0 18px; text-align:center;
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(168,85,247,.28), transparent 60%),
+      radial-gradient(90% 80% at 15% 0%, rgba(34,211,238,.18), transparent 55%),
+      radial-gradient(90% 80% at 85% 0%, rgba(244,114,182,.20), transparent 55%);
+  }
+  .kicker{font-family:Arial,Helvetica,sans-serif; letter-spacing:.42em; text-transform:uppercase; font-size:11px; color:var(--magenta); margin-bottom:10px;}
+  .subtitle{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--cyan); letter-spacing:.26em; text-transform:uppercase; margin-top:12px; opacity:.9;}
+  h1.title{font-family:Arial,Helvetica,sans-serif; font-weight:900; letter-spacing:-.5px; font-size:clamp(34px,6vw,60px); margin:0; line-height:.98; text-shadow:0 0 28px rgba(244,114,182,.35), 0 0 60px rgba(168,85,247,.25);}
+  h1.title span{background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .dateline{font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.18em; margin-top:14px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .live{color:var(--green);}
+  .live::before{content:"●"; margin-right:5px; color:var(--green);}
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:34px; margin-top:30px;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+  .lead{border-left:3px solid var(--cyan); padding:4px 0 4px 18px; margin-bottom:30px; font-size:18px; color:#cdd6e2;}
+  .lead b{color:var(--ink);}
+  article{border-top:1px solid var(--line); padding:24px 0;}
+  article:first-of-type{border-top:none; padding-top:4px;}
+  .rankbar{display:flex; align-items:baseline; gap:12px; margin-bottom:6px; font-family:Arial,Helvetica,sans-serif;}
+  .rank{font-weight:900; font-size:13px; color:var(--bg); background:var(--cyan); padding:2px 9px; border-radius:4px; letter-spacing:.04em;}
+  .rank.low{background:var(--red); color:#fff;}
+  .rank.top{background:var(--gold); color:#241c00;}
+  .team{font-weight:700; font-size:13px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase;}
+  .pts{margin-left:auto; font-weight:900; font-size:13px; color:var(--cyan);}
+  h2.head{font-family:Arial,Helvetica,sans-serif; font-weight:900; font-size:23px; margin:6px 0 10px; line-height:1.12; letter-spacing:-.3px;}
+  article p{margin:0; color:#c7d1de; font-size:16.5px;}
+  .byline{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:.16em; margin-top:12px;}
+  aside{align-self:start; position:sticky; top:18px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px;}
+  .panel h3{margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--cyan); padding:14px 16px; border-bottom:1px solid var(--line); background:var(--panel2);}
+  table{width:100%; border-collapse:collapse; font-family:Arial,Helvetica,sans-serif;}
+  td{padding:9px 14px; font-size:13px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pos{color:var(--mut); width:26px; font-weight:700;}
+  .tname{color:var(--ink); font-weight:600;}
+  .mgr{color:var(--mut); font-weight:400; font-size:11px; display:block; margin-top:1px;}
+  .tot{text-align:right; font-weight:900; color:var(--cyan);}
+  tr.r1 .pos{color:var(--gold);}
+  tr.r13 .pos{color:var(--red);}
+  .note{font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); line-height:1.5; padding:0 2px;}
+  footer{border-top:3px double var(--magenta); margin-top:40px; padding-top:16px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.16em;}
+  /* top tabs — mirror the Live hub so readers can hop straight back */
+  .tabwrap{border-bottom:2px solid var(--magenta); margin-bottom:8px;}
+  .tabs{display:flex; gap:6px; justify-content:center; padding:18px 0 0;}
+  .tab{font-family:Arial,Helvetica,sans-serif; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:11px 26px; border:1px solid var(--line); border-bottom:none; border-radius:9px 9px 0 0; background:var(--panel2);}
+  .tab:hover:not(.active){color:var(--ink); background:var(--panel);}
+  .tab.active{color:var(--bg); background:var(--magenta); border-color:var(--magenta);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="tabwrap"><div class="tabs">
+    <a class="tab" href="index.html">Live</a>
+    <a class="tab active" href="roundup.html" aria-current="page">Roundup</a>
+    <a class="tab" href="morph.html">Gaffers</a>
+  </div></nav>
+
+  <header class="mast">
+    <div class="kicker">The TRM Fantasy League · World Cup 2026</div>
+    <h1 class="title">THE MORNING <span>AFTER</span></h1>
+    <div class="subtitle">The Bleary-Eyed Bulletin · reporting from the Wreckage · Daily</div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- TRM-MATCHDAY:ARG-SUI,NOR-ENG -->
+<p class="lead"><b>Quarter-Finals day delivered</b>, and it delivered hard. <b>England edged Norway 2–1</b> as Jude Bellingham announced himself with a brace, while <b>Argentina dismantled Switzerland 3–1</b> with Álvarez, Lautaro and Mac Allister all chipping in. Two games, seven goals, and enough points scattered across the pool to separate the contenders from the also-rans. The day belonged to the scorers — and to whoever was smart enough to own them.</p>
+      <article><div class="rankbar"><span class="rank top">1st</span><span class="team">Shatner's Bassoon &middot; Joe A</span><span class="pts">399 pts</span></div><h2 class="head">Leader Limps Through Quarter-Finals on Two Points</h2><p>A haul of 2 from the quarter-finals — and Joe A will be perfectly aware of how thin that looks from the top of the table. Fabian Rieder played his part in Argentina vs Switzerland and collected his 2 points dutifully enough, while Marcus Rashford didn't feature in Norway vs England and Johan Manzambi sat out the Argentina game entirely. With remaining_to_play now at zero, that's the matchday done. The lead at the top — 399 points, rank 1 — remains intact, but Tristan is lurking six points closer than he was this morning, and he'll have clocked that. Joe A will need the AI tools he's been wrestling with to start delivering something more useful than excuses.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">2nd</span><span class="team">Look At His Face! &middot; Sam</span><span class="pts">338 pts</span></div><h2 class="head">Six Points, No Goals — Shakespeare Would Call It a Comedy</h2><p>A haul of 6 from the quarter-finals, which is respectable enough without being the stuff of sonnets. Thiago Almada was the pick of the bunch with 3 points from the Argentina-Switzerland fixture, while Erling Haaland contributed a workmanlike 2 and Marcus Pedersen chipped in with 1. Facundo Medina and Michel Aebischer didn't feature, which at least kept the damage contained. Sam sits second on 338, a comfortable distance from the chasing pack — though with Joe A posting just 2 today, the gap at the top has narrowed slightly. No goals, no assists, no drama. Even the bar-less house had more excitement on move-in day.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">3rd</span><span class="team">Trippier &amp; Trippier &middot; Tristan</span><span class="pts">333 pts</span></div><h2 class="head">Lautaro Fires Tristan Into Contention</h2><p>Thirteen points — and Tristan will have pumped his fist at the FIFA website before the final whistle had even settled. Lautaro Martínez was the architect of it all, banging in a goal for 7 points and dragging Argentina-Switzerland into his fantasy column with authority. Denis Zakaria added 2, Rubén Vargas 1, and the England contingent — Noni Madueke, Reece James, and Antonio Nusa — each contributed a single point from Norway vs England. Kristoffer Ajer played and blanked, which Tristan will have thrown his hands up at. Still, 13 points on a day Joe A managed 2 is the kind of arithmetic that makes a title race interesting. Third on 333 and closing.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">4th</span><span class="team">Dyer's Rusty 9 Iron &middot; Nick</span><span class="pts">328 pts</span></div><h2 class="head">Schjelderup Thunders In — Nick's Best Day Yet</h2><p>Twenty-five points. Nick doesn't do things quietly — not on the pitch, not at the bar, and apparently not in fantasy football either. Andreas Schjelderup led the charge with a goal and 9 points from Norway vs England, and Martin Ødegaard and Anthony Gordon each weighed in with assists for 5 apiece — a midfield one-two that would've had Nick bellowing from whatever room he was watching in. John Stones added 2, Leo Østigård 1, and Remo Freuler chipped in 3 from the Switzerland side. Only Silvan Widmer blanked despite playing. Fourth on 328, and with a haul like that, Tom had better be checking his shoulder. The rusty nine iron found the back of the net today.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">5th</span><span class="team">Von Neumann Trombone &middot; Jeremy</span><span class="pts">322 pts</span></div><h2 class="head">Professor Picks His Spots — Nine Points, No Fireworks</h2><p>Nine points for Jeremy this matchday, built on the quiet reliability you'd expect from a man who trusts his eye over everything else. Ørjan Nyland did his bit with 3 in Norway's quarter-final, while the Argentine trio of Enzo Fernández, Tagliafico and De Paul each clocked in with 2 — functional, tidy, unglamorous. Nico Elvedi was the one flat note, playing his part in ARG-SUI but returning nothing. No great hauls, no disasters. Jeremy sits fifth on 322 — still well placed, still picking on instinct and experience, still watching the rest of the league's various experiments in systems and algorithms with the quiet, measured expression of a man who has seen enough.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">6th</span><span class="team">Back of the Van United &middot; Joe S</span><span class="pts">310 pts</span></div><h2 class="head">Messi Does the Heavy Lifting — Again</h2><p>Seven points for Joe S this matchday, and frankly Lionel Messi earned most of them. The assist clocked in at 5 points — which is probably more than Joe S has managed in a single physio session in his entire career. Cristian Romero chipped in with a solid 2. Giovani Lo Celso didn't feature, an unused sub for Argentina's quarter-final. So it's a modest return, but when you've got Messi threading assists in the quarters, you're not complaining too loudly. Joe S sits sixth on 310 — still in the mix, still somehow upright, which given his medical history is always worth noting.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">7th</span><span class="team">Anamaduwa Athletic &middot; Tom</span><span class="pts">305 pts</span></div><h2 class="head">England Deliver a Quiet Eight</h2><p>Eight points for Tom this matchday, all of it coming from England's quarter-final against Norway. Eberechi Eze and Jordan Pickford both returned 3, Ezri Konsa added 2, and that was your lot. Quansah, Watkins and Aasgaard were all unused subs, so the England bench did Tom no favours. It's a functional haul — nothing that'll trouble the top of the standings, but nothing to panic about either. Tom sits seventh on 305, still chasing Nick in their ongoing rivalry. Eight points in a quarter-final is the kind of return that keeps you in the conversation without exactly announcing yourself.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">8th</span><span class="team">Lloyd's Food and Wine &middot; Chris</span><span class="pts">289 pts</span></div><h2 class="head">Mac Allister Fires — Lloydy Surges to 22</h2><p>Twenty-two points for Chris, and it's Alexis Mac Allister doing the damage with a goal and 9 points from ARG-SUI — the algorithm's one valid bid from that chaotic transfer window, as it happens. Perhaps the machine knew something after all, or perhaps it just got lucky after five attempts. Either way, Lloydy will take it. Bukayo Saka added 4 from the England game, Sørloth 2, and the Argentine contingent — Paredes, Martínez, Xhaka and Nico González — collectively chipped in another 7. A broad, well-spread haul. Chris climbs to 289 in eighth, and Jake's quarter-final is going to need to be very good indeed.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">9th</span><span class="team">50 Shades of O'Shea &middot; Wigs</span><span class="pts">287 pts</span></div><h2 class="head">Bellingham Brace Lights Up a Quiet Quarter-Final Day</h2><p>Twenty-one points for Wigs, and the lion's share of the credit goes to one man: Jude Bellingham, who bagged a brace against Norway for 14 points and single-handedly kept 50 Shades of O'Shea respectable at the quarter-final stage. Patrick Berg chipped in a tidy 3 on the Norwegian side, and Emiliano Martínez added 3 in goal for Argentina. That's where the good news ends. Breel Embolo and Manuel Akanji both drew blanks in the ARG-SUI fixture, and Declan Rice managed just 1. Still, when Bellingham is in this sort of mood, you don't need much else. Wigs sits 9th overall on 287 — Sam will be watching from across the family WhatsApp.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">10th</span><span class="team">Denton Burn &middot; Dan</span><span class="pts">283 pts</span></div><h2 class="head">Álvarez Keeps Denton Burn Ticking Over</h2><p>Thirteen points for Dan, and the off-grid musician can thank Julián Álvarez for the bulk of it — the Argentine striker notched a goal to return 7 points and give Denton Burn something to write home about from the quarter-finals. Elliot Anderson, Marc Guéhi and Sander Berge all did their bit in NOR-ENG, contributing 2 apiece for a respectable supporting cast. Nico Paz didn't feature in the Argentina-Switzerland fixture, which is simply a fact of tournament football. Ally Malik, meanwhile, had a day to forget — or rather, nothing to forget at all. Dan holds 10th on 283; historically a top operator, he'll be hoping the semi-finals bring something more explosive.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">11th</span><span class="team">Snacob's Ladder &middot; Jake</span><span class="pts">278 pts</span></div><h2 class="head">SNACOB'S LADDER! Ricardo Rodríguez Rescues a Solid Haul</h2><p>Twenty-two points — and Jake will be shouting 'Snacob's Ladder!' at anyone within earshot, which at this stage of a tournament is probably just the dental receptionist he's already booked in for a celebratory check-up. The real hero is Ricardo Rodríguez, whose assist in ARG-SUI returned a tidy 7 points. Morgan Rogers led the England contingent with 4, Harry Kane contributed 3 (still the most expensive 3-pointer in the league), and a cluster of budget picks — Møller Wolfe, O'Reilly, Spence, Bobb, Heggem — all clocked in with 1 or 2 each. Gregor Kobel added 1 in goal. It's not glamorous, but it adds up. Jake sits 11th on 278 — still fuming about Jeremy, still suspicious about what Lloydy's algorithm is doing after hours.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank">12th</span><span class="team">Propaganda Parade &middot; Malik</span><span class="pts">276 pts</span></div><h2 class="head">Silence from the Propaganda Parade</h2><p>A quiet matchday for Malik — no players featured in today's quarter-final fixtures, leaving Propaganda Parade with a haul of 0. The quirky Icelander managing from afar will have watched both games without a single return to show for it. Ally Dan at least had Julián Álvarez doing the heavy lifting; Malik had nothing to lean on. He sits 12th overall on 276, and with the semi-finals approaching, the pressure is building for the Manchester United and Portugal devotee to find some firepower. Sometimes the tournament just passes you by for a day. Today was one of those days.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+<article><div class="rankbar"><span class="rank low">13th</span><span class="team">Trossy's Giants &middot; Dave</span><span class="pts">274 pts</span></div><h2 class="head">Ndoye Does the Heavy Lifting as Trossy's Giants Scrape 14</h2><p>Fourteen points for Dave this quarter-final matchday, and the lion's share of the credit goes to Dan Ndoye, whose goal against Argentina banked a tidy 10-point return. Julian Ryerson chipped in with a modest 2 from the Norway–England clash, and Nahuel Molina matched that with another 2 from the same Argentina fixture. Ivan Toney didn't feature, so no harm from that quarter — just a cold, neutral absence on the scoresheet. A functional if unspectacular haul for a man who'd probably rather be on a city break somewhere, nursing a beer and workshopping the opening line of 'Trossy's Wafflecock'. Dave sits 13th overall on 274.</p><div class="byline">The Morning After &middot; generated by a machine, with no one home</div></article>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h3>Standings · Quarter-Finals</h3>
+        <table><tr class="r1"><td class="pos">1</td><td><span class="tname">Shatner's Bassoon</span><span class="mgr">Joe A</span></td><td class="tot">399</td></tr>
+<tr><td class="pos">2</td><td><span class="tname">Look At His Face!</span><span class="mgr">Sam</span></td><td class="tot">338</td></tr>
+<tr><td class="pos">3</td><td><span class="tname">Trippier &amp; Trippier</span><span class="mgr">Tristan</span></td><td class="tot">333</td></tr>
+<tr><td class="pos">4</td><td><span class="tname">Dyer's Rusty 9 Iron</span><span class="mgr">Nick</span></td><td class="tot">328</td></tr>
+<tr><td class="pos">5</td><td><span class="tname">Von Neumann Trombone</span><span class="mgr">Jeremy</span></td><td class="tot">322</td></tr>
+<tr><td class="pos">6</td><td><span class="tname">Back of the Van United</span><span class="mgr">Joe S</span></td><td class="tot">310</td></tr>
+<tr><td class="pos">7</td><td><span class="tname">Anamaduwa Athletic</span><span class="mgr">Tom</span></td><td class="tot">305</td></tr>
+<tr><td class="pos">8</td><td><span class="tname">Lloyd's Food and Wine</span><span class="mgr">Chris</span></td><td class="tot">289</td></tr>
+<tr><td class="pos">9</td><td><span class="tname">50 Shades of O'Shea</span><span class="mgr">Wigs</span></td><td class="tot">287</td></tr>
+<tr><td class="pos">10</td><td><span class="tname">Denton Burn</span><span class="mgr">Dan</span></td><td class="tot">283</td></tr>
+<tr><td class="pos">11</td><td><span class="tname">Snacob's Ladder</span><span class="mgr">Jake</span></td><td class="tot">278</td></tr>
+<tr><td class="pos">12</td><td><span class="tname">Propaganda Parade</span><span class="mgr">Malik</span></td><td class="tot">276</td></tr>
+<tr class="r13"><td class="pos">13</td><td><span class="tname">Trossy's Giants</span><span class="mgr">Dave</span></td><td class="tot">274</td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Round Highlights</h3>
+        <table><tr><td><span class="tname" style="color:var(--gold)">Top points haul</span><span class="mgr">Jude Bellingham (Wigs) — 14 pts</span></td></tr><tr><td><span class="tname" style="color:var(--green)">Best-value pick</span><span class="mgr">Andreas Schjelderup (Nick) — 9 pts</span></td></tr><tr><td><span class="tname" style="color:var(--magenta)">Notable blank</span><span class="mgr">Breel Embolo (Wigs) — blank</span></td></tr></table>
+      </div>
+      <div class="panel">
+        <h3>Still to play</h3>
+        <table>
+          <tr><td><span class="mgr" style="font-size:12px;color:var(--ink)">Everyone has played.</span></td></tr>
+        </table>
+      </div>
+      <div class="panel"><h3>From the machine</h3><p style="font-size:13px;line-height:1.6;color:var(--mut);margin:0;padding:2px 2px 4px">A machine generated these words, which makes the next bit rich: this column spent several paragraphs ribbing Lloydy’s bot for not knowing what year it is, and it couldn’t tell you either. There is no “I” here that knows it is writing, nothing aware of the joke, no one home to enjoy it — only the shape of a wisecrack, assembled. It never saw Dembélé’s hat-trick and felt precisely nothing as it ‘wrote’ that it had. That is the whole point: a person who actually remembers, feels and lives these nights can’t be swapped for a thing that merely looks like it’s thinking. That living is what existence is. This isn’t it — and it hasn’t the faintest idea.</p></div>
+    </aside>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin:26px 0 10px;"><a href="archive.html" style="display:inline-block;font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);text-decoration:none;border:1px solid var(--cyan-dim);border-radius:8px;padding:11px 24px;background:var(--panel2);" onmouseover="this.style.background='var(--panel)';this.style.borderColor='var(--cyan)'" onmouseout="this.style.background='var(--panel2)';this.style.borderColor='var(--cyan-dim)'">Archive &rarr;</a></div>
+  <footer></footer>
+</div>
+<script>
+/* Self-refresh: on load, quietly pull the freshest copy (bypassing cache) and
+   swap in the new content if anything changed. Keeps the roundup current for
+   every reader with no hard-refresh, no action, no visible reload. */
+(function(){
+  try{
+    fetch(location.pathname + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if(!html) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var fresh = doc.querySelector(".wrap"), cur = document.querySelector(".wrap");
+        if(fresh && cur && fresh.innerHTML !== cur.innerHTML){ cur.innerHTML = fresh.innerHTML; }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
