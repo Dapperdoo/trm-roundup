@@ -1,6 +1,12 @@
 {
-  "updated": "2026-07-12T08:58:45Z",
+  "updated": "2026-07-12T09:02:57Z",
   "editions": [
+    {
+      "slug": "interlude-2026-07-12",
+      "label": "Interlude \u00b7 Sunday 12 July",
+      "stage": "INT",
+      "date": "2026-07-12"
+    },
     {
       "slug": "arg-sui-nor-eng",
       "label": "Quarter-Finals \u00b7 Quarter-Finals",
