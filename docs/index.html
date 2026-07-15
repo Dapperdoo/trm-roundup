@@ -109,7 +109,7 @@ details[open] .mx-caret{color:var(--cyan);}
 .tn{color:var(--ink); font-weight:600; flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .tm{color:var(--mut); font-size:11px; white-space:nowrap;}
 .tv{color:var(--cyan); font-weight:800; min-width:28px; text-align:right; font-variant-numeric:tabular-nums;}
-.tv.green{color:var(--green);} .tv.red{color:var(--red);}
+.tv.green{color:var(--green);} .tv.red{color:var(--red);} .tv.orange{color:var(--today);}
 .tnat{font-weight:800; font-size:11px; background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:1px 7px;}
 .tbig{padding:16px 14px; text-align:center;}
 .tbig .b{font-size:19px; font-weight:900;}
@@ -159,6 +159,10 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div id="live" class="matches"></div>
 </div>
 
+<div style="width:100%;background:linear-gradient(90deg, rgba(34,211,238,.12), rgba(244,114,182,.12));border:1px solid var(--cyan);border-radius:10px;padding:16px 20px;margin:14px 0;text-align:center;">
+  <div style="color:#fff;font-weight:900;font-size:clamp(16px,2.8vw,23px);line-height:1.3;">Points from third place playoff count. Site updated accordingly</div>
+</div>
+
 <table class="lt">
   <thead><tr><th class="pos">#</th><th>Team</th><th class="r">Round</th><th class="r" title="Owned players still to play this round">To&nbsp;play</th><th class="r">Total</th></tr></thead>
   <tbody id="tbody"></tbody>
@@ -177,8 +181,8 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
   <div class="tc"><h3>Eliminated Players... <span class="u">no longer in</span></h3><div id="tv-elim2"></div></div>
   <div class="tc"><h3>Top round scorers <span class="u">round pts</span></h3><div id="tv-scorers"></div></div>
   <div class="tc"><h3>Top overall scorers <span class="u">season pts</span></h3><div id="tv-overall"></div></div>
-  <div class="tc"><h3>Best value (10+ pts banked) <span class="u">pts/£m</span></h3><div id="tv-value"></div></div>
-  <div class="tc"><h3>Worst value <span class="u">pts / £m</span></h3><div id="tv-worst"></div></div>
+  <div class="tc"><h3>Best value · 1–7 <span class="u">pts/£m</span></h3><div id="tv-value"></div></div>
+  <div class="tc"><h3>Best value · 8–14 <span class="u">pts/£m</span></h3><div id="tv-value2"></div></div>
   <div class="tc"><h3>Round Live · Top 7 <span class="u">pts · used</span></h3><div id="tv-round-top"></div></div>
   <div class="tc"><h3>Round Live · Bottom 6 <span class="u">pts · used</span></h3><div id="tv-round-bottom"></div></div>
   <div class="tc"><h3>Top-scoring nations <span class="u">season pts</span></h3><div id="tv-nation"></div></div>
@@ -498,25 +502,26 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     }
 
     var ps=enriched();
-    // Best value
-    if(!ps){ need("tv-value"); } else {
-      // Only players who have banked 10+ points FOR THEIR CURRENT MANAGER (accrued), so a
-      // transfer-in can't claim value from points scored before he joined the squad.
-      var v=ps.filter(function(p){return p.price>0&&p.accrued!=null&&p.accrued>=10;}).map(function(p){return {n:p.name,m:p.manager,v:p.accrued/p.price};}).sort(function(a,b){return b.v-a.v;}).slice(0,7);
-      $("tv-value").innerHTML = v.length? v.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"green");}).join(""):'<div class="tempty">Nobody has banked 10+ points for their manager yet.</div>';
+    // Best value: pts-per-£m for players who've banked 10+ points FOR THEIR CURRENT MANAGER
+    // (accrued), split across TWO boxes of seven — fourteen slots in all. The 14th slot is
+    // ALWAYS Harry Kane (his total points ÷ price), shown in orange, wherever his value ranks.
+    if(!ps){ need("tv-value"); need("tv-value2"); } else {
+      var kane=null; for(var ki=0;ki<ps.length;ki++){ if(nrm(ps[ki].name)==="harry kane"){ kane=ps[ki]; break; } }
+      var v=ps.filter(function(p){return p.price>0&&p.accrued!=null&&p.accrued>=10&&nrm(p.name)!=="harry kane";})
+        .map(function(p){return {n:p.name,m:p.manager,v:p.accrued/p.price,cls:"green"};})
+        .sort(function(a,b){return b.v-a.v;}).slice(0,13);
+      var kv=(kane&&kane.price>0&&kane.total!=null)?(kane.total/kane.price):0;
+      v.push({n:"Harry Kane", m:(kane?kane.manager:"Jake"), v:kv, cls:"orange"});  // always #14, orange
+      function vrow(it,i){ return row(i+1,it.n,it.m,it.v.toFixed(1),it.cls); }
+      $("tv-value").innerHTML  = v.slice(0,7).map(function(it,i){return vrow(it,i);}).join("");
+      $("tv-value2").innerHTML = v.slice(7).map(function(it,i){return vrow(it,i+7);}).join("");
     }
     // Top overall
     if(!ps){ need("tv-overall"); } else {
       var o=ps.filter(function(p){return p.total!=null;}).sort(function(a,b){return b.total-a.total;}).slice(0,7);
       $("tv-overall").innerHTML = o.length? o.map(function(it,i){return row(i+1,it.name,it.manager,it.total);}).join(""):'<div class="tempty">No season points yet.</div>';
     }
-    // Worst value: lowest average points per £m; only players with >=1 total point.
-    if(!ps){ need("tv-worst"); } else {
-      var wv=ps.filter(function(p){return p.price>0&&p.total!=null&&p.total>=1;})
-        .map(function(p){return {n:p.name,m:p.manager,v:p.total/p.price};})
-        .sort(function(a,b){return a.v-b.v;}).slice(0,7);
-      $("tv-worst").innerHTML = wv.length? wv.map(function(it,i){return row(i+1,it.n,it.m,it.v.toFixed(1),"red");}).join(""):'<div class="tempty">No priced players yet.</div>';
-    }
+    // (Worst-value box removed by request.)
     // Top-scoring nations (season total)
     if(!ps){ need("tv-nation"); } else {
       var bn={}; ps.forEach(function(p){ if(p.nation&&p.total!=null) bn[p.nation]=(bn[p.nation]||0)+p.total; });
