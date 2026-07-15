@@ -453,18 +453,23 @@ def resolve_eliminations(feed, brief):
         day = [f for f in feed.get("fixtures", [])
                if f.get("matchday") == target and f.get("status") == "finished"]
         elim, lines, level = [], [], []
+        is_semi = "semi" in (brief.get("round_label") or "").lower()
         for f in day:
             h, a = f.get("home"), f.get("away")
             mm = re.match(r"\s*(\d+)\D+(\d+)", (f.get("score") or "").replace("–", "-"))
             if not (h and a and mm):
                 continue
             hg, ag = int(mm.group(1)), int(mm.group(2))
-            if hg > ag:
-                elim.append(a); lines.append(f"{a} eliminated ({h} won {hg}-{ag})")
-            elif ag > hg:
-                elim.append(h); lines.append(f"{h} eliminated ({a} won {ag}-{hg})")
+            if hg == ag:
+                level.append((f"{h}-{a}", h, a, f"{hg}-{ag}")); continue
+            winner, loser, wg, lg = (h, a, hg, ag) if hg > ag else (a, h, ag, hg)
+            if is_semi:
+                # A semi-final loser is NOT out of the fantasy game — they drop into the
+                # third-place playoff, whose points still count. Do NOT eliminate them.
+                lines.append(f"{winner} beat {loser} {wg}-{lg} to reach the final; {loser} drop to "
+                             "the third-place playoff (their points still count — NOT eliminated)")
             else:
-                level.append((f"{h}-{a}", h, a, f"{hg}-{ag}"))
+                elim.append(loser); lines.append(f"{loser} eliminated ({winner} won {wg}-{lg})")
         if level:
             winners = web_lookup_shootouts(level, brief)
             for key, h, a, sc in level:
@@ -502,6 +507,10 @@ def write_eliminated(feed):
         if not fixtures:
             return
         still_in, draws = set(), []
+        # A SEMI-FINAL loser drops into the third-place playoff — their points still count —
+        # so in the semi round BOTH sides of a finished tie stay IN; nobody is eliminated by
+        # losing a semi. They only fall out once the playoff/final is played.
+        is_semi = "semi" in label.lower()
         for f in fixtures:
             h, a = f.get("home"), f.get("away")
             if not (h and a):
@@ -512,7 +521,9 @@ def write_eliminated(feed):
             if not mm:
                 still_in.add(h); still_in.add(a); continue  # unknown -> don't eliminate
             hg, ag = int(mm.group(1)), int(mm.group(2))
-            if hg > ag:
+            if is_semi:
+                still_in.add(h); still_in.add(a)  # semi loser -> third-place playoff, still scoring
+            elif hg > ag:
                 still_in.add(h)
             elif ag > hg:
                 still_in.add(a)

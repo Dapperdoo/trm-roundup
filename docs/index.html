@@ -292,12 +292,16 @@ footer{border-top:3px double var(--magenta); margin-top:36px; padding-top:16px; 
     var set={};
     if(eliminatedNations){ eliminatedNations.forEach(function(c){ set[c]=true; }); }
     var ko=/round of \d+|last \d+|quarter|semi|third|final/i.test(feedMatchday||"");
+    // A SEMI-FINAL loser is NOT out of the fantasy game — they drop into the third-place
+    // playoff, whose points still count — so in the semi round we do NOT mark a beaten side
+    // eliminated. (Teams with no fixture left this round still fall out via the check below.)
+    var isSemi=/semi/i.test(feedMatchday||"");
     if(ko && ownedPlayers && fixtures.length){
       var inRound={};
       fixtures.forEach(function(f){
         var h=(f.home||"").toUpperCase(), a=(f.away||"").toUpperCase(); if(!h||!a) return;
         inRound[h]=true; inRound[a]=true;
-        if(f.status==="finished"){
+        if(f.status==="finished" && !isSemi){
           var mm=String(f.score||"").replace("–","-").match(/(\d+)\D+(\d+)/);
           if(mm){ var hg=+mm[1], ag=+mm[2];
             if(hg>ag) set[a]=true; else if(ag>hg) set[h]=true; } // decisive loser out; draw -> from file
