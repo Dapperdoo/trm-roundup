@@ -30,15 +30,12 @@
     "ESP",
     "FRA"
   ],
-  "playoff_pending": [
-    "FRA"
-  ],
   "shootouts": {
     "GER-PAR": "PAR",
     "NED-MAR": "MAR",
     "AUS-EGY": "EGY",
     "SUI-COL": "SUI"
   },
-  "round": "Semi-finals",
-  "updated": "2026-07-14T23:00:00Z"
+  "round": "Semi-Finals",
+  "updated": "2026-07-15T09:23:05Z"
 }
