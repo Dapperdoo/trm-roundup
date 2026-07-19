@@ -24,6 +24,7 @@
     "ENG-ARG",
     "ESP-BEL",
     "ESP-KSA",
+    "FRA-ENG",
     "FRA-ESP",
     "FRA-MAR",
     "FRA-SWE",
@@ -61,5 +62,5 @@
     "USA-AUS",
     "USA-BEL"
   ],
-  "updated": "2026-07-16T09:29:17Z"
+  "updated": "2026-07-19T09:02:27Z"
 }
