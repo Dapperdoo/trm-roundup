@@ -1,6 +1,12 @@
 {
-  "updated": "2026-07-19T09:02:27Z",
+  "updated": "2026-07-20T04:29:45Z",
   "editions": [
+    {
+      "slug": "esp-arg",
+      "label": "Final \u00b7 Final",
+      "stage": "FIN",
+      "date": "2026-07-20"
+    },
     {
       "slug": "interlude-2026-07-18",
       "label": "Interlude \u00b7 Saturday 18 July",

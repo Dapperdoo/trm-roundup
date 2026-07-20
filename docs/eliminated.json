@@ -1,6 +1,7 @@
 {
   "eliminated": [
     "ALG",
+    "ARG",
     "BEL",
     "BIH",
     "BRA",
@@ -26,7 +27,6 @@
     "USA"
   ],
   "still_in": [
-    "ARG",
     "ENG",
     "ESP"
   ],
@@ -37,5 +37,5 @@
     "SUI-COL": "SUI"
   },
   "round": "Final",
-  "updated": "2026-07-19T09:15:11Z"
+  "updated": "2026-07-20T04:28:35Z"
 }
