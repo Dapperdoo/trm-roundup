@@ -1,6 +1,12 @@
 {
-  "updated": "2026-08-05T03:52:28Z",
+  "updated": "2026-08-06T03:57:06Z",
   "editions": [
+    {
+      "slug": "interlude-2026-08-06",
+      "label": "Interlude \u00b7 Thursday 06 August",
+      "stage": "INT",
+      "date": "2026-08-06"
+    },
     {
       "slug": "interlude-2026-08-05",
       "label": "Interlude \u00b7 Wednesday 05 August",
