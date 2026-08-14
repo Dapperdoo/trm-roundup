@@ -1,5 +1,5 @@
 python 3.12.13
-FIFA nation map: 1740 names
+FIFA nation map: 0 names
 back-of-the-van-united: parsed 16 players
 look-at-his-face: parsed 16 players
 anamaduwa-athletic: parsed 16 players
