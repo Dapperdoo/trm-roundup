@@ -1,10 +1,10 @@
 python 3.12.13
 FIFA nation map: 0 names
-back-of-the-van-united: parsed 16 players
+back-of-the-van-united: parsed 15 players
 look-at-his-face: parsed 16 players
 anamaduwa-athletic: parsed 16 players
 shatners-bassoon: parsed 16 players
 trossys-giants: parsed 16 players
 50-shades-of-oshea: parsed 14 players
 --- ABORT: 50-shades-of-oshea parsed 14 (expected ~18). First 1800 chars of its squad text: ---
- 50 Shades of O'Shea — World Cup 2026 TRM World Cup Archive ☰ World Cup 2026 WC Standings Archive League History 50 Shades of O'Shea presents Intelligence Dossier World Cup Points 319 This Week 25 Cash Reserves £35.3m Base Value £84.7m Squad Strength 14/18 The Cast GK Emiliano Martínez ARG • £5.2m • Since GW1 5w 29 DEF Achraf Hakimi MAR • £6.7m • Since GW1 0w 32 DEF Amir Murillo PAN • £5.2m • Since GW1 0w 5 DEF Denzel Dumfries NED • £5.9m • Since GW1 0w 16 DEF Gustavo Gómez PAR • £4.6m • Since GW1 0w 21 DEF Josko Gvardiol CRO • £5.2m • Since GW1 0w 2 DEF Manuel Akanji SUI • £5.9m • Since GW5 0w 9 DEF Martin Expérience HAI • £3.5m • Since GW1 0w 1 MID Declan Rice ENG • £9.2m • Since GW1 13w 28 MID Emam Ashour EGY • £4.9m • Since GW5 0w 1 MID Jude Bellingham ENG • £9.0m • Since GW1 7w 65 MID Nathan Saliba CAN • £5.5m • Since GW4 0w 1 MID Patrick Berg NOR • £6.0m • Since GW5 0w 6 FWD Breel Embolo SUI • £7.9m • Since GW1 0w 35 Role Vacant Role Vacant Role Vacant Role Vacant 
+ 50 Shades of O'Shea — World Cup 2026 TRM Premier League Live Players Stats Archive ☰ Menu Premier League 2026-27 League Table Live Dashboard Players Injuries Watchlist Playstyles Late-Bid Tombola Stats Overview Managers Players Records Transfers Transfer Regrets Archive League History World Cup 2026 50 Shades of O'Shea presents Intelligence Dossier World Cup Points 319 This Week 25 Cash Reserves £35.3m Base Value £84.7m Squad Strength 14/18 The Cast GK Martinez ? • £5.2m • Since GW1 0w 0 DEF Dumfries ? • £5.9m • Since GW1 0w 0 DEF Experience ? • £3.5m • Since GW1 0w 0 DEF Gustavo Gomez ? • £4.6m • Since GW1 0w 0 DEF Gvardiol ? • £5.2m • Since GW1 0w 0 DEF Hakimi ? • £6.7m • Since GW1 0w 0 DEF Manuel Akanji ? • £5.9m • Since GW5 0w 0 DEF Murillo ? • £5.2m • Since GW1 0w 0 MID Bellingham ? • £9.0m • Since GW1 0w 0 MID Berg ? • £6.0m • Since GW5 0w 0 MID Emam Ashour ? • £4.9m • Since GW5 0w 0 MID Nathan Saliba ? • £5.5m • Since GW4 0w 0 MID Rice ? • £9.2m • Since GW1 0w 0 FWD Embolo ? • £7.9m • Since GW1 0w 0 Role Vacant Role Vacant Role Vacant Role Vacant 
